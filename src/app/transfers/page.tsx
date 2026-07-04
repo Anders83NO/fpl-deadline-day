@@ -477,8 +477,9 @@ export default function TransfersPage() {
 
   function handleSetCaptain(pick: Pick) {
     const existing = captainPlan.find((c) => c.gw === planGw);
-    const oldCaptainId = existing?.captainId ?? 0;
-    const oldVcId = existing?.vcId ?? 0;
+    // Fall back to actual squad captain/VC if no plan exists yet
+    const oldCaptainId = existing?.captainId ?? squad.find(p => p.is_captain)?.element ?? 0;
+    const oldVcId = existing?.vcId ?? squad.find(p => p.is_vice_captain)?.element ?? 0;
     // If picking the current VC as new C → swap them
     const newVcId = pick.element === oldVcId ? oldCaptainId : oldVcId;
     setCaptainPlan((prev) => [
@@ -490,8 +491,9 @@ export default function TransfersPage() {
 
   function handleSetVC(pick: Pick) {
     const existing = captainPlan.find((c) => c.gw === planGw);
-    const oldCaptainId = existing?.captainId ?? 0;
-    const oldVcId = existing?.vcId ?? 0;
+    // Fall back to actual squad captain/VC if no plan exists yet
+    const oldCaptainId = existing?.captainId ?? squad.find(p => p.is_captain)?.element ?? 0;
+    const oldVcId = existing?.vcId ?? squad.find(p => p.is_vice_captain)?.element ?? 0;
     // If picking the current C as new VC → swap them
     const newCaptainId = pick.element === oldCaptainId ? oldVcId : oldCaptainId;
     setCaptainPlan((prev) => [
