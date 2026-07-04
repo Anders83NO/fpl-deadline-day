@@ -94,9 +94,11 @@ export async function GET() {
 
     const top = (arr: typeof players, n = 5) => arr.slice(0, n);
 
-    // 1. Captain picks – highest ep_next, ownership > 5%
+    // 1. Captain picks – highest ep_next, ownership > 5%, exclude GKs and defenders
     const captainPicks = top(
-      [...players].filter(p => p.ownership > 5).sort((a, b) => b.epNext - a.epNext)
+      [...players]
+        .filter(p => p.ownership > 5 && p.type !== 1 && p.type !== 2)
+        .sort((a, b) => b.epNext - a.epNext)
     );
 
     // 2. Hot transfers in
