@@ -477,20 +477,26 @@ export default function TransfersPage() {
 
   function handleSetCaptain(pick: Pick) {
     const existing = captainPlan.find((c) => c.gw === planGw);
-    const vcId = existing?.vcId !== pick.element ? (existing?.vcId ?? 0) : 0;
+    const oldCaptainId = existing?.captainId ?? 0;
+    const oldVcId = existing?.vcId ?? 0;
+    // If picking the current VC as new C → swap them
+    const newVcId = pick.element === oldVcId ? oldCaptainId : oldVcId;
     setCaptainPlan((prev) => [
       ...prev.filter((c) => c.gw !== planGw),
-      { gw: planGw, captainId: pick.element, vcId },
+      { gw: planGw, captainId: pick.element, vcId: newVcId },
     ]);
     setActionPlayer(null);
   }
 
   function handleSetVC(pick: Pick) {
     const existing = captainPlan.find((c) => c.gw === planGw);
-    const captainId = existing?.captainId !== pick.element ? (existing?.captainId ?? 0) : 0;
+    const oldCaptainId = existing?.captainId ?? 0;
+    const oldVcId = existing?.vcId ?? 0;
+    // If picking the current C as new VC → swap them
+    const newCaptainId = pick.element === oldCaptainId ? oldVcId : oldCaptainId;
     setCaptainPlan((prev) => [
       ...prev.filter((c) => c.gw !== planGw),
-      { gw: planGw, captainId, vcId: pick.element },
+      { gw: planGw, captainId: newCaptainId, vcId: pick.element },
     ]);
     setActionPlayer(null);
   }
