@@ -19,15 +19,34 @@ export default function TopBar() {
         <div className="flex items-center gap-3">
           <DeadlineCountdown />
           {user ? (
-            <div className="flex items-center gap-2">
-              <span className="text-xs hidden sm:block" style={{ color: "#6688aa" }}>{user.email}</span>
+            <div className="relative">
               <button
-                onClick={() => signOut()}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold"
-                style={{ background: "#1a2538", color: "#ef4444", border: "1px solid #1e3050" }}
+                onClick={() => setShowMenu(!showMenu)}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                style={{ background: "#f59e0b", color: "#000" }}
               >
-                Sign out
+                {user.email?.[0].toUpperCase()}
               </button>
+              {showMenu && (
+                <div
+                  className="absolute right-0 top-10 rounded-xl py-1 z-50 min-w-[160px]"
+                  style={{ background: "#162030", border: "1px solid #1e3050" }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <p className="px-4 py-2 text-xs truncate" style={{ color: "#6688aa" }}>{user.email}</p>
+                  <div style={{ borderTop: "1px solid #1e3050" }} />
+                  <button
+                    onClick={async () => { setShowMenu(false); await signOut(); }}
+                    className="w-full text-left px-4 py-2.5 text-sm"
+                    style={{ color: "#ef4444" }}
+                  >
+                    Sign out
+                  </button>
+                </div>
+              )}
+              {showMenu && (
+                <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+              )}
             </div>
           ) : (
             <button
