@@ -40,7 +40,7 @@ export default function TopBar() {
           )}
         </div>
       </div>
-      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
     </>
   );
 }
