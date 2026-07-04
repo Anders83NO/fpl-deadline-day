@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geist.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#0f1520] text-[#f0f0f0]">
+      <body className="min-h-full flex flex-col bg-[#0f1520] text-[#f0f0f0] overflow-x-hidden">
         <LandingGate>
           <TopBar />
           <main className="flex-1">{children}</main>

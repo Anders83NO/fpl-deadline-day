@@ -125,7 +125,7 @@ export default function LandingGate({ children }: { children: React.ReactNode })
   if (hasTeam) return <>{children}</>;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#0f1520" }}>
+    <div className="min-h-screen flex flex-col overflow-x-hidden w-full" style={{ background: "#0f1520" }}>
 
       {/* Hero */}
       {step === "hero" && (
