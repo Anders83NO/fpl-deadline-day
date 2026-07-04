@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 const LANGUAGES = [
   { code: "en", label: "English", flag: "🇬🇧" },
@@ -25,6 +26,7 @@ const TIMEZONES = [
 
 
 export default function SettingsPage() {
+  const { user } = useAuth();
   const [fplId, setFplId] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [language, setLanguage] = useState("en");
@@ -143,12 +145,18 @@ export default function SettingsPage() {
       <Section title="Notifications">
         <div className="rounded-xl p-4 flex items-center justify-between" style={{ background: "#1a1a1a", border: "1px solid #0f1520" }}>
           <div>
-            <p className="text-sm font-semibold text-white">Push notifications</p>
-            <p className="text-[11px] mt-0.5" style={{ color: "#6688aa" }}>Deadline reminders, injuries, lineups</p>
+            <p className="text-sm font-semibold text-white">Email reminders</p>
+            <p className="text-[11px] mt-0.5" style={{ color: "#6688aa" }}>Deadline reminders 24h and 2h before each GW</p>
           </div>
-          <span className="text-[10px] px-2 py-1 rounded font-semibold" style={{ background: "#1e2d42", color: "#f59e0b", border: "1px solid #2a2000" }}>
-            Premium
-          </span>
+          {user ? (
+            <span className="text-[10px] px-2 py-1 rounded font-semibold" style={{ background: "#0f2010", color: "#4ade80", border: "1px solid #1a4020" }}>
+              Active
+            </span>
+          ) : (
+            <span className="text-[10px] px-2 py-1 rounded font-semibold" style={{ background: "#1e2d42", color: "#6688aa", border: "1px solid #1e3050" }}>
+              Sign in
+            </span>
+          )}
         </div>
       </Section>
 
