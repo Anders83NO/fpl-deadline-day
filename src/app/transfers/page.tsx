@@ -27,12 +27,16 @@ interface Player {
   type: number;
   team: string;
   teamCode: number;
+  teamId: number;
   price: number;
   points: number;
   form: number;
   selected: number;
   status: string;
   epNext: number;
+  ictIndex: number;
+  chanceNext: number | null;
+  news: string;
 }
 
 interface PlannedTransfer {
@@ -112,17 +116,7 @@ export default function TransfersPage() {
   const [fdrData, setFdrData] = useState<{ teams: { short: string; name: string; fixtures: { gw: number; opponent: string; isHome: boolean; fdr: number }[]; avgFdr: number }[]; gws: number[] } | null>(null);
   const [fdrLoading, setFdrLoading] = useState(false);
 
-  // Analyse
-  const [analyseData, setAnalyseData] = useState<{
-    squadRating: number;
-    captainRec: { id: number; name: string; team: string; score: number; epNext: number }[];
-    weakLinks: { id: number; name: string; team: string; score: number; type: number }[];
-    suggestions: { out: { name: string; score: number; price: number }; in: { name: string; team: string; price: number; score: number; epNext: number }[] }[];
-    benchOrder: { id: number; name: string; score: number }[];
-    squad: { id: number; name: string; team: string; type: number; position: number; score: number; isCaptain: boolean; epNext: number; form: number; fdr: number; injured: boolean; news: string }[];
-    bank: number;
-  } | null>(null);
-  const [analyseLoading, setAnalyseLoading] = useState(false);
+  const analyseLoading = false;
 
   // Plans
   const [transfers, setTransfers] = useState<PlannedTransfer[]>([]);
@@ -267,17 +261,6 @@ export default function TransfersPage() {
       .finally(() => setFdrLoading(false));
   }, [pageMode, fdrData, planGw]);
 
-  // Load analyse when switching to analyse tab
-  useEffect(() => {
-    if (pageMode !== "analyse" || analyseData || !teamId) return;
-    setAnalyseLoading(true);
-    fetch(`/api/fpl/analyse?id=${teamId}`)
-      .then(r => r.json())
-      .then(d => { if (!d.error) setAnalyseData(d); })
-      .catch(() => {})
-      .finally(() => setAnalyseLoading(false));
-  }, [pageMode, analyseData, teamId]);
-
   const playerMap = useMemo(() => {
     const m: Record<number, Player> = {};
     for (const p of allPlayers) m[p.id] = p;
@@ -337,6 +320,112 @@ export default function TransfersPage() {
 
     return { squad: s, bank: b, freeTransfers: Math.max(0, ft) };
   }, [baseSquad, baseBank, transfers, lineupSwaps, captainPlan, chipPlan, planGw, firstPlanGw]);
+
+  const analyseData = useMemo(() => {
+    if (!squad.length || !allPlayers.length) return null;
+
+    const fdrMap: Record<string, number> = {};
+    if (fdrData) {
+      for (const t of fdrData.teams) {
+        const nextFixtures = t.fixtures.filter(f => f.gw >= planGw && f.gw < planGw + 3);
+        fdrMap[t.short] = nextFixtures.length > 0
+          ? nextFixtures.reduce((s, f) => s + f.fdr, 0) / nextFixtures.length
+          : 3;
+      }
+    }
+
+    function scorePlayer(pick: Pick): number {
+      const p = playerMap[pick.element];
+      if (!p) return 0;
+      const epNext = p.epNext || 0;
+      const form = p.form || 0;
+      const ict = p.ictIndex || 0;
+      const fdr = fdrMap[pick.team] ?? 3;
+      const xPtsScore = Math.min(epNext / 8, 1) * 10;
+      const formScore = Math.min(form / 8, 1) * 10;
+      const ictScore  = Math.min(ict / 400, 1) * 10;
+      const fdrScore  = ((5 - fdr) / 4) * 10;
+      const raw = xPtsScore * 0.4 + formScore * 0.25 + ictScore * 0.15 + fdrScore * 0.2;
+      return Math.round(Math.max(1, Math.min(10, raw)) * 10) / 10;
+    }
+
+    const scoredSquad = squad.map(pick => {
+      const p = playerMap[pick.element];
+      const score = scorePlayer(pick);
+      const injured = (p?.chanceNext ?? 100) < 75;
+      return {
+        id: pick.element,
+        name: pick.name,
+        team: pick.team,
+        type: pick.element_type,
+        position: pick.position,
+        score,
+        isCaptain: pick.is_captain,
+        isViceCaptain: pick.is_vice_captain,
+        epNext: p?.epNext ?? 0,
+        form: p?.form ?? 0,
+        fdr: fdrMap[pick.team] ?? 3,
+        price: p?.price ?? 0,
+        injured,
+        news: p?.news ?? "",
+        status: p?.status ?? "a",
+      };
+    });
+
+    const starting = scoredSquad.filter(p => p.position <= 11);
+
+    const captainRec = [...starting].sort((a, b) => b.score - a.score).slice(0, 3).map(p => ({
+      id: p.id, name: p.name, team: p.team, score: p.score, epNext: p.epNext,
+    }));
+
+    const weakLinks = [...starting].sort((a, b) => a.score - b.score).slice(0, 3);
+
+    const squadIds = new Set(squad.map(p => p.element));
+    const suggestions = weakLinks.map(weak => {
+      const budget = bank + weak.price;
+      const candidates = allPlayers
+        .filter(p =>
+          p.type === weak.type &&
+          !squadIds.has(p.id) &&
+          p.price <= budget &&
+          p.status !== "u"
+        )
+        .map(p => ({
+          id: p.id,
+          name: p.name,
+          team: p.team,
+          price: p.price,
+          score: scorePlayer({ element: p.id, name: p.name, team: p.team, element_type: p.type, teamCode: p.teamCode, position: 0, is_captain: false, is_vice_captain: false }),
+          epNext: p.epNext,
+        }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3);
+
+      return {
+        out: { name: weak.name, score: weak.score, price: weak.price },
+        in: candidates,
+      };
+    });
+
+    const bench = scoredSquad.filter(p => p.position > 11);
+    const benchOrder = [...bench].sort((a, b) => b.score - a.score).map(p => ({
+      id: p.id, name: p.name, score: p.score,
+    }));
+
+    const avgScore = starting.length > 0
+      ? starting.reduce((s, p) => s + p.score, 0) / starting.length
+      : 0;
+
+    return {
+      squad: scoredSquad,
+      captainRec,
+      weakLinks: weakLinks.map(p => ({ id: p.id, name: p.name, team: p.team, score: p.score, type: p.type })),
+      suggestions,
+      benchOrder,
+      squadRating: Math.round(avgScore * 10) / 10,
+      bank,
+    };
+  }, [squad, allPlayers, playerMap, fdrData, planGw, bank]);
 
   const budget = transferOut ? bank + (transferOut.price ?? 0) : bank;
   const gwTransfers = transfers.filter((t) => t.gw === planGw);
