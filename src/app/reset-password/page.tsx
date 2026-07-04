@@ -4,18 +4,36 @@ import { useState, useEffect } from "react";
 import { getSupabase } from "@/lib/supabase";
 import Logo from "@/components/Logo";
 
-type Step = "form" | "success" | "invalid";
+type Step = "loading" | "form" | "success" | "invalid";
 
 export default function ResetPasswordPage() {
-  const [step, setStep] = useState<Step>("form");
+  const [step, setStep] = useState<Step>("loading");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Supabase puts the token in the URL hash — it handles it automatically
-    // when the page loads via onAuthStateChange, but we just need to be here
+    const supabase = getSupabase();
+    // Listen for PASSWORD_RECOVERY event — fires when user arrives via reset link
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setStep("form");
+      } else if (event === "SIGNED_IN" && step === "loading") {
+        // Already signed in via token in hash
+        setStep("form");
+      }
+    });
+
+    // Fallback: if already has session after a moment
+    const timer = setTimeout(async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session && step === "loading") setStep("form");
+      else if (step === "loading") setStep("invalid");
+    }, 2000);
+
+    return () => { subscription.unsubscribe(); clearTimeout(timer); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleReset() {
@@ -45,6 +63,27 @@ export default function ResetPasswordPage() {
         <div className="flex justify-center mb-8">
           <Logo size={48} showText={false} />
         </div>
+
+        {step === "loading" && (
+          <div className="flex justify-center py-12">
+            <div className="w-6 h-6 rounded-full border-2 animate-spin"
+              style={{ borderColor: "#f59e0b", borderTopColor: "transparent" }} />
+          </div>
+        )}
+
+        {step === "invalid" && (
+          <div className="rounded-2xl p-6 text-center" style={{ background: "#162030", border: "1px solid #1e3050" }}>
+            <div className="text-4xl mb-4">⚠️</div>
+            <h1 className="text-lg font-bold text-white mb-2">Link expired</h1>
+            <p className="text-sm mb-5" style={{ color: "#6688aa" }}>
+              This reset link has expired or already been used. Request a new one.
+            </p>
+            <a href="/" className="block w-full py-3 rounded-xl text-sm font-bold text-center"
+              style={{ background: "#f59e0b", color: "#000" }}>
+              Back to app
+            </a>
+          </div>
+        )}
 
         {step === "form" && (
           <div className="rounded-2xl p-6" style={{ background: "#162030", border: "1px solid #1e3050" }}>
