@@ -163,22 +163,30 @@ export default function SettingsPage() {
       {/* Account */}
       <Section title="Account">
         <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #0f1520" }}>
-          {[
-            { label: "Email", value: "Sign in to access", action: "Sign in" },
-            { label: "Subscription", value: "Free plan", action: "Upgrade" },
-          ].map((item, i, arr) => (
-            <div key={i} className="flex items-center justify-between px-4 py-3"
-              style={{ background: "#1a1a1a", borderBottom: i < arr.length - 1 ? "1px solid #222" : "none" }}>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider" style={{ color: "#6688aa" }}>{item.label}</p>
-                <p className="text-sm text-white mt-0.5">{item.value}</p>
-              </div>
+          <div className="flex items-center justify-between px-4 py-3"
+            style={{ background: "#1a1a1a", borderBottom: "1px solid #222" }}>
+            <div>
+              <p className="text-[10px] uppercase tracking-wider" style={{ color: "#6688aa" }}>Email</p>
+              <p className="text-sm text-white mt-0.5">{user ? user.email : "Sign in to access"}</p>
+            </div>
+            {!user && (
               <button className="text-xs font-semibold px-3 py-1.5 rounded-lg"
                 style={{ background: "#f59e0b22", color: "#f59e0b" }}>
-                {item.action}
+                Sign in
               </button>
+            )}
+          </div>
+          <div className="flex items-center justify-between px-4 py-3"
+            style={{ background: "#1a1a1a" }}>
+            <div>
+              <p className="text-[10px] uppercase tracking-wider" style={{ color: "#6688aa" }}>Subscription</p>
+              <p className="text-sm text-white mt-0.5">Free plan</p>
             </div>
-          ))}
+            <button className="text-xs font-semibold px-3 py-1.5 rounded-lg"
+              style={{ background: "#f59e0b22", color: "#f59e0b" }}>
+              Upgrade
+            </button>
+          </div>
         </div>
       </Section>
 
