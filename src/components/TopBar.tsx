@@ -35,7 +35,7 @@ export default function TopBar() {
                   <p className="px-4 py-2 text-xs truncate" style={{ color: "#6688aa" }}>{user.email}</p>
                   <div style={{ borderTop: "1px solid #1e3050" }} />
                   <button
-                    onClick={async () => { await signOut(); setShowMenu(false); }}
+                    onPointerDown={async (e) => { e.stopPropagation(); await signOut(); setShowMenu(false); }}
                     className="w-full text-left px-4 py-2.5 text-sm"
                     style={{ color: "#ef4444" }}
                   >
