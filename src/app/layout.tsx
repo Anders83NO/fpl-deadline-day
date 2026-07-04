@@ -4,6 +4,7 @@ import "./globals.css";
 import BottomNav from "@/components/BottomNav";
 import TopBar from "@/components/TopBar";
 import LandingGate from "@/components/LandingGate";
+import { AuthProvider } from "@/context/AuthContext";
 
 const geist = Geist({
   variable: "--font-geist-sans",
@@ -30,11 +31,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geist.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-[#0f1520] text-[#f0f0f0] overflow-x-hidden">
-        <LandingGate>
-          <TopBar />
-          <main className="flex-1">{children}</main>
-          <BottomNav />
-        </LandingGate>
+        <AuthProvider>
+          <LandingGate>
+            <TopBar />
+            <main className="flex-1">{children}</main>
+            <BottomNav />
+          </LandingGate>
+        </AuthProvider>
       </body>
     </html>
   );
