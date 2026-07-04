@@ -19,7 +19,7 @@ export default function TopBar() {
         <div className="flex items-center gap-3">
           <DeadlineCountdown />
           {user ? (
-            <div className="relative">
+            <div className="relative" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setShowMenu(false); }}>
               <button
                 onClick={() => setShowMenu(!showMenu)}
                 className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
@@ -35,7 +35,7 @@ export default function TopBar() {
                   <p className="px-4 py-2 text-xs truncate" style={{ color: "#6688aa" }}>{user.email}</p>
                   <div style={{ borderTop: "1px solid #1e3050" }} />
                   <button
-                    onPointerDown={async (e) => { e.stopPropagation(); await signOut(); setShowMenu(false); }}
+                    onClick={async () => { await signOut(); setShowMenu(false); }}
                     className="w-full text-left px-4 py-2.5 text-sm"
                     style={{ color: "#ef4444" }}
                   >
@@ -55,10 +55,7 @@ export default function TopBar() {
           )}
         </div>
       </div>
-      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
-      {showMenu && (
-        <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-      )}
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />
     </>
   );
 }
