@@ -61,6 +61,11 @@ export default function Home() {
   const [fplPoints, setFplPoints] = useState<number | null>(null);
   const [fplGw, setFplGw] = useState<number | null>(null);
   const [fetchError, setFetchError] = useState(false);
+  const [timezone, setTimezone] = useState("Europe/London");
+
+  useEffect(() => {
+    setTimezone(localStorage.getItem("fpl_timezone") ?? "Europe/London");
+  }, []);
 
   useEffect(() => {
     async function loadFpl() {
@@ -216,7 +221,7 @@ export default function Home() {
       ) : (
         <section className="mb-8 space-y-2">
           {matches.map((m) => (
-            <MatchCard key={m.id} match={m} />
+            <MatchCard key={m.id} match={m} timezone={timezone} />
           ))}
         </section>
       )}
@@ -272,9 +277,9 @@ export default function Home() {
   );
 }
 
-function MatchCard({ match: m }: { match: Match }) {
+function MatchCard({ match: m, timezone }: { match: Match; timezone: string }) {
   const state = getMatchState(m.status);
-  const kickoff = new Date(m.utcDate).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  const kickoff = new Date(m.utcDate).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: timezone });
 
   // Border and background per state
   const cardStyle = {
