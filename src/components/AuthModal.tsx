@@ -58,23 +58,35 @@ export default function AuthModal({ onClose }: AuthModalProps) {
         {/* Menu */}
         {step === "menu" && (
           <>
-            <h2 className="text-lg font-bold text-white mb-1">Sign in to FPL Deadline Day</h2>
-            <p className="text-xs mb-6" style={{ color: "#6688aa" }}>
-              Save your plans and get deadline reminders by email.
+            <h2 className="text-lg font-bold text-white mb-1">Create a free account</h2>
+            <p className="text-xs mb-4" style={{ color: "#6688aa" }}>
+              Everything is free. Sign up to unlock:
             </p>
+            <div className="space-y-2.5 mb-5">
+              {[
+                { icon: "📬", text: "Deadline reminders — 24h and 2h before each GW" },
+                { icon: "💾", text: "Your transfer plans saved across devices" },
+                { icon: "📊", text: "GW history — see what you planned last week" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-3 px-1">
+                  <span className="text-base leading-tight">{item.icon}</span>
+                  <p className="text-xs leading-snug" style={{ color: "#c8daf0" }}>{item.text}</p>
+                </div>
+              ))}
+            </div>
             <button
-              onClick={() => setStep("login")}
+              onClick={() => setStep("signup")}
               className="w-full py-3 rounded-xl text-sm font-bold mb-3"
               style={{ background: "#f59e0b", color: "#000" }}
             >
-              Log in
+              Create free account
             </button>
             <button
-              onClick={() => setStep("signup")}
+              onClick={() => setStep("login")}
               className="w-full py-3 rounded-xl text-sm font-semibold mb-4"
               style={{ background: "#1a2538", color: "#f0f0f0", border: "1px solid #1e3050" }}
             >
-              Create account
+              I already have an account
             </button>
             <button onClick={onClose} className="w-full text-center text-xs py-1" style={{ color: "#3d5570" }}>
               Not now
