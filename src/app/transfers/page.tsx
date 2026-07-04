@@ -54,11 +54,31 @@ interface LineupSwap {
   p2Id: number;
 }
 
+interface PlannedCaptain {
+  gw: number;
+  captainId: number;
+  vcId: number;
+}
+
+type ChipType = "wildcard" | "freehit" | "triplecaptain" | "bboost";
+
+interface PlannedChip {
+  gw: number;
+  chip: ChipType;
+}
+
+const CHIP_INFO: Record<ChipType, { label: string; short: string; color: string; desc: string }> = {
+  wildcard:      { label: "Wildcard",        short: "WC", color: "#22d3ee", desc: "Unlimited free transfers this GW" },
+  freehit:       { label: "Free Hit",        short: "FH", color: "#a78bfa", desc: "Temporary squad, reset after GW" },
+  triplecaptain: { label: "Triple Captain",  short: "TC", color: "#f59e0b", desc: "Captain scores 3× instead of 2×" },
+  bboost:        { label: "Bench Boost",     short: "BB", color: "#4ade80", desc: "Bench players' points count too" },
+};
+
 type SortKey = "price" | "points" | "form" | "epNext" | "selected";
 type ViewMode = "pitch" | "list";
 type PageMode = "lineup" | "transfers" | "fdr" | "analyse";
 
-const MAX_BANKED_FT = 5;
+const MAX_BANKED_FT = 2;
 
 function isValidLineup(picks: Pick[]): boolean {
   const starting = picks.filter((p) => p.position <= 11);
@@ -107,6 +127,11 @@ export default function TransfersPage() {
   // Plans
   const [transfers, setTransfers] = useState<PlannedTransfer[]>([]);
   const [lineupSwaps, setLineupSwaps] = useState<LineupSwap[]>([]);
+  const [captainPlan, setCaptainPlan] = useState<PlannedCaptain[]>([]);
+  const [chipPlan, setChipPlan] = useState<PlannedChip[]>([]);
+
+  // Lineup action menu (captain/VC/swap)
+  const [actionPlayer, setActionPlayer] = useState<Pick | null>(null);
 
   // Transfer state
   const [transferOut, setTransferOut] = useState<Pick | null>(null);
@@ -124,6 +149,10 @@ export default function TransfersPage() {
     if (savedT) setTransfers(JSON.parse(savedT));
     const savedL = localStorage.getItem("fpl_lineup_swaps");
     if (savedL) setLineupSwaps(JSON.parse(savedL));
+    const savedC = localStorage.getItem("fpl_captain_plan");
+    if (savedC) setCaptainPlan(JSON.parse(savedC));
+    const savedChip = localStorage.getItem("fpl_chip_plan");
+    if (savedChip) setChipPlan(JSON.parse(savedChip));
 
     async function load() {
       // 1. Load all players
@@ -204,6 +233,8 @@ export default function TransfersPage() {
 
   useEffect(() => { localStorage.setItem("fpl_transfer_plan", JSON.stringify(transfers)); }, [transfers]);
   useEffect(() => { localStorage.setItem("fpl_lineup_swaps", JSON.stringify(lineupSwaps)); }, [lineupSwaps]);
+  useEffect(() => { localStorage.setItem("fpl_captain_plan", JSON.stringify(captainPlan)); }, [captainPlan]);
+  useEffect(() => { localStorage.setItem("fpl_chip_plan", JSON.stringify(chipPlan)); }, [chipPlan]);
 
   // Fetch fixtures for the current planGw (keyed by team short name)
   useEffect(() => {
@@ -260,6 +291,9 @@ export default function TransfersPage() {
     let ft = 2;
 
     for (let gw = firstPlanGw; gw <= planGw; gw++) {
+      const gwChip = chipPlan.find((c) => c.gw === gw)?.chip;
+      const isWildcardOrFH = gwChip === "wildcard" || gwChip === "freehit";
+
       // Apply transfers
       const gwTransfers = transfers.filter((t) => t.gw === gw);
       for (const t of gwTransfers) {
@@ -283,19 +317,33 @@ export default function TransfersPage() {
         }
       }
 
+      // Apply captain/VC overrides
+      const gwCaptain = captainPlan.find((c) => c.gw === gw);
+      if (gwCaptain) {
+        s = s.map((p) => ({
+          ...p,
+          is_captain: p.element === gwCaptain.captainId,
+          is_vice_captain: p.element === gwCaptain.vcId,
+        }));
+      }
+
       if (gw < planGw) {
-        const unused = Math.max(0, ft - gwTransfers.length);
+        // Wildcard/Free Hit: all transfers are free, FT stays at 1 next GW
+        const usedFt = isWildcardOrFH ? 0 : gwTransfers.length;
+        const unused = Math.max(0, ft - usedFt);
         ft = Math.min(MAX_BANKED_FT, unused + 1);
       }
     }
 
     return { squad: s, bank: b, freeTransfers: Math.max(0, ft) };
-  }, [baseSquad, baseBank, transfers, lineupSwaps, planGw, firstPlanGw]);
+  }, [baseSquad, baseBank, transfers, lineupSwaps, captainPlan, chipPlan, planGw, firstPlanGw]);
 
   const budget = transferOut ? bank + (transferOut.price ?? 0) : bank;
   const gwTransfers = transfers.filter((t) => t.gw === planGw);
   const gwSwaps = lineupSwaps.filter((s) => s.gw === planGw);
-  const pointsHit = Math.max(0, gwTransfers.length - freeTransfers) * 4;
+  const activeChip = chipPlan.find((c) => c.gw === planGw)?.chip ?? null;
+  const isWildcardActive = activeChip === "wildcard" || activeChip === "freehit";
+  const pointsHit = isWildcardActive ? 0 : Math.max(0, gwTransfers.length - freeTransfers) * 4;
 
   const candidates = useMemo(() => {
     if (!transferOut) return [];
@@ -313,40 +361,58 @@ export default function TransfersPage() {
       .slice(0, 30);
   }, [transferOut, allPlayers, squad, budget, search, sortBy]);
 
-  // Lineup swap logic
+  // Lineup tap → show action menu (unless mid-swap)
   function handleLineupTap(pick: Pick) {
-    if (!swapFirst) {
-      setSwapFirst(pick);
-      return;
-    }
-    if (swapFirst.element === pick.element) {
+    if (swapFirst) {
+      // Mid-swap: complete or cancel
+      if (swapFirst.element === pick.element) { setSwapFirst(null); return; }
+
+      const newSquad = squad.map((p) => ({ ...p }));
+      const i1 = newSquad.findIndex((p) => p.element === swapFirst.element);
+      const i2 = newSquad.findIndex((p) => p.element === pick.element);
+      const pos1 = newSquad[i1].position;
+      newSquad[i1].position = newSquad[i2].position;
+      newSquad[i2].position = pos1;
+
+      const isGkSwap = swapFirst.element_type === 1 || pick.element_type === 1;
+      if (isGkSwap && swapFirst.element_type !== pick.element_type) { setSwapFirst(null); return; }
+      if (!isValidLineup(newSquad)) { setSwapFirst(null); return; }
+
+      setLineupSwaps((prev) => [...prev, { gw: planGw, p1Id: swapFirst.element, p2Id: pick.element }]);
       setSwapFirst(null);
       return;
     }
+    // No swap in progress — show action menu
+    setActionPlayer(actionPlayer?.element === pick.element ? null : pick);
+  }
 
-    // Validate swap
-    const newSquad = squad.map((p) => ({ ...p }));
-    const i1 = newSquad.findIndex((p) => p.element === swapFirst.element);
-    const i2 = newSquad.findIndex((p) => p.element === pick.element);
-    const pos1 = newSquad[i1].position;
-    newSquad[i1].position = newSquad[i2].position;
-    newSquad[i2].position = pos1;
+  function handleSetCaptain(pick: Pick) {
+    const existing = captainPlan.find((c) => c.gw === planGw);
+    const vcId = existing?.vcId !== pick.element ? (existing?.vcId ?? 0) : 0;
+    setCaptainPlan((prev) => [
+      ...prev.filter((c) => c.gw !== planGw),
+      { gw: planGw, captainId: pick.element, vcId },
+    ]);
+    setActionPlayer(null);
+  }
 
-    // GK can only swap with GK (if one is on bench)
-    const isGkSwap = swapFirst.element_type === 1 || pick.element_type === 1;
-    if (isGkSwap && swapFirst.element_type !== pick.element_type) {
-      setSwapFirst(null);
-      return; // invalid
+  function handleSetVC(pick: Pick) {
+    const existing = captainPlan.find((c) => c.gw === planGw);
+    const captainId = existing?.captainId !== pick.element ? (existing?.captainId ?? 0) : 0;
+    setCaptainPlan((prev) => [
+      ...prev.filter((c) => c.gw !== planGw),
+      { gw: planGw, captainId, vcId: pick.element },
+    ]);
+    setActionPlayer(null);
+  }
+
+  function toggleChip(chip: ChipType) {
+    const existing = chipPlan.find((c) => c.gw === planGw)?.chip;
+    if (existing === chip) {
+      setChipPlan((prev) => prev.filter((c) => c.gw !== planGw));
+    } else {
+      setChipPlan((prev) => [...prev.filter((c) => c.gw !== planGw), { gw: planGw, chip }]);
     }
-
-    if (!isValidLineup(newSquad)) {
-      setSwapFirst(null);
-      return; // invalid formation
-    }
-
-    // Save swap
-    setLineupSwaps((prev) => [...prev, { gw: planGw, p1Id: swapFirst.element, p2Id: pick.element }]);
-    setSwapFirst(null);
   }
 
   function acceptTransfer() {
@@ -372,9 +438,12 @@ export default function TransfersPage() {
   function resetGw() {
     setTransfers((prev) => prev.filter((t) => t.gw !== planGw));
     setLineupSwaps((prev) => prev.filter((s) => s.gw !== planGw));
+    setCaptainPlan((prev) => prev.filter((c) => c.gw !== planGw));
+    setChipPlan((prev) => prev.filter((c) => c.gw !== planGw));
     setTransferOut(null);
     setPendingIn(null);
     setSwapFirst(null);
+    setActionPlayer(null);
     setSearch("");
   }
 
@@ -391,7 +460,7 @@ export default function TransfersPage() {
   const mids = starting.filter((p) => p.element_type === 3);
   const fwds = starting.filter((p) => p.element_type === 4);
 
-  const hasGwChanges = gwTransfers.length > 0 || gwSwaps.length > 0;
+  const hasGwChanges = gwTransfers.length > 0 || gwSwaps.length > 0 || !!activeChip || !!captainPlan.find(c => c.gw === planGw);
 
   if (loading) {
     return (
@@ -453,12 +522,12 @@ export default function TransfersPage() {
 
           {/* Mode toggle */}
           <div className="flex rounded-xl overflow-hidden mb-3" style={{ border: "1px solid #1e3050" }}>
-            <button onClick={() => { setPageMode("lineup"); setTransferOut(null); setPendingIn(null); setSearch(""); }}
+            <button onClick={() => { setPageMode("lineup"); setTransferOut(null); setPendingIn(null); setSearch(""); setActionPlayer(null); }}
               className="flex-1 py-2.5 text-xs font-semibold tracking-wide uppercase"
               style={{ background: pageMode === "lineup" ? "#f59e0b" : "#162030", color: pageMode === "lineup" ? "#000" : "#555" }}>
               Lineup
             </button>
-            <button onClick={() => { setPageMode("transfers"); setSwapFirst(null); }}
+            <button onClick={() => { setPageMode("transfers"); setSwapFirst(null); setActionPlayer(null); }}
               className="flex-1 py-2.5 text-xs font-semibold tracking-wide uppercase"
               style={{ background: pageMode === "transfers" ? "#f59e0b" : "#162030", color: pageMode === "transfers" ? "#000" : "#555" }}>
               Transfers
@@ -502,6 +571,37 @@ export default function TransfersPage() {
             </button>
           </div>}
 
+          {/* Chips selector (lineup + transfers mode) */}
+          {(pageMode === "lineup" || pageMode === "transfers") && !transferOut && !pendingIn && (
+            <div className="flex gap-2 mb-3">
+              {(Object.keys(CHIP_INFO) as ChipType[]).map((chip) => {
+                const info = CHIP_INFO[chip];
+                const isActive = activeChip === chip;
+                return (
+                  <button key={chip} onClick={() => toggleChip(chip)}
+                    className="flex-1 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wide transition-all"
+                    style={{
+                      background: isActive ? info.color + "33" : "#162030",
+                      border: `1px solid ${isActive ? info.color : "#1e3050"}`,
+                      color: isActive ? info.color : "#3d5570",
+                    }}
+                    title={info.desc}>
+                    {info.short}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {activeChip && (
+            <div className="rounded-xl px-4 py-2.5 mb-3 flex items-center justify-between"
+              style={{ background: CHIP_INFO[activeChip].color + "15", border: `1px solid ${CHIP_INFO[activeChip].color}44` }}>
+              <div>
+                <p className="text-xs font-bold" style={{ color: CHIP_INFO[activeChip].color }}>{CHIP_INFO[activeChip].label} active</p>
+                <p className="text-[10px]" style={{ color: "#6688aa" }}>{CHIP_INFO[activeChip].desc}</p>
+              </div>
+            </div>
+          )}
+
           {/* Budget (transfers mode only) */}
           {pageMode === "transfers" && !pendingIn && (
             <div className="rounded-xl px-4 py-3 flex items-center justify-between mb-4"
@@ -521,6 +621,36 @@ export default function TransfersPage() {
               ) : (
                 <p className="text-xs" style={{ color: "#6688aa" }}>Tap player to transfer</p>
               )}
+            </div>
+          )}
+
+          {/* Action menu: captain / VC / swap */}
+          {pageMode === "lineup" && actionPlayer && !swapFirst && (
+            <div className="rounded-xl px-4 py-3 mb-3" style={{ background: "#1a1500", border: "1px solid #f59e0b44" }}>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-bold text-white">{actionPlayer.name}</p>
+                <button onClick={() => setActionPlayer(null)} className="text-xs" style={{ color: "#6688aa" }}>✕</button>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleSetCaptain(actionPlayer)}
+                  className="flex-1 py-2 rounded-lg text-xs font-bold"
+                  style={{ background: squad.find(p => p.element === actionPlayer.element)?.is_captain ? "#f59e0b" : "#f59e0b22", color: "#f59e0b", border: "1px solid #f59e0b44" }}>
+                  Captain (C)
+                </button>
+                <button
+                  onClick={() => handleSetVC(actionPlayer)}
+                  className="flex-1 py-2 rounded-lg text-xs font-bold"
+                  style={{ background: squad.find(p => p.element === actionPlayer.element)?.is_vice_captain ? "#888" : "#88888822", color: "#aaa", border: "1px solid #88888844" }}>
+                  Vice (V)
+                </button>
+                <button
+                  onClick={() => { setSwapFirst(actionPlayer); setActionPlayer(null); }}
+                  className="flex-1 py-2 rounded-lg text-xs font-bold"
+                  style={{ background: "#22d3ee22", color: "#22d3ee", border: "1px solid #22d3ee44" }}>
+                  Swap
+                </button>
+              </div>
             </div>
           )}
 
