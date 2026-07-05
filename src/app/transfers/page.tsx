@@ -599,15 +599,6 @@ export default function TransfersPage() {
           <p className="text-[11px] font-semibold tracking-[0.15em] uppercase" style={{ color: "#f59e0b" }}>Squad Planner</p>
           <h1 className="text-2xl font-bold tracking-tight text-white mt-0.5">{showHistory ? "History" : "Plan Ahead"}</h1>
         </div>
-        {user && (
-          <button
-            onClick={() => setShowHistory(!showHistory)}
-            className="text-xs px-3 py-1.5 rounded-lg font-semibold"
-            style={{ background: showHistory ? "#1a1500" : "#1e2d42", color: showHistory ? "#f59e0b" : "#7799bb", border: `1px solid ${showHistory ? "#f59e0b44" : "#1e3050"}` }}
-          >
-            {showHistory ? "← Plan" : "History"}
-          </button>
-        )}
         <div className="flex items-center gap-2">
           {hasGwChanges && (
             <button onClick={resetGw}
@@ -632,6 +623,18 @@ export default function TransfersPage() {
           )}
         </div>
       </header>
+
+      {user && (
+        <div className="flex justify-end mb-3">
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className="text-xs px-3 py-1.5 rounded-lg font-semibold"
+            style={{ background: showHistory ? "#1a1500" : "#1e2d42", color: showHistory ? "#f59e0b" : "#7799bb", border: `1px solid ${showHistory ? "#f59e0b44" : "#1e3050"}` }}
+          >
+            {showHistory ? "← Plan" : "History"}
+          </button>
+        </div>
+      )}
 
       {showHistory ? (
         <div>
