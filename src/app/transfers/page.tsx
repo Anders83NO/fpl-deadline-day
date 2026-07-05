@@ -1211,6 +1211,17 @@ export default function TransfersPage() {
           )}
         </>
       )}
+
+      {!user && !showHistory && (
+        <div className="mt-6 rounded-xl px-4 py-3.5 flex items-center justify-between"
+          style={{ background: "#1a1500", border: "1px solid #f59e0b33" }}>
+          <div>
+            <p className="text-sm font-bold text-white mb-0.5">Save your GW history</p>
+            <p className="text-[11px]" style={{ color: "#c8a84b" }}>Sign in to keep a record of every plan</p>
+          </div>
+          <span className="text-xs font-bold ml-3 flex-shrink-0" style={{ color: "#f59e0b" }}>Sign in →</span>
+        </div>
+      )}
     </div>
   );
 }
