@@ -32,6 +32,33 @@ export default function SettingsPage() {
   const [language, setLanguage] = useState("en");
   const [timezone, setTimezone] = useState("Europe/London");
   const [saved, setSaved] = useState(false);
+  const [reminderStatus, setReminderStatus] = useState<string | null>(null);
+  const [sendingReminder, setSendingReminder] = useState(false);
+
+  const ADMIN_EMAIL = "andersstenbergw@gmail.com";
+
+  async function sendReminder() {
+    if (!user) return;
+    setSendingReminder(true);
+    setReminderStatus(null);
+    try {
+      const res = await fetch("/api/admin/send-reminder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userEmail: user.email }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReminderStatus(`✓ Sent to ${data.sent} users — ${data.gw}, ${data.hoursUntil}h until deadline`);
+      } else {
+        setReminderStatus(data.message ?? data.error ?? "Something went wrong");
+      }
+    } catch {
+      setReminderStatus("Failed to send");
+    } finally {
+      setSendingReminder(false);
+    }
+  }
 
   useEffect(() => {
     const id = localStorage.getItem("fpl_team_id") ?? "";
@@ -206,6 +233,27 @@ export default function SettingsPage() {
           ))}
         </div>
       </Section>
+
+      {/* Admin */}
+      {user?.email === ADMIN_EMAIL && (
+        <Section title="Admin">
+          <div className="rounded-xl p-4" style={{ background: "#1a1a1a", border: "1px solid #0f1520" }}>
+            <p className="text-sm font-semibold text-white mb-1">Send deadline reminder</p>
+            <p className="text-[11px] mb-3" style={{ color: "#6688aa" }}>Sends email to all registered users now</p>
+            <button
+              onClick={sendReminder}
+              disabled={sendingReminder}
+              className="px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+              style={{ background: sendingReminder ? "#333" : "#f59e0b22", color: sendingReminder ? "#666" : "#f59e0b" }}
+            >
+              {sendingReminder ? "Sending…" : "Send now"}
+            </button>
+            {reminderStatus && (
+              <p className="text-[11px] mt-2" style={{ color: "#4ade80" }}>{reminderStatus}</p>
+            )}
+          </div>
+        </Section>
+      )}
 
       {/* Save button */}
       <button
