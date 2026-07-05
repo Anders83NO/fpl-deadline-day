@@ -52,7 +52,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="w-full max-w-sm rounded-t-2xl sm:rounded-2xl p-6"
+        className="w-full max-w-sm rounded-t-2xl sm:rounded-2xl p-6 pb-[calc(1.5rem+72px)] sm:pb-6"
         style={{ background: "#0f1520", border: "1px solid #1e3050" }}
       >
         {/* Menu */}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 const LANGUAGES = [
   { code: "en", label: "English", flag: "🇬🇧" },
@@ -263,6 +264,12 @@ export default function SettingsPage() {
       >
         {saved ? "✓ Saved!" : "Save changes"}
       </button>
+
+      <div className="mt-8 pt-6 flex justify-center gap-6" style={{ borderTop: "1px solid #1e2d42" }}>
+        <Link href="/about" className="text-xs" style={{ color: "#4d6a88" }}>About</Link>
+        <span className="text-xs" style={{ color: "#2a3a4a" }}>·</span>
+        <a href="mailto:hello@fpldeadlineday.com" className="text-xs" style={{ color: "#4d6a88" }}>Contact</a>
+      </div>
 
     </div>
   );

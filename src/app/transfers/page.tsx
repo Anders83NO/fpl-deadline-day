@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
+import AuthModal from "@/components/AuthModal";
 
 const TYPE_LABEL: Record<number, string> = { 1: "GK", 2: "DEF", 3: "MID", 4: "FWD" };
 const TYPE_COLOR: Record<number, string> = {
@@ -105,6 +106,7 @@ function isValidLineup(picks: Pick[]): boolean {
 export default function TransfersPage() {
   const { user } = useAuth();
   const [showHistory, setShowHistory] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
   const [historyPlans, setHistoryPlans] = useState<GwHistoryPlan[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [expandedGw, setExpandedGw] = useState<number | null>(null);
@@ -149,6 +151,7 @@ export default function TransfersPage() {
 
   // Lineup swap state
   const [swapFirst, setSwapFirst] = useState<Pick | null>(null);
+  const [transferError, setTransferError] = useState<string | null>(null);
 
   useEffect(() => {
     const id = localStorage.getItem("fpl_team_id");
@@ -537,6 +540,17 @@ export default function TransfersPage() {
 
   function acceptTransfer() {
     if (!transferOut || !pendingIn) return;
+
+    // Max 3 players from same team
+    const playersFromTeam = squad.filter(
+      (p) => p.team === pendingIn.team && p.element !== transferOut.element
+    ).length;
+    if (playersFromTeam >= 3) {
+      setTransferError(`Max 3 players per team — you already have 3 from ${pendingIn.team}.`);
+      return;
+    }
+    setTransferError(null);
+
     const t: PlannedTransfer = {
       gw: planGw,
       outId: transferOut.element,
@@ -941,6 +955,9 @@ export default function TransfersPage() {
                 <button onClick={() => setPendingIn(null)} className="flex-1 py-2 rounded-lg text-sm font-semibold" style={{ background: "#1e2d42", color: "#6688aa" }}>Back</button>
                 <button onClick={acceptTransfer} className="flex-1 py-2 rounded-lg text-sm font-bold" style={{ background: "#f59e0b", color: "#000" }}>✓ Accept</button>
               </div>
+              {transferError && (
+                <p className="text-xs text-center mt-2 px-1" style={{ color: "#f87171" }}>{transferError}</p>
+              )}
             </div>
           )}
 
@@ -1216,15 +1233,16 @@ export default function TransfersPage() {
       )}
 
       {!user && !showHistory && (
-        <div className="mt-6 rounded-xl px-4 py-3.5 flex items-center justify-between"
+        <button onClick={() => setShowAuth(true)} className="w-full mt-6 rounded-xl px-4 py-3.5 flex items-center justify-between text-left"
           style={{ background: "#1a1500", border: "1px solid #f59e0b33" }}>
           <div>
             <p className="text-sm font-bold text-white mb-0.5">Save your GW history</p>
             <p className="text-[11px]" style={{ color: "#c8a84b" }}>Sign in to keep a record of every plan</p>
           </div>
           <span className="text-xs font-bold ml-3 flex-shrink-0" style={{ color: "#f59e0b" }}>Sign in →</span>
-        </div>
+        </button>
       )}
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
     </div>
   );
 }

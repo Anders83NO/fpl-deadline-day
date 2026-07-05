@@ -13,8 +13,21 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "FPL Deadline Day",
-  description: "Everything an FPL manager needs, in one place.",
+  title: "FPL Deadline Day — Free Tools for Fantasy Premier League Managers",
+  description: "Transfer planner, live scores, deadline reminders and GW history for Fantasy Premier League. Free FPL tool used by managers worldwide.",
+  keywords: ["FPL tool", "Fantasy Premier League tool", "FPL transfer planner", "FPL deadline reminder", "best FPL app", "FPL live scores"],
+  openGraph: {
+    title: "FPL Deadline Day — Free Tools for Fantasy Premier League Managers",
+    description: "Transfer planner, live scores, deadline reminders and GW history. Free FPL tool.",
+    url: "https://fpldeadlineday.com",
+    siteName: "FPL Deadline Day",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "FPL Deadline Day",
+    description: "Free transfer planner, deadline reminders and live scores for Fantasy Premier League managers.",
+  },
 };
 
 export const viewport = {
