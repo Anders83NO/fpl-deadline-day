@@ -33,10 +33,14 @@ export async function POST(req: Request) {
     const deadline = new Date(upcomingEvent.deadline_time);
     const hoursUntil = (deadline.getTime() - now.getTime()) / (1000 * 60 * 60);
     const gwName = `GW${upcomingEvent.id}`;
-    const deadlineStr = deadline.toLocaleString("en-GB", {
+    const deadlineUK = deadline.toLocaleString("en-GB", {
       weekday: "short", day: "numeric", month: "short",
       hour: "2-digit", minute: "2-digit", timeZone: "Europe/London"
     });
+    const deadlineCET = deadline.toLocaleString("en-GB", {
+      hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris"
+    });
+    const deadlineStr = `${deadlineUK} (UK) · ${deadlineCET} (CET)`;
 
     const timeLabel = hoursUntil < 24 ? `${Math.round(hoursUntil)} hours` : `${Math.round(hoursUntil / 24)} day${Math.round(hoursUntil / 24) !== 1 ? "s" : ""}`;
 
@@ -64,7 +68,7 @@ export async function POST(req: Request) {
                 ${gwName} deadline in ${timeLabel}
               </h2>
               <p style="color: #6688aa; font-size: 14px; margin-bottom: 24px;">
-                Deadline: <strong style="color: #f0f0f0;">${deadlineStr} (UK time)</strong>
+                Deadline: <strong style="color: #f0f0f0;">${deadlineStr}</strong>
               </p>
               <p style="color: #c8daf0; font-size: 14px; margin-bottom: 24px;">
                 Don't forget to make your transfers and set your captain before the deadline!
