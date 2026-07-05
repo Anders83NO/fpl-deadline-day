@@ -608,33 +608,33 @@ export default function TransfersPage() {
             </button>
           )}
           {!transferOut && !swapFirst && teamId && (
-            <div className="flex rounded-lg overflow-hidden" style={{ border: "1px solid #1e3050" }}>
-              <button onClick={() => setViewMode("pitch")}
-                className="px-3 py-1.5 text-xs font-semibold"
-                style={{ background: viewMode === "pitch" ? "#f59e0b" : "#162030", color: viewMode === "pitch" ? "#000" : "#555" }}>
-                ⬡
-              </button>
-              <button onClick={() => setViewMode("list")}
-                className="px-3 py-1.5 text-xs font-semibold"
-                style={{ background: viewMode === "list" ? "#f59e0b" : "#162030", color: viewMode === "list" ? "#000" : "#555" }}>
-                ☰
-              </button>
+            <div className="flex items-center gap-1.5">
+              {user && (
+                <button
+                  onClick={() => setShowHistory(!showHistory)}
+                  className="text-xs px-3 py-1.5 rounded-lg font-semibold"
+                  style={{ background: showHistory ? "#1a1500" : "#1e2d42", color: showHistory ? "#f59e0b" : "#7799bb", border: `1px solid ${showHistory ? "#f59e0b44" : "#1e3050"}` }}
+                >
+                  {showHistory ? "← Plan" : "History"}
+                </button>
+              )}
+              <div className="flex rounded-lg overflow-hidden" style={{ border: "1px solid #1e3050" }}>
+                <button onClick={() => setViewMode("pitch")}
+                  className="px-3 py-1.5 text-xs font-semibold"
+                  style={{ background: viewMode === "pitch" ? "#f59e0b" : "#162030", color: viewMode === "pitch" ? "#000" : "#555" }}>
+                  ⬡
+                </button>
+                <button onClick={() => setViewMode("list")}
+                  className="px-3 py-1.5 text-xs font-semibold"
+                  style={{ background: viewMode === "list" ? "#f59e0b" : "#162030", color: viewMode === "list" ? "#000" : "#555" }}>
+                  ☰
+                </button>
+              </div>
             </div>
           )}
         </div>
       </header>
 
-      {user && (
-        <div className="flex justify-end mb-3">
-          <button
-            onClick={() => setShowHistory(!showHistory)}
-            className="text-xs px-3 py-1.5 rounded-lg font-semibold"
-            style={{ background: showHistory ? "#1a1500" : "#1e2d42", color: showHistory ? "#f59e0b" : "#7799bb", border: `1px solid ${showHistory ? "#f59e0b44" : "#1e3050"}` }}
-          >
-            {showHistory ? "← Plan" : "History"}
-          </button>
-        </div>
-      )}
 
       {showHistory ? (
         <div>
