@@ -157,6 +157,26 @@ export default function Home() {
   const liveMatches = matches.filter((m) => isLive(m.status));
   const hasLive = liveMatches.length > 0;
 
+  const [deadline, setDeadline] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("https://fantasy.premierleague.com/api/bootstrap-static/", { cache: "no-store" })
+      .then(r => r.json())
+      .then(data => {
+        const now = new Date();
+        const next = data.events?.find((e: { finished: boolean; deadline_time: string }) =>
+          !e.finished && new Date(e.deadline_time) > now
+        );
+        if (!next) return;
+        const str = new Date(next.deadline_time).toLocaleString("en-GB", {
+          weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+          timeZone: timezone,
+        });
+        setDeadline(str);
+      })
+      .catch(() => {});
+  }, [timezone]);
+
   return (
     <div className="max-w-lg mx-auto px-4 pt-6 pb-4">
 
@@ -197,6 +217,14 @@ export default function Home() {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5"><polyline points="9,18 15,12 9,6"/></svg>
         </button>
       </div>
+
+      {/* Deadline */}
+      {deadline && (
+        <div className="text-center mb-4">
+          <p className="text-sm font-bold text-white">Deadline: {deadline}</p>
+          <p className="text-[11px] mt-0.5" style={{ color: "#6688aa" }}>*All times are shown in your local time</p>
+        </div>
+      )}
 
       {/* Matches */}
       {loading ? (
