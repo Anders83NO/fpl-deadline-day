@@ -219,10 +219,26 @@ export default function Home() {
           <p className="text-sm" style={{ color: "#6688aa" }}>No matches for GW{gw}.</p>
         </div>
       ) : (
-        <section className="mb-8 space-y-2">
-          {matches.map((m) => (
-            <MatchCard key={m.id} match={m} timezone={timezone} />
-          ))}
+        <section className="mb-8">
+          {(() => {
+            const groups: { date: string; matches: typeof matches }[] = [];
+            for (const m of matches) {
+              const dateKey = new Date(m.utcDate).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: timezone });
+              const last = groups[groups.length - 1];
+              if (last && last.date === dateKey) last.matches.push(m);
+              else groups.push({ date: dateKey, matches: [m] });
+            }
+            return groups.map((g) => (
+              <div key={g.date} className="mb-4">
+                <p className="text-[11px] font-semibold tracking-[0.12em] uppercase mb-2 px-1" style={{ color: "#6688aa" }}>{g.date}</p>
+                <div className="space-y-2">
+                  {g.matches.map((m) => (
+                    <MatchCard key={m.id} match={m} timezone={timezone} />
+                  ))}
+                </div>
+              </div>
+            ));
+          })()}
         </section>
       )}
 
