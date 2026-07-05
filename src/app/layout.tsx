@@ -5,6 +5,7 @@ import BottomNav from "@/components/BottomNav";
 import TopBar from "@/components/TopBar";
 import LandingGate from "@/components/LandingGate";
 import { AuthProvider } from "@/context/AuthContext";
+import GwSnapshotRunner from "@/components/GwSnapshotRunner";
 
 const geist = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[#0f1520] text-[#f0f0f0] overflow-x-hidden">
         <AuthProvider>
           <LandingGate>
+            <GwSnapshotRunner />
             <TopBar />
             <main className="flex-1">{children}</main>
             <BottomNav />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 const TYPE_LABEL: Record<number, string> = { 1: "GK", 2: "DEF", 3: "MID", 4: "FWD" };
 const TYPE_COLOR: Record<number, string> = {
@@ -71,6 +72,14 @@ interface PlannedChip {
   chip: ChipType;
 }
 
+interface GwHistoryPlan {
+  gw: number;
+  saved_at: string;
+  transfer_plan: Record<string, { outName: string; inName: string; outPrice: number; inPrice: number }[]>;
+  captain_plan: Record<string, { captainId: number; vcId: number; captainName?: string; vcName?: string }>;
+  chip_plan: Record<string, string>;
+}
+
 const CHIP_INFO: Record<ChipType, { label: string; short: string; color: string; desc: string }> = {
   wildcard:      { label: "Wildcard",        short: "WC", color: "#22d3ee", desc: "Unlimited free transfers this GW" },
   freehit:       { label: "Free Hit",        short: "FH", color: "#a78bfa", desc: "Temporary squad, reset after GW" },
@@ -94,6 +103,11 @@ function isValidLineup(picks: Pick[]): boolean {
 }
 
 export default function TransfersPage() {
+  const { user } = useAuth();
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyPlans, setHistoryPlans] = useState<GwHistoryPlan[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [expandedGw, setExpandedGw] = useState<number | null>(null);
   const [teamId, setTeamId] = useState<string | null>(null);
   const [baseSquad, setBaseSquad] = useState<Pick[]>([]);
   const [baseBank, setBaseBank] = useState(0);
@@ -229,6 +243,15 @@ export default function TransfersPage() {
   useEffect(() => { localStorage.setItem("fpl_lineup_swaps", JSON.stringify(lineupSwaps)); }, [lineupSwaps]);
   useEffect(() => { localStorage.setItem("fpl_captain_plan", JSON.stringify(captainPlan)); }, [captainPlan]);
   useEffect(() => { localStorage.setItem("fpl_chip_plan", JSON.stringify(chipPlan)); }, [chipPlan]);
+
+  useEffect(() => {
+    if (!user || !showHistory) return;
+    setHistoryLoading(true);
+    fetch(`/api/gw-plans?userId=${user.id}`)
+      .then((r) => r.json())
+      .then((data) => { setHistoryPlans(data.plans ?? []); setHistoryLoading(false); })
+      .catch(() => setHistoryLoading(false));
+  }, [user, showHistory]);
 
   // Fetch fixtures for the current planGw (keyed by team short name)
   useEffect(() => {
@@ -574,8 +597,17 @@ export default function TransfersPage() {
       <header className="flex items-center justify-between mb-5">
         <div>
           <p className="text-[11px] font-semibold tracking-[0.15em] uppercase" style={{ color: "#f59e0b" }}>Squad Planner</p>
-          <h1 className="text-2xl font-bold tracking-tight text-white mt-0.5">Plan Ahead</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-white mt-0.5">{showHistory ? "History" : "Plan Ahead"}</h1>
         </div>
+        {user && (
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className="text-xs px-3 py-1.5 rounded-lg font-semibold"
+            style={{ background: showHistory ? "#1a1500" : "#1e2d42", color: showHistory ? "#f59e0b" : "#7799bb", border: `1px solid ${showHistory ? "#f59e0b44" : "#1e3050"}` }}
+          >
+            {showHistory ? "← Plan" : "History"}
+          </button>
+        )}
         <div className="flex items-center gap-2">
           {hasGwChanges && (
             <button onClick={resetGw}
@@ -601,7 +633,86 @@ export default function TransfersPage() {
         </div>
       </header>
 
-      {!teamId ? (
+      {showHistory ? (
+        <div>
+          {historyLoading && (
+            <div className="flex justify-center pt-12">
+              <div className="w-5 h-5 rounded-full border-2 animate-spin" style={{ borderColor: "#f59e0b", borderTopColor: "transparent" }} />
+            </div>
+          )}
+          {!historyLoading && historyPlans.length === 0 && (
+            <div className="text-center pt-12">
+              <p className="text-3xl mb-3">📭</p>
+              <p className="text-white font-semibold mb-1">No history yet</p>
+              <p className="text-sm" style={{ color: "#6688aa" }}>Your plans are saved here after each gameweek deadline.</p>
+            </div>
+          )}
+          <div className="space-y-3">
+            {historyPlans.map((plan) => {
+              const gwTransfers = plan.transfer_plan?.[String(plan.gw)] ?? [];
+              const gwCaptain = plan.captain_plan?.[String(plan.gw)];
+              const gwChip = plan.chip_plan?.[String(plan.gw)];
+              const isOpen = expandedGw === plan.gw;
+              return (
+                <div key={plan.gw} className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e2d42" }}>
+                  <button
+                    onClick={() => setExpandedGw(isOpen ? null : plan.gw)}
+                    className="w-full flex items-center justify-between px-4 py-3.5 text-left"
+                    style={{ background: "#141e2e" }}
+                  >
+                    <div>
+                      <p className="text-sm font-bold text-white">GW{plan.gw}</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: "#4d6a88" }}>
+                        {gwTransfers.length} transfer{gwTransfers.length !== 1 ? "s" : ""}
+                        {gwCaptain?.captainName ? ` · C: ${gwCaptain.captainName}` : ""}
+                        {gwChip ? ` · ${gwChip}` : ""}
+                      </p>
+                    </div>
+                    <span style={{ color: "#4d6a88", display: "inline-block", transform: isOpen ? "rotate(180deg)" : "none" }}>▼</span>
+                  </button>
+                  {isOpen && (
+                    <div className="px-4 pb-4 pt-3" style={{ background: "#0f1520", borderTop: "1px solid #1e2d42" }}>
+                      {gwTransfers.length > 0 ? (
+                        <div className="mb-3">
+                          <p className="text-[10px] uppercase tracking-wider mb-2" style={{ color: "#4d6a88" }}>Transfers</p>
+                          <div className="space-y-2">
+                            {gwTransfers.map((t, i) => (
+                              <div key={i} className="flex items-center gap-2 text-sm flex-wrap">
+                                <span style={{ color: "#ef4444" }}>OUT</span>
+                                <span className="text-white font-medium">{t.outName}</span>
+                                <span style={{ color: "#4d6a88" }}>→</span>
+                                <span style={{ color: "#4ade80" }}>IN</span>
+                                <span className="text-white font-medium">{t.inName}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-sm mb-3" style={{ color: "#4d6a88" }}>No transfers planned</p>
+                      )}
+                      {gwCaptain && (
+                        <div className="mb-3">
+                          <p className="text-[10px] uppercase tracking-wider mb-2" style={{ color: "#4d6a88" }}>Captain</p>
+                          <div className="flex gap-4 text-sm">
+                            {gwCaptain.captainName && <span><span style={{ color: "#f59e0b" }}>C</span> <span className="text-white">{gwCaptain.captainName}</span></span>}
+                            {gwCaptain.vcName && <span><span style={{ color: "#6688aa" }}>VC</span> <span className="text-white">{gwCaptain.vcName}</span></span>}
+                          </div>
+                        </div>
+                      )}
+                      {gwChip && (
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider mb-2" style={{ color: "#4d6a88" }}>Chip</p>
+                          <span className="text-xs px-2 py-1 rounded font-semibold" style={{ background: "#1a1500", color: "#f59e0b", border: "1px solid #f59e0b44" }}>{gwChip}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : !teamId ? (
         <div className="rounded-xl p-6 text-center" style={{ background: "#162030", border: "1px solid #1e3050" }}>
           <p className="text-sm mb-3" style={{ color: "#6688aa" }}>Set up your team first.</p>
           <a href="/my-team" className="text-sm font-semibold px-4 py-2 rounded-lg inline-block" style={{ background: "#f59e0b", color: "#000" }}>Go to My Team →</a>

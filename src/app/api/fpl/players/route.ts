@@ -36,6 +36,7 @@ export async function GET() {
       ep_next: string;
       transfers_in_event: number;
       transfers_out_event: number;
+      ict_index: string;
     }) => ({
       id: el.id,
       name: el.web_name,
@@ -57,6 +58,8 @@ export async function GET() {
       epNext: parseFloat(el.ep_next),
       transfersIn: el.transfers_in_event,
       transfersOut: el.transfers_out_event,
+      ictIndex: parseFloat(el.ict_index),
+      teamId: el.team,
     }));
 
   return NextResponse.json({ players });
