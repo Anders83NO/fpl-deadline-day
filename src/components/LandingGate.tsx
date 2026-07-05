@@ -92,7 +92,7 @@ export default function LandingGate({ children }: { children: React.ReactNode })
     if (!selected) return;
     localStorage.setItem("fpl_team_id", String(selected.id));
     localStorage.setItem("fpl_onboarding_done", "1");
-    setHasTeam(true);
+    window.location.href = "/transfers";
   }
 
   async function confirmManual() {
@@ -107,7 +107,7 @@ export default function LandingGate({ children }: { children: React.ReactNode })
       if (!res.ok) throw new Error();
       localStorage.setItem("fpl_team_id", id);
       localStorage.setItem("fpl_onboarding_done", "1");
-      setHasTeam(true);
+      window.location.href = "/transfers";
     } catch {
       setManualError("Couldn't find that Team ID. Double-check and try again.");
     }
