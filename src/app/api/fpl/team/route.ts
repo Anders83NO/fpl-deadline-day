@@ -35,10 +35,16 @@ export async function GET(req: NextRequest) {
   const picksData = await picksRes.json();
 
   const livePoints: Record<number, number> = {};
+  const liveExplain: Record<number, { identifier: string; points: number }[]> = {};
+  const liveBonus: Record<number, number> = {};
   if (liveRes.ok) {
     const liveData = await liveRes.json();
     for (const el of liveData.elements ?? []) {
       livePoints[el.id] = el.stats?.total_points ?? 0;
+      liveBonus[el.id] = el.stats?.bonus ?? 0;
+      liveExplain[el.id] = (el.explain ?? []).flatMap(
+        (fixture: { stats: { identifier: string; points: number }[] }) => fixture.stats ?? []
+      ).filter((s: { points: number }) => s.points !== 0);
     }
   }
 
@@ -67,6 +73,8 @@ export async function GET(req: NextRequest) {
       teamCode: el ? teamCodeMap[el.team] : 0,
       element_type: el?.element_type ?? 0,
       gw_points: livePoints[p.element] ?? 0,
+      bonus: liveBonus[p.element] ?? 0,
+      explain: liveExplain[p.element] ?? [],
     };
   });
 

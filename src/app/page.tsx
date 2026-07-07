@@ -270,28 +270,12 @@ export default function Home() {
         </section>
       )}
 
-      {/* My FPL Points */}
+      {/* My FPL Team */}
       <section className="mb-8">
         <h2 className="text-[11px] font-semibold tracking-[0.12em] uppercase mb-3" style={{ color: "#6688aa" }}>
           My FPL Team
         </h2>
-        <div className="rounded-xl p-5 flex items-center justify-between"
-          style={{ background: "#162030", border: "1px solid #1e3050" }}>
-          <div>
-            <p className="text-[11px] uppercase tracking-wider mb-1" style={{ color: "#6688aa" }}>
-              {fplGw ? `GW${fplGw} Points` : "GW Points"}
-            </p>
-            <p className="text-5xl font-bold tracking-tight" style={{ color: "#f59e0b" }}>
-              {fplPoints ?? "—"}
-            </p>
-            {!fplPoints && <p className="text-xs mt-1" style={{ color: "#6688aa" }}>Enter your FPL ID to track</p>}
-          </div>
-          <Link href="/my-team"
-            className="text-xs font-semibold px-4 py-2 rounded-lg tracking-wide"
-            style={{ background: "#f59e0b", color: "#000" }}>
-            {fplPoints ? "VIEW →" : "SET UP →"}
-          </Link>
-        </div>
+        <LiveTeamSection />
       </section>
 
       {/* Scout */}
@@ -318,6 +302,156 @@ export default function Home() {
       </section>
 
     </div>
+  );
+}
+
+interface LivePick {
+  element: number;
+  position: number;
+  multiplier: number;
+  is_captain: boolean;
+  is_vice_captain: boolean;
+  name: string;
+  team: string;
+  element_type: number;
+  gw_points: number;
+  bonus: number;
+  explain: { identifier: string; points: number }[];
+}
+
+const POS_LABEL: Record<number, string> = { 1: "GK", 2: "DEF", 3: "MID", 4: "FWD" };
+
+const EXPLAIN_LABEL: Record<string, string> = {
+  minutes: "Minutes played",
+  goals_scored: "Goal",
+  assists: "Assist",
+  clean_sheets: "Clean sheet",
+  goals_conceded: "Goals conceded",
+  own_goals: "Own goal",
+  penalties_saved: "Penalty saved",
+  penalties_missed: "Penalty missed",
+  yellow_cards: "Yellow card",
+  red_cards: "Red card",
+  saves: "Saves",
+  bonus: "Bonus",
+  defensive_contribution: "Defensive contribution",
+};
+
+function LiveTeamSection() {
+  const [data, setData] = useState<{ gw: number; gw_points: number; picks: LivePick[] } | null>(null);
+  const [expanded, setExpanded] = useState<number | null>(null);
+
+  useEffect(() => {
+    const id = localStorage.getItem("fpl_team_id");
+    if (!id) return;
+    fetch(`/api/fpl/team?id=${id}`)
+      .then(r => r.json())
+      .then(json => setData(json))
+      .catch(() => {});
+  }, []);
+
+  if (!data) {
+    return (
+      <div className="rounded-xl p-5 flex items-center justify-between" style={{ background: "#162030", border: "1px solid #1e3050" }}>
+        <div>
+          <p className="text-[11px] uppercase tracking-wider mb-1" style={{ color: "#6688aa" }}>GW Points</p>
+          <p className="text-5xl font-bold tracking-tight" style={{ color: "#f59e0b" }}>—</p>
+          <p className="text-xs mt-1" style={{ color: "#6688aa" }}>Enter your FPL ID to track</p>
+        </div>
+        <Link href="/my-team" className="text-xs font-semibold px-4 py-2 rounded-lg tracking-wide" style={{ background: "#f59e0b", color: "#000" }}>SET UP →</Link>
+      </div>
+    );
+  }
+
+  const starters = data.picks.filter(p => p.position <= 11);
+  const bench = data.picks.filter(p => p.position > 11);
+  const captain = starters.find(p => p.is_captain);
+
+  return (
+    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e3050" }}>
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-4" style={{ background: "#162030", borderBottom: "1px solid #1a2a40" }}>
+        <div>
+          <p className="text-[11px] uppercase tracking-wider mb-1" style={{ color: "#6688aa" }}>GW{data.gw} Points</p>
+          <p className="text-5xl font-bold tracking-tight" style={{ color: "#f59e0b" }}>{data.gw_points}</p>
+        </div>
+        <Link href="/my-team" className="text-xs font-semibold px-4 py-2 rounded-lg tracking-wide" style={{ background: "#f59e0b", color: "#000" }}>VIEW →</Link>
+      </div>
+
+      {/* Captain highlight */}
+      {captain && (
+        <div className="flex items-center gap-3 px-4 py-3" style={{ background: "#1a1500", borderBottom: "1px solid #1a2a40" }}>
+          <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0" style={{ background: "#f59e0b", color: "#000" }}>C</div>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-white">{captain.name}</p>
+            <p className="text-[10px]" style={{ color: "#8a6d30" }}>{captain.gw_points} pts × 2 = {captain.gw_points * 2} pts</p>
+          </div>
+          <p className="text-xl font-bold" style={{ color: "#f59e0b" }}>{captain.gw_points * 2}</p>
+        </div>
+      )}
+
+      {/* Starters */}
+      {starters.map(p => (
+        <PlayerRow key={p.element} pick={p} expanded={expanded === p.element} onToggle={() => setExpanded(expanded === p.element ? null : p.element)} />
+      ))}
+
+      {/* Bench divider */}
+      <div className="flex items-center gap-2 px-4 py-2" style={{ background: "#0f1520", borderTop: "1px solid #131e2e", borderBottom: "1px solid #131e2e" }}>
+        <p className="text-[9px] font-semibold uppercase tracking-widest" style={{ color: "#2a3a4a" }}>Bench</p>
+      </div>
+
+      {/* Bench */}
+      {bench.map(p => (
+        <PlayerRow key={p.element} pick={p} expanded={expanded === p.element} onToggle={() => setExpanded(expanded === p.element ? null : p.element)} bench />
+      ))}
+    </div>
+  );
+}
+
+function PlayerRow({ pick: p, expanded, onToggle, bench }: { pick: LivePick; expanded: boolean; onToggle: () => void; bench?: boolean }) {
+  const hasPendingBonus = p.bonus > 0 && !p.explain.some(e => e.identifier === "bonus");
+
+  return (
+    <>
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center gap-2 px-4 py-2.5 text-left"
+        style={{ background: "#162030", borderBottom: "1px solid #111c2a" }}
+      >
+        <span className="text-[9px] w-5 flex-shrink-0" style={{ color: "#3d5570" }}>{POS_LABEL[p.element_type]}</span>
+        <span className="text-xs font-semibold flex-1 truncate" style={{ color: bench ? "#3d5570" : "#f0f0f0" }}>
+          {p.name}
+          {p.is_captain && <span className="ml-1.5 text-[8px] font-bold px-1 py-0.5 rounded" style={{ background: "#f59e0b", color: "#000" }}>C</span>}
+          {p.is_vice_captain && <span className="ml-1.5 text-[8px] font-bold px-1 py-0.5 rounded" style={{ background: "#1e2d42", color: "#6688aa" }}>V</span>}
+          {hasPendingBonus && <span className="ml-1.5 text-[8px] font-bold px-1 py-0.5 rounded" style={{ background: "#2a1f4a", color: "#a78bfa" }}>+{p.bonus} BP</span>}
+        </span>
+        <span className="text-xs font-bold tabular-nums" style={{ color: p.gw_points > 0 ? "#f59e0b" : "#2a3a4a" }}>
+          {p.gw_points > 0 ? p.gw_points * p.multiplier : "—"}
+        </span>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#3d5570" strokeWidth="2.5" style={{ transform: expanded ? "rotate(180deg)" : "none", flexShrink: 0 }}>
+          <polyline points="6,9 12,15 18,9" />
+        </svg>
+      </button>
+
+      {expanded && p.explain.length > 0 && (
+        <div className="px-4 py-2" style={{ background: "#0f1520", borderBottom: "1px solid #111c2a" }}>
+          {p.explain.map((e, i) => (
+            <div key={i} className="flex justify-between items-center py-1">
+              <span className="text-[11px]" style={{ color: "#6688aa" }}>{EXPLAIN_LABEL[e.identifier] ?? e.identifier}</span>
+              <span className="text-[11px] font-semibold tabular-nums" style={{ color: e.points > 0 ? "#f0f0f0" : "#ef4444" }}>
+                {e.points > 0 ? `+${e.points}` : e.points}
+              </span>
+            </div>
+          ))}
+          {hasPendingBonus && (
+            <div className="flex justify-between items-center py-1">
+              <span className="text-[11px]" style={{ color: "#a78bfa" }}>Bonus (pending)</span>
+              <span className="text-[11px] font-semibold" style={{ color: "#a78bfa" }}>+{p.bonus}</span>
+            </div>
+          )}
+        </div>
+      )}
+    </>
   );
 }
 
