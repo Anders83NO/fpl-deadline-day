@@ -14,7 +14,14 @@ export async function GET(req: NextRequest) {
   try {
     const res = await fetch(
       `https://fantasy.premierleague.com/api/search/?text=${encodeURIComponent(query)}`,
-      { next: { revalidate: 0 } }
+      {
+        next: { revalidate: 0 },
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "Referer": "https://fantasy.premierleague.com/",
+          "Accept": "application/json",
+        },
+      }
     );
 
     if (!res.ok) {
