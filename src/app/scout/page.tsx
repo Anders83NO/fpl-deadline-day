@@ -2,6 +2,28 @@
 
 import { useEffect, useState } from "react";
 
+const IC = ({ d, vb = "0 0 24 24" }: { d: string; vb?: string }) => (
+  <svg width="15" height="15" viewBox={vb} fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <path d={d} />
+  </svg>
+);
+
+const ICONS = {
+  intel:    <IC d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2M18 14h-8M15 18h-5M10 6h8v4h-8z" />,
+  managers: <IC d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />,
+  europe:   <IC d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />,
+  calendar: <IC d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />,
+  star:     <IC d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />,
+  target:   <IC d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12zM12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />,
+  fire:     <IC d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 0 1-7 7 7 7 0 0 1-7-7c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />,
+  diamond:  <IC d="M2.7 10.3a2.4 2.4 0 0 0 0 3.41l7.56 7.57a2.4 2.4 0 0 0 3.4 0l7.57-7.57a2.4 2.4 0 0 0 0-3.4L13.67 2.72a2.4 2.4 0 0 0-3.41 0z" />,
+  bolt:     <IC d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />,
+  money:    <IC d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zM12 6v2M12 16v2M8 12h8M8 10h1a3 3 0 0 1 0 6H8" />,
+  shield:   <IC d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />,
+  up:       <IC d="M3 17l4-8 4 4 4-6 4 8" />,
+  down:     <IC d="M3 7l4 8 4-4 4 6 4-8" />,
+};
+
 // ─── Season Intel (static, manually updated) ────────────────────────────────
 
 const NEW_MANAGERS = [
@@ -120,7 +142,7 @@ function SeasonIntel() {
   return (
     <section className="mb-6">
       <div className="flex items-baseline gap-2 mb-2">
-        <span className="text-base">🗞️</span>
+        {ICONS.intel}
         <div>
           <h2 className="text-sm font-bold text-white">Season Intel 2026/27</h2>
           <p className="text-[10px]" style={{ color: "#6688aa" }}>
@@ -138,7 +160,7 @@ function SeasonIntel() {
           style={{ borderBottom: "1px solid #1a2a40" }}
         >
           <div className="flex items-center gap-2">
-            <span className="text-sm">🧑‍💼</span>
+            {ICONS.managers}
             <span className="text-sm font-semibold text-white">7 new managers</span>
             <span className="text-[10px] px-1.5 py-0.5 rounded font-bold" style={{ background: "#ef444422", color: "#ef4444" }}>
               OBS
@@ -169,7 +191,7 @@ function SeasonIntel() {
           style={{ borderBottom: "1px solid #1a2a40" }}
         >
           <div className="flex items-center gap-2">
-            <span className="text-sm">🌍</span>
+            {ICONS.europe}
             <span className="text-sm font-semibold text-white">9 clubs in Europe</span>
             <span className="text-[10px] px-1.5 py-0.5 rounded font-bold" style={{ background: "#a78bfa22", color: "#a78bfa" }}>
               Rotation
@@ -203,7 +225,7 @@ function SeasonIntel() {
           onClick={() => toggle("breaks")}
         >
           <div className="flex items-center gap-2">
-            <span className="text-sm">🗓️</span>
+            {ICONS.calendar}
             <span className="text-sm font-semibold text-white">International breaks</span>
             <span className="text-[10px] px-1.5 py-0.5 rounded font-bold" style={{ background: "#22d3ee22", color: "#22d3ee" }}>
               3 st
@@ -342,20 +364,20 @@ function PlayerRow({
 }
 
 function Section({
-  emoji,
+  icon,
   title,
   subtitle,
   children,
 }: {
-  emoji: string;
+  icon: React.ReactNode;
   title: string;
   subtitle?: string;
   children: React.ReactNode;
 }) {
   return (
     <section className="mb-5">
-      <div className="flex items-baseline gap-2 mb-2">
-        <span className="text-base">{emoji}</span>
+      <div className="flex items-center gap-2 mb-2">
+        {icon}
         <div>
           <h2 className="text-sm font-bold text-white">{title}</h2>
           {subtitle && (
@@ -472,7 +494,7 @@ export default function ScoutPage() {
       {eliteData && (
         <>
           <Section
-            emoji="👑"
+            icon={ICONS.star}
             title="Elite 10 — Template"
             subtitle={`Most owned by world top ${eliteData.managersAnalyzed} · GW${eliteData.currentGw}`}
           >
@@ -495,7 +517,7 @@ export default function ScoutPage() {
           </Section>
 
           <Section
-            emoji="©️"
+            icon={ICONS.star}
             title="Elite Captain"
             subtitle={`Who the top ${eliteData.managersAnalyzed} are captaining`}
           >
@@ -521,7 +543,7 @@ export default function ScoutPage() {
 
       {/* Captain Picks */}
       <Section
-        emoji="🎯"
+        icon={ICONS.target}
         title="Captain Picks"
         subtitle={seasonOver ? "Top performers this season" : `Highest expected points for GW${nextGw}`}
       >
@@ -535,7 +557,7 @@ export default function ScoutPage() {
       </Section>
 
       {/* Hot Transfers */}
-      <Section emoji="🔥" title="Hot Transfers" subtitle="Most transferred in this gameweek">
+      <Section icon={ICONS.fire} title="Hot Transfers" subtitle="Most transferred in this gameweek">
         {data.hotTransfersIn.length ? (
           data.hotTransfersIn.map((p) => (
             <PlayerRow
@@ -552,7 +574,7 @@ export default function ScoutPage() {
 
       {/* Differentials */}
       <Section
-        emoji="💎"
+        icon={ICONS.diamond}
         title="Differentials"
         subtitle="High xPts · Under 15% ownership"
       >
@@ -572,7 +594,7 @@ export default function ScoutPage() {
 
       {/* ICT Leaders */}
       <Section
-        emoji="⚡"
+        icon={ICONS.bolt}
         title="ICT Leaders"
         subtitle="Influence · Creativity · Threat (Opta via FPL)"
       >
@@ -591,7 +613,7 @@ export default function ScoutPage() {
       </Section>
 
       {/* Best Value */}
-      <Section emoji="💰" title="Best Value" subtitle="Most points per £ this season">
+      <Section icon={ICONS.money} title="Best Value" subtitle="Most points per £ this season">
         {data.bestValue.length ? (
           data.bestValue.map((p) => (
             <PlayerRow
@@ -608,7 +630,7 @@ export default function ScoutPage() {
 
       {/* Easy Fixtures */}
       <Section
-        emoji="🛡️"
+        icon={ICONS.shield}
         title="Easy Fixtures"
         subtitle="Best xPts · FDR ≤ 2.5 next 3 GWs"
       >
@@ -627,7 +649,7 @@ export default function ScoutPage() {
       </Section>
 
       {/* Price Risers */}
-      <Section emoji="📈" title="Price Risers" subtitle="Rising in price this gameweek">
+      <Section icon={ICONS.up} title="Price Risers" subtitle="Rising in price this gameweek">
         {data.priceRisers.length ? (
           data.priceRisers.map((p) => (
             <PlayerRow
@@ -643,7 +665,7 @@ export default function ScoutPage() {
       </Section>
 
       {/* Price Fallers */}
-      <Section emoji="📉" title="Price Fallers" subtitle="Falling in price this gameweek">
+      <Section icon={ICONS.down} title="Price Fallers" subtitle="Falling in price this gameweek">
         {data.priceFallers.length ? (
           data.priceFallers.map((p) => (
             <PlayerRow
