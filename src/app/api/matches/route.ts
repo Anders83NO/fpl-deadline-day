@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_KEY = process.env.FOOTBALL_DATA_API_KEY;
-const BASE = "https://api.football-data.org/v4";
-const HEADERS = { "X-Auth-Token": API_KEY! };
+const API_KEY = process.env.API_FOOTBALL_KEY;
+const BASE = "https://v3.football.api-sports.io";
+const HEADERS = { "x-apisports-key": API_KEY! };
+const LEAGUE = 39; // Premier League
 
 function getCurrentSeason(): number {
   const now = new Date();
@@ -11,10 +12,15 @@ function getCurrentSeason(): number {
 const CURRENT_SEASON = getCurrentSeason();
 const PREV_SEASON = CURRENT_SEASON - 1;
 
-function gwIsFullyDone(matches: Match[]): boolean {
+function roundToGw(round: string): number {
+  const match = round.match(/(\d+)$/);
+  return match ? parseInt(match[1]) : 0;
+}
+
+function gwIsFullyDone(matches: FormattedMatch[]): boolean {
   if (!matches.length) return false;
   const allFt = matches.every((m) =>
-    ["FINISHED", "FT", "AET", "PEN"].includes(m.status)
+    ["FT", "AET", "PEN", "FINISHED"].includes(m.status)
   );
   if (!allFt) return false;
   const lastMatch = matches
@@ -26,20 +32,44 @@ function gwIsFullyDone(matches: Match[]): boolean {
   return new Date() >= midnight;
 }
 
-function formatMatches(matches: Match[]) {
-  return matches.map((m) => ({
-    id: m.id,
-    home: m.homeTeam.shortName,
-    homeCrest: m.homeTeam.crest,
-    away: m.awayTeam.shortName,
-    awayCrest: m.awayTeam.crest,
-    homeScore: m.score.fullTime.home,
-    awayScore: m.score.fullTime.away,
-    status: m.status,
-    minute: m.minute ?? null,
-    utcDate: m.utcDate,
-    matchday: m.matchday,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function formatFixtures(fixtures: any[]): FormattedMatch[] {
+  return fixtures.map((f) => ({
+    id: f.fixture.id,
+    home: f.teams.home.name,
+    homeCrest: f.teams.home.logo,
+    away: f.teams.away.name,
+    awayCrest: f.teams.away.logo,
+    homeScore: f.goals.home ?? null,
+    awayScore: f.goals.away ?? null,
+    status: f.fixture.status.short,
+    minute: f.fixture.status.elapsed ?? null,
+    utcDate: f.fixture.date,
+    matchday: roundToGw(f.league.round ?? ""),
   }));
+}
+
+async function fetchFixtures(season: number, gw: number) {
+  const round = encodeURIComponent(`Regular Season - ${gw}`);
+  const res = await fetch(
+    `${BASE}/fixtures?league=${LEAGUE}&season=${season}&round=${round}`,
+    { headers: HEADERS, cache: "no-store" }
+  );
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.response ?? [];
+}
+
+async function getCurrentRound(season: number): Promise<number> {
+  const res = await fetch(
+    `${BASE}/fixtures/rounds?league=${LEAGUE}&season=${season}&current=true`,
+    { headers: HEADERS, cache: "no-store" }
+  );
+  if (!res.ok) return 0;
+  const data = await res.json();
+  const rounds: string[] = data.response ?? [];
+  if (!rounds.length) return 0;
+  return roundToGw(rounds[0]);
 }
 
 export async function GET(req: NextRequest) {
@@ -49,80 +79,87 @@ export async function GET(req: NextRequest) {
 
   try {
     if (gwParam) {
-      // Specific GW requested — fetch directly
-      const res = await fetch(
-        `${BASE}/competitions/PL/matches?season=${season}&matchday=${gwParam}`,
-        { headers: HEADERS, cache: "no-store" }
-      );
-      if (!res.ok) return NextResponse.json({ matches: [], matchday: parseInt(gwParam), currentMatchday: 38, totalMatchdays: 38, season: `${season}/${String(season+1).slice(-2)}`, seasonYear: season });
-      const data = await res.json();
-      const matches: Match[] = data.matches ?? [];
-      const md = matches[0]?.matchday ?? parseInt(gwParam);
-      return NextResponse.json({ matches: formatMatches(matches), matchday: md, currentMatchday: md, totalMatchdays: 38, season: `${season}/${String(season+1).slice(-2)}`, seasonYear: season });
+      const fixtures = await fetchFixtures(season, parseInt(gwParam));
+      const formatted = formatFixtures(fixtures);
+      const gw = parseInt(gwParam);
+      return NextResponse.json({
+        matches: formatted,
+        matchday: gw,
+        currentMatchday: gw,
+        totalMatchdays: 38,
+        season: `${season}/${String(season + 1).slice(-2)}`,
+        seasonYear: season,
+      });
     }
 
-    // No GW — get current matchday from competition
-    const compRes = await fetch(`${BASE}/competitions/PL?season=${season}`, { headers: HEADERS, cache: "no-store" });
-    if (!compRes.ok) throw new Error("comp failed");
-    const comp = await compRes.json();
-    const currentMatchday: number = comp?.currentSeason?.currentMatchday ?? 0;
+    // Get current round
+    let currentGw = await getCurrentRound(season);
 
-    if (!currentMatchday) {
+    if (!currentGw) {
       // Off-season → show prev season GW38
-      const prev = await fetch(`${BASE}/competitions/PL/matches?season=${PREV_SEASON}&matchday=38`, { headers: HEADERS, cache: "no-store" });
-      const prevData = prev.ok ? await prev.json() : { matches: [] };
-      const prevMatches: Match[] = prevData.matches ?? [];
-      return NextResponse.json({ matches: formatMatches(prevMatches), matchday: 38, currentMatchday: 38, totalMatchdays: 38, season: `${PREV_SEASON}/${String(PREV_SEASON+1).slice(-2)}`, seasonYear: PREV_SEASON });
+      const fixtures = await fetchFixtures(PREV_SEASON, 38);
+      return NextResponse.json({
+        matches: formatFixtures(fixtures),
+        matchday: 38,
+        currentMatchday: 38,
+        totalMatchdays: 38,
+        season: `${PREV_SEASON}/${String(PREV_SEASON + 1).slice(-2)}`,
+        seasonYear: PREV_SEASON,
+      });
     }
 
-    const matchRes = await fetch(`${BASE}/competitions/PL/matches?season=${season}&matchday=${currentMatchday}`, { headers: HEADERS, cache: "no-store" });
-    if (!matchRes.ok) throw new Error("matches failed");
-    const matchData = await matchRes.json();
-    const matches: Match[] = matchData.matches ?? [];
+    let fixtures = await fetchFixtures(season, currentGw);
 
-    if (matches.length === 0) {
-      // Off-season fallback
-      const prev = await fetch(`${BASE}/competitions/PL/matches?season=${PREV_SEASON}&matchday=38`, { headers: HEADERS, cache: "no-store" });
-      const prevData = prev.ok ? await prev.json() : { matches: [] };
-      const prevMatches: Match[] = prevData.matches ?? [];
-      return NextResponse.json({ matches: formatMatches(prevMatches), matchday: 38, currentMatchday: 38, totalMatchdays: 38, season: `${PREV_SEASON}/${String(PREV_SEASON+1).slice(-2)}`, seasonYear: PREV_SEASON });
+    if (!fixtures.length) {
+      const fixtures38 = await fetchFixtures(PREV_SEASON, 38);
+      return NextResponse.json({
+        matches: formatFixtures(fixtures38),
+        matchday: 38,
+        currentMatchday: 38,
+        totalMatchdays: 38,
+        season: `${PREV_SEASON}/${String(PREV_SEASON + 1).slice(-2)}`,
+        seasonYear: PREV_SEASON,
+      });
     }
 
-    // If GW done and past midnight → advance to next
-    let displayMatchday = currentMatchday;
-    let displayMatches = matches;
-    if (gwIsFullyDone(matches) && currentMatchday < 38) {
-      const nextRes = await fetch(`${BASE}/competitions/PL/matches?season=${season}&matchday=${currentMatchday + 1}`, { headers: HEADERS, cache: "no-store" });
-      if (nextRes.ok) {
-        const nextData = await nextRes.json();
-        if ((nextData.matches ?? []).length > 0) {
-          displayMatchday = currentMatchday + 1;
-          displayMatches = nextData.matches;
-        }
+    let displayGw = currentGw;
+    let displayFixtures = fixtures;
+    const formatted = formatFixtures(fixtures);
+
+    if (gwIsFullyDone(formatted) && currentGw < 38) {
+      const nextFixtures = await fetchFixtures(season, currentGw + 1);
+      if (nextFixtures.length > 0) {
+        displayGw = currentGw + 1;
+        displayFixtures = nextFixtures;
       }
     }
 
     return NextResponse.json({
-      matches: formatMatches(displayMatches),
-      matchday: displayMatchday,
-      currentMatchday,
+      matches: formatFixtures(displayFixtures),
+      matchday: displayGw,
+      currentMatchday: currentGw,
       totalMatchdays: 38,
-      season: `${season}/${String(season+1).slice(-2)}`,
+      season: `${season}/${String(season + 1).slice(-2)}`,
       seasonYear: season,
     });
-
   } catch {
-    return NextResponse.json({ error: "API error", matches: [], matchday: 38, currentMatchday: 38, totalMatchdays: 38, season: "2025/26", seasonYear: CURRENT_SEASON }, { status: 500 });
+    return NextResponse.json(
+      { error: "API error", matches: [], matchday: 1, currentMatchday: 1, totalMatchdays: 38, season: "2025/26", seasonYear: CURRENT_SEASON },
+      { status: 500 }
+    );
   }
 }
 
-interface Match {
+interface FormattedMatch {
   id: number;
-  homeTeam: { shortName: string; crest: string };
-  awayTeam: { shortName: string; crest: string };
-  score: { fullTime: { home: number | null; away: number | null } };
+  home: string;
+  homeCrest: string;
+  away: string;
+  awayCrest: string;
+  homeScore: number | null;
+  awayScore: number | null;
   status: string;
-  minute?: number;
+  minute: number | null;
   utcDate: string;
   matchday: number;
 }
