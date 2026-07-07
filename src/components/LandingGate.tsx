@@ -365,7 +365,10 @@ function ManualIdGuide() {
       <p className="text-xs font-semibold mb-2" style={{ color: "#f59e0b" }}>How to find your Team ID</p>
       <div className="space-y-3">
         <div>
-          <p className="text-xs font-semibold mb-1" style={{ color: "#99bbdd" }}>📱 On your phone</p>
+          <div className="flex items-center gap-1.5 mb-1">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg>
+              <p className="text-xs font-semibold" style={{ color: "#99bbdd" }}>On your phone</p>
+            </div>
           <ol className="text-xs space-y-0.5" style={{ color: "#666" }}>
             <li>1. Open <strong className="text-white">Safari or Chrome</strong></li>
             <li>2. Go to <strong className="text-white">fantasy.premierleague.com</strong></li>
@@ -375,7 +378,10 @@ function ManualIdGuide() {
           </ol>
         </div>
         <div style={{ borderTop: "1px solid #0f1520", paddingTop: "10px" }}>
-          <p className="text-xs font-semibold mb-1" style={{ color: "#99bbdd" }}>💻 Desktop</p>
+          <div className="flex items-center gap-1.5 mb-1">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              <p className="text-xs font-semibold" style={{ color: "#99bbdd" }}>Desktop</p>
+            </div>
           <ol className="text-xs space-y-0.5" style={{ color: "#666" }}>
             <li>1. Go to <strong className="text-white">fantasy.premierleague.com</strong></li>
             <li>2. Click <strong className="text-white">Points</strong> — check the URL:</li>

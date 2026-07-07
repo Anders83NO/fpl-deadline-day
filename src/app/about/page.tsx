@@ -18,34 +18,42 @@ export const metadata: Metadata = {
   },
 };
 
+function Icon({ d }: { d: string }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }}>
+      <path d={d} />
+    </svg>
+  );
+}
+
 const features = [
   {
-    icon: "🗓️",
+    icon: <Icon d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />,
     title: "Gameweek deadline reminders",
     description: "Never miss an FPL deadline again. Sign up to receive email reminders 24 hours and 2 hours before each gameweek deadline — in your local timezone.",
   },
   {
-    icon: "🔄",
+    icon: <Icon d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />,
     title: "FPL transfer planner",
     description: "Plan your Fantasy Premier League transfers before the deadline. See your full squad on a pitch view, search for players, and confirm transfers with live price data from the FPL API.",
   },
   {
-    icon: "📊",
+    icon: <Icon d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18" />,
     title: "GW history",
     description: "FPL Deadline Day automatically saves your transfer plan, captain pick and chip strategy after each gameweek deadline. Review past decisions and learn from them.",
   },
   {
-    icon: "⚡",
+    icon: <Icon d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />,
     title: "Live gameweek scores",
     description: "Follow live Fantasy Premier League scores during gameweeks. See matches grouped by date, track bonus points and check which of your players are playing.",
   },
   {
-    icon: "🔍",
+    icon: <Icon d="M11 3a8 8 0 1 0 0 16A8 8 0 0 0 11 3zM21 21l-4.35-4.35" />,
     title: "Player scout",
     description: "Discover the best FPL transfer targets. Filter players by position, team and form. See fixture difficulty ratings and expected points to make smarter transfer decisions.",
   },
   {
-    icon: "👥",
+    icon: <Icon d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />,
     title: "My Team view",
     description: "See your current FPL squad at a glance. Check player prices, form and upcoming fixtures — all pulled directly from the official Fantasy Premier League API.",
   },
@@ -79,7 +87,7 @@ export default function AboutPage() {
           {features.map((f) => (
             <div key={f.title} className="rounded-xl p-4" style={{ background: "#141e2e", border: "1px solid #1e2d42" }}>
               <div className="flex items-start gap-3">
-                <span className="text-lg leading-none mt-0.5">{f.icon}</span>
+                {f.icon}
                 <div>
                   <h3 className="text-sm font-bold text-white mb-1">{f.title}</h3>
                   <p className="text-xs leading-relaxed" style={{ color: "#7799bb" }}>{f.description}</p>
