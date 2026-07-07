@@ -97,22 +97,16 @@ export default function LandingGate({ children }: { children: React.ReactNode })
     window.location.href = "/transfers";
   }
 
-  async function confirmManual() {
+  function confirmManual() {
     setManualError("");
     const id = manualId.trim();
     if (!id || isNaN(Number(id))) {
       setManualError("Enter a valid numeric Team ID.");
       return;
     }
-    try {
-      const res = await fetch(`/api/fpl/team?id=${id}`);
-      if (!res.ok) throw new Error();
-      localStorage.setItem("fpl_team_id", id);
-      localStorage.setItem("fpl_onboarding_done", "1");
-      window.location.href = "/transfers";
-    } catch {
-      setManualError("Couldn't find that Team ID. Double-check and try again.");
-    }
+    localStorage.setItem("fpl_team_id", id);
+    localStorage.setItem("fpl_onboarding_done", "1");
+    window.location.href = "/transfers";
   }
 
   function skip() {
