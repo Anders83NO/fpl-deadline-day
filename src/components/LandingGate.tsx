@@ -158,7 +158,7 @@ export default function LandingGate({ children }: { children: React.ReactNode })
           {/* CTA */}
           <div className="mt-auto pb-6 space-y-3">
             <button
-              onClick={() => setStep("search")}
+              onClick={() => setStep("manual")}
               className="w-full py-3.5 rounded-xl text-sm font-bold"
               style={{ background: "#f59e0b", color: "#000" }}
             >
