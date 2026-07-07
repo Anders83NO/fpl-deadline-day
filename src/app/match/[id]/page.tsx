@@ -35,16 +35,15 @@ interface MatchDetail {
 type Tab = "events" | "lineups";
 
 function statusLabel(status: string, minute: number | null) {
-  if (["1H", "2H", "ET", "P"].includes(status)) return minute ? `${minute}'` : "LIVE";
-  if (status === "HT") return "HT";
-  if (["FT", "AET", "PEN"].includes(status)) return "FT";
-  if (["NS", "TBD"].includes(status)) return "Upcoming";
-  if (["PST", "CANC", "ABD"].includes(status)) return status;
+  if (status === "IN_PLAY") return minute ? `${minute}'` : "LIVE";
+  if (status === "PAUSED" || status === "HALF_TIME") return "HT";
+  if (status === "FINISHED") return "FT";
+  if (status === "SCHEDULED" || status === "TIMED") return "Upcoming";
   return status;
 }
 
 function isLive(status: string) {
-  return ["1H", "2H", "HT", "ET", "BT", "P"].includes(status);
+  return ["IN_PLAY", "PAUSED", "HALF_TIME"].includes(status);
 }
 
 export default function MatchPage() {
