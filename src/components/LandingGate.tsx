@@ -138,7 +138,7 @@ export default function LandingGate({ children }: { children: React.ReactNode })
             </h1>
             <p className="text-sm mt-3 text-center leading-relaxed" style={{ color: "#666" }}>
               Stop jumping between the FPL app, livescore sites<br />
-              and Twitter. Get it all here — for free.
+              and X. Get it all here — for free.
             </p>
           </div>
 
