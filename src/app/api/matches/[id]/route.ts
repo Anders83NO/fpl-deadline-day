@@ -7,16 +7,32 @@ const HEADERS = { "x-apisports-key": API_KEY! };
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  const res = await fetch(`${BASE}/fixtures?id=${id}`, {
-    headers: HEADERS,
-    next: { revalidate: 60 },
-  });
+  const [fixtureRes, eventsRes] = await Promise.all([
+    fetch(`${BASE}/fixtures?id=${id}`, { headers: HEADERS, next: { revalidate: 60 } }),
+    fetch(`${BASE}/fixtures/events?fixture=${id}`, { headers: HEADERS, next: { revalidate: 60 } }),
+  ]);
 
-  if (!res.ok) return NextResponse.json({ error: "Match not found" }, { status: 404 });
+  if (!fixtureRes.ok) return NextResponse.json({ error: "Match not found" }, { status: 404 });
 
-  const data = await res.json();
-  const f = (data.response ?? [])[0];
+  const fixtureData = await fixtureRes.json();
+  const f = (fixtureData.response ?? [])[0];
   if (!f) return NextResponse.json({ error: "Match not found" }, { status: 404 });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let events: any[] = [];
+  if (eventsRes.ok) {
+    const eventsData = await eventsRes.json();
+    events = (eventsData.response ?? [])
+      .filter((e: { type: string }) => ["Goal", "Card", "subst"].includes(e.type))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((e: any) => ({
+        minute: e.time.elapsed,
+        team: e.team.name,
+        scorer: e.player?.name ?? null,
+        assist: e.assist?.name ?? null,
+        type: e.detail ?? e.type,
+      }));
+  }
 
   return NextResponse.json({
     id: f.fixture.id,
@@ -36,7 +52,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
     awayLineup: [],
     homeBench: [],
     awayBench: [],
-    events: [],
-    upgradeRequired: true,
+    events,
+    upgradeRequired: false,
   });
 }

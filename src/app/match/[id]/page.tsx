@@ -32,71 +32,19 @@ interface MatchDetail {
   upgradeRequired: boolean;
 }
 
-// Placeholder data — visas tills riktigt API är inkopplat
-const PLACEHOLDER_EVENTS: Event[] = [
-  { minute: 14, team: "home", scorer: "M. Salah", assist: "T. Alexander-Arnold", type: "Normal Goal" },
-  { minute: 31, team: "away", scorer: "B. Saka", assist: null, type: "Normal Goal" },
-  { minute: 58, team: "home", scorer: "L. Díaz", assist: "M. Salah", type: "Normal Goal" },
-  { minute: 74, team: "away", scorer: "K. Havertz", assist: "M. Ødegaard", type: "Normal Goal" },
-  { minute: 89, team: "home", scorer: "D. Núñez", assist: "C. Mac Allister", type: "Normal Goal" },
-];
-
-const PLACEHOLDER_HOME_LINEUP: Player[] = [
-  { name: "A. Becker", position: "G", number: 1 },
-  { name: "T. Alexander-Arnold", position: "D", number: 66 },
-  { name: "V. van Dijk", position: "D", number: 4 },
-  { name: "I. Konaté", position: "D", number: 5 },
-  { name: "A. Robertson", position: "D", number: 26 },
-  { name: "R. Gravenberch", position: "M", number: 38 },
-  { name: "C. Mac Allister", position: "M", number: 10 },
-  { name: "D. Szoboszlai", position: "M", number: 8 },
-  { name: "M. Salah", position: "F", number: 11 },
-  { name: "L. Díaz", position: "F", number: 23 },
-  { name: "D. Núñez", position: "F", number: 9 },
-];
-
-const PLACEHOLDER_AWAY_LINEUP: Player[] = [
-  { name: "D. Raya", position: "G", number: 22 },
-  { name: "B. White", position: "D", number: 4 },
-  { name: "W. Saliba", position: "D", number: 12 },
-  { name: "G. Magalhães", position: "D", number: 6 },
-  { name: "O. Zinchenko", position: "D", number: 35 },
-  { name: "T. Partey", position: "M", number: 5 },
-  { name: "M. Ødegaard", position: "M", number: 8 },
-  { name: "D. Rice", position: "M", number: 41 },
-  { name: "B. Saka", position: "F", number: 7 },
-  { name: "L. Trossard", position: "F", number: 19 },
-  { name: "K. Havertz", position: "F", number: 29 },
-];
-
-const PLACEHOLDER_HOME_BENCH: Player[] = [
-  { name: "C. Kelleher", position: "G", number: 62 },
-  { name: "J. Gomez", position: "D", number: 2 },
-  { name: "W. Bajcetic", position: "M", number: 43 },
-  { name: "H. Elliott", position: "M", number: 19 },
-  { name: "C. Jones", position: "F", number: 17 },
-];
-
-const PLACEHOLDER_AWAY_BENCH: Player[] = [
-  { name: "K. Ramsdale", position: "G", number: 1 },
-  { name: "R. Holding", position: "D", number: 16 },
-  { name: "J. Timber", position: "D", number: 12 },
-  { name: "F. Vieira", position: "M", number: 21 },
-  { name: "E. Nketiah", position: "F", number: 14 },
-];
-
 type Tab = "events" | "lineups";
 
 function statusLabel(status: string, minute: number | null) {
-  if (status === "IN_PLAY") return minute ? `${minute}'` : "LIVE";
-  if (status === "PAUSED" || status === "HALF_TIME") return "HT";
-  if (status === "FINISHED") return "FT";
-  if (status === "SCHEDULED" || status === "TIMED") return "Upcoming";
+  if (["1H", "2H", "ET", "P"].includes(status)) return minute ? `${minute}'` : "LIVE";
+  if (status === "HT") return "HT";
+  if (["FT", "AET", "PEN"].includes(status)) return "FT";
+  if (["NS", "TBD"].includes(status)) return "Upcoming";
+  if (["PST", "CANC", "ABD"].includes(status)) return status;
   return status;
 }
 
 function isLive(status: string) {
-  return ["IN_PLAY", "PAUSED", "HALF_TIME"].includes(status);
+  return ["1H", "2H", "HT", "ET", "BT", "P"].includes(status);
 }
 
 export default function MatchPage() {
@@ -109,17 +57,6 @@ export default function MatchPage() {
     async function load() {
       const res = await fetch(`/api/matches/${id}`);
       const json = await res.json();
-      // Inject placeholder data
-      json.events = PLACEHOLDER_EVENTS.map((e) => ({
-        ...e,
-        team: e.team === "home" ? json.home : json.away,
-      }));
-      json.homeLineup = PLACEHOLDER_HOME_LINEUP;
-      json.awayLineup = PLACEHOLDER_AWAY_LINEUP;
-      json.homeBench = PLACEHOLDER_HOME_BENCH;
-      json.awayBench = PLACEHOLDER_AWAY_BENCH;
-      json.homeFormation = "4-3-3";
-      json.awayFormation = "4-3-3";
       setData(json);
       setLoading(false);
     }
@@ -323,11 +260,6 @@ export default function MatchPage() {
         )}
       </div>
 
-      {/* Preview notice */}
-      <div className="mx-4 mb-6 rounded-xl p-3 flex items-center gap-2" style={{ background: "#162030", border: "1px solid #1e3050" }}>
-        <span style={{ color: "#f59e0b" }}>⚡</span>
-        <p className="text-[10px]" style={{ color: "#4d6a88" }}>Live goals, assists & lineups activate at launch.</p>
-      </div>
 
     </div>
   );
