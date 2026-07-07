@@ -142,9 +142,10 @@ export async function GET(req: NextRequest) {
       season: `${season}/${String(season + 1).slice(-2)}`,
       seasonYear: season,
     });
-  } catch {
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
-      { error: "API error", matches: [], matchday: 1, currentMatchday: 1, totalMatchdays: 38, season: "2025/26", seasonYear: CURRENT_SEASON },
+      { error: msg, matches: [], matchday: 1, currentMatchday: 1, totalMatchdays: 38, season: "2025/26", seasonYear: CURRENT_SEASON },
       { status: 500 }
     );
   }
