@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Logo from "@/components/Logo";
+import AuthModal from "@/components/AuthModal";
 
 interface SearchResult {
   id: number;
@@ -58,6 +59,7 @@ export default function LandingGate({ children }: { children: React.ReactNode })
   const [manualId, setManualId] = useState("");
   const [manualError, setManualError] = useState("");
   const [fallback, setFallback] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
 
   useEffect(() => {
     setHasTeam(!!localStorage.getItem("fpl_team_id"));
@@ -129,34 +131,51 @@ export default function LandingGate({ children }: { children: React.ReactNode })
 
       {/* Hero */}
       {step === "hero" && (
-        <div className="flex-1 flex flex-col px-6">
-          <div className="flex flex-col items-center pt-20 pb-8">
-            <Logo size={72} showText={false} />
-            <h1 className="text-3xl font-black text-white mt-6 text-center tracking-tight leading-tight">
+        <div className="flex-1 flex flex-col px-5 pb-8">
+          <div className="flex flex-col items-center pt-16 pb-6">
+            <Logo size={64} showText={false} />
+            <h1 className="text-3xl font-black text-white mt-5 text-center tracking-tight leading-tight">
               Everything you need<br />
               for <span style={{ color: "#f59e0b" }}>FPL</span>. One app.
             </h1>
-            <p className="text-sm mt-3 text-center leading-relaxed" style={{ color: "#666" }}>
-              Stop jumping between the FPL app, livescore sites<br />
-              and X. Get it all here — for free.
+            <p className="text-sm mt-3 text-center leading-relaxed" style={{ color: "#555e70" }}>
+              Stop jumping between the FPL app, livescore sites and X.<br />Get it all here — for free.
             </p>
           </div>
 
-          {/* Features */}
-          <div className="space-y-3 mt-2 mb-8">
+          {/* Features grid */}
+          <div className="grid grid-cols-2 gap-2.5 mb-4">
             {FEATURES.map((f, i) => (
-              <div key={i} className="flex items-start gap-3.5 px-1">
-                <div className="mt-0.5 flex-shrink-0">{f.icon}</div>
-                <div>
-                  <p className="text-sm font-semibold text-white">{f.title}</p>
-                  <p className="text-xs mt-0.5" style={{ color: "#6688aa" }}>{f.desc}</p>
-                </div>
+              <div key={i} className="rounded-xl p-3.5" style={{ background: "#141e2e", border: "1px solid #1e2d42" }}>
+                <div className="mb-1.5">{f.icon}</div>
+                <p className="text-sm font-bold text-white mb-1">{f.title}</p>
+                <p className="text-[11px] leading-snug" style={{ color: "#4d6a88" }}>{f.desc}</p>
               </div>
             ))}
           </div>
 
+          {/* Account upsell */}
+          <div className="rounded-xl px-4 py-3.5 mb-5" style={{ background: "#1a1500", border: "1px solid #f59e0b44" }}>
+            <p className="text-[10px] font-bold tracking-widest uppercase mb-2.5" style={{ color: "#f59e0b" }}>With a free account</p>
+            <div className="space-y-2">
+              {[
+                { title: "Deadline reminders", desc: "Email 24h and 2h before each GW deadline" },
+                { title: "Plans saved across devices", desc: "Transfers, captain and chip picks synced" },
+                { title: "GW history", desc: "See what you planned last week — automatically saved" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-2.5">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" className="flex-shrink-0 mt-0.5"><polyline points="20,6 9,17 4,12" /></svg>
+                  <div>
+                    <p className="text-xs font-semibold text-white">{item.title}</p>
+                    <p className="text-[11px]" style={{ color: "#8a6d30" }}>{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* CTA */}
-          <div className="mt-auto pb-6 space-y-3">
+          <div className="space-y-2.5">
             <button
               onClick={() => setStep("manual")}
               className="w-full py-3.5 rounded-xl text-sm font-bold"
@@ -165,15 +184,24 @@ export default function LandingGate({ children }: { children: React.ReactNode })
               Connect my FPL team
             </button>
             <button
+              onClick={() => setShowAuth(true)}
+              className="w-full py-3 rounded-xl text-sm font-semibold"
+              style={{ background: "#141e2e", color: "#f0f0f0", border: "1px solid #1e3050" }}
+            >
+              Create free account
+            </button>
+            <button
               onClick={skip}
               className="w-full text-center text-xs py-2"
-              style={{ color: "#4d6a88" }}
+              style={{ color: "#3d5570" }}
             >
               Explore without connecting
             </button>
           </div>
         </div>
       )}
+
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
 
       {/* Search step */}
       {step === "search" && (
