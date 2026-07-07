@@ -232,8 +232,8 @@ export default function LandingGate({ children }: { children: React.ReactNode })
               )}
 
               <button onClick={() => setStep("manual")}
-                className="w-full text-center text-xs py-3"
-                style={{ color: "#4d6a88" }}>
+                className="w-full text-center text-sm py-3 font-semibold underline underline-offset-2"
+                style={{ color: "#f59e0b" }}>
                 I know my Team ID → enter manually
               </button>
             </>
