@@ -35,8 +35,28 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [reminderStatus, setReminderStatus] = useState<string | null>(null);
   const [sendingReminder, setSendingReminder] = useState(false);
+  const [stats, setStats] = useState<{ totalUsers: number; newLast7: number; activeLast30: number; uniquePlanners: number; totalPlans: number; recentPlans: number } | null>(null);
+  const [loadingStats, setLoadingStats] = useState(false);
 
   const ADMIN_EMAIL = "andersstenbergw@gmail.com";
+
+  async function loadStats() {
+    if (!user) return;
+    setLoadingStats(true);
+    try {
+      const res = await fetch("/api/admin/stats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userEmail: user.email }),
+      });
+      const data = await res.json();
+      setStats(data);
+    } catch {
+      setStats(null);
+    } finally {
+      setLoadingStats(false);
+    }
+  }
 
   async function sendReminder() {
     if (!user) return;
@@ -238,6 +258,58 @@ export default function SettingsPage() {
       {/* Admin */}
       {user?.email === ADMIN_EMAIL && (
         <Section title="Admin">
+
+          {/* Stats */}
+          <div className="rounded-xl p-4 mb-3" style={{ background: "#1a1a1a", border: "1px solid #0f1520" }}>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold text-white">Statistics</p>
+              <button
+                onClick={loadStats}
+                disabled={loadingStats}
+                className="text-[11px] px-3 py-1 rounded-lg font-semibold"
+                style={{ background: "#1e2d42", color: loadingStats ? "#3d5570" : "#f59e0b" }}
+              >
+                {loadingStats ? "Loading…" : stats ? "Refresh" : "Load stats"}
+              </button>
+            </div>
+
+            {stats && (
+              <div className="space-y-4">
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-widest mb-2" style={{ color: "#3d5570" }}>Users</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { label: "Total", value: stats.totalUsers },
+                      { label: "New (7d)", value: stats.newLast7 },
+                      { label: "Active (30d)", value: stats.activeLast30 },
+                    ].map(s => (
+                      <div key={s.label} className="rounded-lg p-2.5 text-center" style={{ background: "#0f1520", border: "1px solid #1e2d42" }}>
+                        <p className="text-xl font-bold text-white">{s.value}</p>
+                        <p className="text-[9px] mt-0.5" style={{ color: "#4d6a88" }}>{s.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-widest mb-2" style={{ color: "#3d5570" }}>GW Plans</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { label: "Total plans", value: stats.totalPlans },
+                      { label: "Planners", value: stats.uniquePlanners },
+                      { label: "Saved (7d)", value: stats.recentPlans },
+                    ].map(s => (
+                      <div key={s.label} className="rounded-lg p-2.5 text-center" style={{ background: "#0f1520", border: "1px solid #1e2d42" }}>
+                        <p className="text-xl font-bold text-white">{s.value}</p>
+                        <p className="text-[9px] mt-0.5" style={{ color: "#4d6a88" }}>{s.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Send reminder */}
           <div className="rounded-xl p-4" style={{ background: "#1a1a1a", border: "1px solid #0f1520" }}>
             <p className="text-sm font-semibold text-white mb-1">Send deadline reminder</p>
             <p className="text-[11px] mb-3" style={{ color: "#6688aa" }}>Sends email to all registered users now</p>
