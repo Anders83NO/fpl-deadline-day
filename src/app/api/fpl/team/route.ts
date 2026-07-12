@@ -4,13 +4,10 @@ export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get("id");
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
-  const [entryRes, bootstrapRes] = await Promise.all([
-    fetch(`https://fantasy.premierleague.com/api/entry/${id}/`, {
-      cache: "no-store",
-    }),
-    fetch("https://fantasy.premierleague.com/api/bootstrap-static/", {
-      cache: "no-store",
-    }),
+  const [entryRes, bootstrapRes, historyRes] = await Promise.all([
+    fetch(`https://fantasy.premierleague.com/api/entry/${id}/`, { cache: "no-store" }),
+    fetch("https://fantasy.premierleague.com/api/bootstrap-static/", { cache: "no-store" }),
+    fetch(`https://fantasy.premierleague.com/api/entry/${id}/history/`, { cache: "no-store" }),
   ]);
 
   if (!entryRes.ok) return NextResponse.json({ error: "Team not found" }, { status: 404 });
@@ -86,9 +83,10 @@ export async function GET(req: NextRequest) {
     freehit: "freehit",
   };
 
-  const chipsPlayed: string[] = (entry.chips ?? [])
-    .filter((c: { status_for_entry: string; name: string }) => c.status_for_entry === "played")
-    .map((c: { name: string }) => FPL_CHIP_MAP[c.name] ?? c.name);
+  const historyData = historyRes.ok ? await historyRes.json() : null;
+  const chipsPlayed: string[] = (historyData?.chips ?? [])
+    .map((c: { name: string }) => FPL_CHIP_MAP[c.name] ?? c.name)
+    .filter((v: string, i: number, arr: string[]) => arr.indexOf(v) === i); // dedupe
 
   // Chip active this specific GW (already played, not just planned)
   const activeChipThisGw: string | null = picksData.active_chip
