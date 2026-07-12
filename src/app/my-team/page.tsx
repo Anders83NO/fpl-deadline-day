@@ -184,8 +184,8 @@ export default function MyTeamPage() {
       if (!viewGw) setViewGw(json.currentGw ?? json.gw);
       localStorage.setItem("fpl_team_id", id);
 
-      // Load chips and leagues in parallel (only on first load)
-      if (!gw) {
+      // Load chips and leagues in parallel (once per team load)
+      if (chips.length === 0) {
         Promise.all([
           fetch(`/api/fpl/history?id=${id}`).then(r => r.json()).catch(() => ({ chips: [] })),
           fetch(`/api/fpl/leagues?id=${id}`).then(r => r.json()).catch(() => ({ leagues: [] })),
