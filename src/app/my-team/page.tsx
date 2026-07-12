@@ -375,7 +375,10 @@ export default function MyTeamPage() {
                     }}>
                     <p className="text-xs font-bold" style={{ color: used ? "#555" : "#f59e0b" }}>{c.label}</p>
                     {used ? (
-                      <p className="text-[9px] mt-0.5" style={{ color: "#4d6a88" }}>GW{used.gw}</p>
+                      <>
+                        <p className="text-[9px] mt-0.5" style={{ color: "#4d6a88" }}>Used</p>
+                        <p className="text-[8px]" style={{ color: "#2a3a4a" }}>GW{used.gw}</p>
+                      </>
                     ) : (
                       <p className="text-[9px] mt-0.5" style={{ color: "#f59e0b" }}>Available</p>
                     )}
