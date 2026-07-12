@@ -78,6 +78,23 @@ export async function GET(req: NextRequest) {
     };
   });
 
+  // Map FPL chip names to app chip keys
+  const FPL_CHIP_MAP: Record<string, string> = {
+    wildcard: "wildcard",
+    bboost: "bboost",
+    "3xc": "triplecaptain",
+    freehit: "freehit",
+  };
+
+  const chipsPlayed: string[] = (entry.chips ?? [])
+    .filter((c: { status_for_entry: string; name: string }) => c.status_for_entry === "played")
+    .map((c: { name: string }) => FPL_CHIP_MAP[c.name] ?? c.name);
+
+  // Chip active this specific GW (already played, not just planned)
+  const activeChipThisGw: string | null = picksData.active_chip
+    ? (FPL_CHIP_MAP[picksData.active_chip] ?? picksData.active_chip)
+    : null;
+
   return NextResponse.json({
     manager: `${entry.player_first_name} ${entry.player_last_name}`,
     teamName: entry.name,
@@ -89,5 +106,7 @@ export async function GET(req: NextRequest) {
     bank: (picksData.entry_history.bank / 10).toFixed(1),
     team_value: (picksData.entry_history.value / 10).toFixed(1),
     picks,
+    chipsPlayed,
+    activeChipThisGw,
   });
 }

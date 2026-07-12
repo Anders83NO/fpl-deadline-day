@@ -140,6 +140,9 @@ export default function TransfersPage() {
   const [captainPlan, setCaptainPlan] = useState<PlannedCaptain[]>([]);
   const [chipPlan, setChipPlan] = useState<PlannedChip[]>([]);
 
+  // Chips already used this season (from FPL API)
+  const [chipsPlayed, setChipsPlayed] = useState<string[]>([]);
+
   // Lineup action menu (captain/VC/swap)
   const [actionPlayer, setActionPlayer] = useState<Pick | null>(null);
 
@@ -167,10 +170,16 @@ export default function TransfersPage() {
 
     async function load() {
       // 1. Load all players
-      const [playersRes, gwStatusRes] = await Promise.all([
+      const [playersRes, gwStatusRes, chipsRes] = await Promise.all([
         fetch("/api/fpl/players"),
         fetch("/api/fpl/gw-status"),
+        id ? fetch(`/api/fpl/team?id=${id}`) : Promise.resolve(null),
       ]);
+
+      if (chipsRes?.ok) {
+        const chipsData = await chipsRes.json();
+        if (chipsData.chipsPlayed) setChipsPlayed(chipsData.chipsPlayed);
+      }
       const playersData = await playersRes.json();
       setAllPlayers(playersData.players ?? []);
 
@@ -233,6 +242,7 @@ export default function TransfersPage() {
             setBaseSquad(enriched);
             setBaseBank(parseFloat(teamData.bank ?? "0"));
             setGwDataReady(false);
+            if (teamData.chipsPlayed) setChipsPlayed(teamData.chipsPlayed);
           } catch { /* ignore */ }
         }
       }
@@ -802,16 +812,23 @@ export default function TransfersPage() {
               {(Object.keys(CHIP_INFO) as ChipType[]).map((chip) => {
                 const info = CHIP_INFO[chip];
                 const isActive = activeChip === chip;
+                const isUsed = chipsPlayed.includes(chip);
                 return (
-                  <button key={chip} onClick={() => toggleChip(chip)}
-                    className="flex-1 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wide transition-all"
+                  <button key={chip} onClick={() => !isUsed && toggleChip(chip)}
+                    disabled={isUsed}
+                    className="flex-1 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wide transition-all relative"
                     style={{
-                      background: isActive ? info.color + "33" : "#162030",
-                      border: `1px solid ${isActive ? info.color : "#1e3050"}`,
-                      color: isActive ? info.color : "#3d5570",
+                      background: isUsed ? "#0f1520" : isActive ? info.color + "33" : "#162030",
+                      border: `1px solid ${isUsed ? "#1a2030" : isActive ? info.color : "#1e3050"}`,
+                      color: isUsed ? "#2a3a4a" : isActive ? info.color : "#3d5570",
+                      cursor: isUsed ? "default" : "pointer",
+                      textDecoration: isUsed ? "line-through" : "none",
                     }}
-                    title={info.desc}>
+                    title={isUsed ? `${info.label} already used this season` : info.desc}>
                     {info.short}
+                    {isUsed && (
+                      <span style={{ display: "block", fontSize: "8px", color: "#2a3a4a", textDecoration: "none", marginTop: "1px" }}>used</span>
+                    )}
                   </button>
                 );
               })}
