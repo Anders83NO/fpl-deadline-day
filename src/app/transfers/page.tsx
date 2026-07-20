@@ -92,7 +92,7 @@ type SortKey = "price" | "points" | "form" | "epNext" | "selected";
 type ViewMode = "pitch" | "list";
 type PageMode = "lineup" | "transfers" | "fdr" | "analyse";
 
-const MAX_BANKED_FT = 2;
+const MAX_BANKED_FT = 5;
 
 function isValidLineup(picks: Pick[]): boolean {
   const starting = picks.filter((p) => p.position <= 11);
