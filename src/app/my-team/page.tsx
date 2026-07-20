@@ -425,7 +425,6 @@ export default function MyTeamPage() {
                                 style={{ color: s.entryId === parseInt(teamId) ? "#f59e0b" : "#fff" }}>
                                 {s.teamName}
                               </p>
-                              <p className="text-[10px]" style={{ color: "#4d6a88" }}>{s.managerName}</p>
                             </div>
                             <div className="text-right ml-2">
                               <p className="text-xs font-bold text-white">{s.total}</p>
