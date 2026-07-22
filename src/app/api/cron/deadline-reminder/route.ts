@@ -38,15 +38,14 @@ export async function GET(req: Request) {
       hour: "2-digit", minute: "2-digit", timeZone: "Europe/London"
     });
 
-    // Only send at ~24h or ~2h before deadline (within a 1h window)
+    // Only send at ~24h before deadline (within a 1h window)
     const is24h = hoursUntil >= 23 && hoursUntil < 25;
-    const is2h  = hoursUntil >= 1  && hoursUntil < 3;
 
-    if (!is24h && !is2h) {
+    if (!is24h) {
       return NextResponse.json({ message: `No reminder needed. ${hoursUntil.toFixed(1)}h until deadline.` });
     }
 
-    const timeLabel = is24h ? "24 hours" : "2 hours";
+    const timeLabel = "24 hours";
 
     // Fetch all users from Supabase auth
     const { data: { users }, error } = await supabaseAdmin.auth.admin.listUsers();

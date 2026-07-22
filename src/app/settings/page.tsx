@@ -194,7 +194,7 @@ export default function SettingsPage() {
         <div className="rounded-xl p-4 flex items-center justify-between" style={{ background: "#1a1a1a", border: "1px solid #0f1520" }}>
           <div>
             <p className="text-sm font-semibold text-white">Email reminders</p>
-            <p className="text-[11px] mt-0.5" style={{ color: "#6688aa" }}>Deadline reminders 24h and 2h before each GW</p>
+            <p className="text-[11px] mt-0.5" style={{ color: "#6688aa" }}>Deadline reminder 24h before each GW</p>
           </div>
           {user ? (
             <span className="text-[10px] px-2 py-1 rounded font-semibold" style={{ background: "#0f2010", color: "#4ade80", border: "1px solid #1a4020" }}>
