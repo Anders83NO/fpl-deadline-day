@@ -49,9 +49,113 @@ const FEATURES = [
   },
 ];
 
+const TOUR_SLIDES = [
+  {
+    tag: "Transfers",
+    title: "Plan your perfect GW",
+    desc: "See who to bring in based on fixtures, form and price. Save your plan before the deadline.",
+    content: (
+      <div className="space-y-2">
+        <div className="rounded-xl px-3 py-2.5 flex justify-between items-center" style={{ background: "#0f1520" }}>
+          <span style={{ color: "#6688aa", fontSize: 11 }}>Free transfers</span>
+          <span style={{ color: "white", fontSize: 13, fontWeight: 700 }}>2 <span style={{ color: "#4d6a88", fontSize: 10 }}>banked</span></span>
+        </div>
+        <div style={{ display: "flex", gap: 6 }}>
+          {[
+            { label: "WC", style: { background: "#1a1200", color: "#f59e0b", border: "1px solid #3d2800" } },
+            { label: "BB", style: { background: "#0f1520", color: "#2a3a4a", border: "1px solid #1e2d42", textDecoration: "line-through" } },
+            { label: "TC", style: { background: "#162030", color: "#3d5570", border: "1px solid #1e2d42" } },
+            { label: "FH", style: { background: "#162030", color: "#3d5570", border: "1px solid #1e2d42" } },
+          ].map((c) => (
+            <div key={c.label} style={{ ...c.style, flex: 1, borderRadius: 8, padding: "6px 4px", fontSize: 11, fontWeight: 700, textAlign: "center" }}>{c.label}</div>
+          ))}
+        </div>
+        {[
+          { name: "Saka", pos: "MID · ARS · £10.5m", tag: "IN", tagStyle: { background: "#0f2a10", color: "#4ade80" } },
+          { name: "Palmer", pos: "MID · CHE · £11.2m", tag: "OUT", tagStyle: { background: "#2a0f10", color: "#f87171" } },
+        ].map((p) => (
+          <div key={p.name} className="rounded-xl px-3 py-2.5 flex items-center gap-3" style={{ background: "#162030", border: "1px solid #1e2d42" }}>
+            <div style={{ width: 30, height: 30, borderRadius: 7, background: "#1e3050", flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <p style={{ color: "white", fontSize: 12, fontWeight: 700, margin: 0 }}>{p.name}</p>
+              <p style={{ color: "#4d6a88", fontSize: 10, margin: 0 }}>{p.pos}</p>
+            </div>
+            <span style={{ ...p.tagStyle, fontSize: 10, fontWeight: 700, padding: "3px 7px", borderRadius: 5 }}>{p.tag}</span>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    tag: "Live GW",
+    title: "Follow every match",
+    desc: "Live scores, goals and assists updated in real time while your GW points tick up.",
+    content: (
+      <div className="space-y-2">
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#1a0f0f", border: "1px solid #7f1d1d", borderRadius: 6, padding: "3px 8px", fontSize: 10, fontWeight: 700, color: "#f87171" }}>
+            <span style={{ width: 5, height: 5, background: "#f87171", borderRadius: "50%", display: "inline-block" }} />
+            LIVE
+          </span>
+          <span style={{ color: "#4d6a88", fontSize: 11 }}>GW1 · 3 matches in play</span>
+        </div>
+        {[
+          { home: "Arsenal", away: "Chelsea", score: "2 – 1", live: true },
+          { home: "Man City", away: "Liverpool", score: "0 – 0", live: true },
+          { home: "Newcastle", away: "Brentford", score: "15:00", live: false },
+        ].map((m) => (
+          <div key={m.home} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#162030", border: "1px solid #1e2d42", borderRadius: 10, padding: "10px 12px", opacity: m.live ? 1 : 0.5 }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#c8d8e8", width: 76 }}>{m.home}</span>
+            <span style={{ background: "#0d1623", borderRadius: 6, padding: "4px 10px", fontSize: 14, fontWeight: 800, color: "white" }}>{m.score}</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#c8d8e8", width: 76, textAlign: "right" }}>{m.away}</span>
+          </div>
+        ))}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#162030", border: "1px solid #1e2d42", borderRadius: 12, padding: "10px 12px" }}>
+          <span style={{ fontSize: 16 }}>⚽</span>
+          <div style={{ flex: 1 }}>
+            <p style={{ color: "white", fontSize: 11, fontWeight: 700, margin: 0 }}>Saka 67&apos; · Arsenal</p>
+            <p style={{ color: "#4d6a88", fontSize: 10, margin: 0 }}>Assist: Martinelli</p>
+          </div>
+          <span style={{ background: "#1a1200", color: "#f59e0b", fontSize: 10, fontWeight: 700, padding: "3px 7px", borderRadius: 5 }}>+5</span>
+        </div>
+      </div>
+    ),
+  },
+  {
+    tag: "Deadline",
+    title: "Never miss a deadline",
+    desc: "Always know exactly how long you have left. Get an email reminder 24h before each GW.",
+    content: (
+      <div className="space-y-3">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
+          {[["02","days"],["14","hrs"],["38","min"],["51","sec"]].map(([n,l]) => (
+            <div key={l} style={{ background: "#162030", border: "1px solid #1e2d42", borderRadius: 12, padding: "14px 6px", textAlign: "center" }}>
+              <div style={{ fontSize: 26, fontWeight: 800, color: "#f59e0b", lineHeight: 1 }}>{n}</div>
+              <div style={{ fontSize: 10, color: "#4d6a88", marginTop: 3 }}>{l}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ background: "#162030", border: "1px solid #1e2d42", borderRadius: 10, padding: 12, display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 22 }}>📧</span>
+          <div>
+            <p style={{ color: "white", fontSize: 12, fontWeight: 700, margin: 0 }}>Email reminder</p>
+            <p style={{ color: "#4d6a88", fontSize: 10, margin: 0 }}>24 hours before GW1 deadline</p>
+          </div>
+          <span style={{ marginLeft: "auto", fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 5, background: "#0f2010", color: "#4ade80", border: "1px solid #1a4020" }}>Active</span>
+        </div>
+        <div style={{ background: "#1a1200", border: "1px solid #3d2800", borderRadius: 10, padding: 12 }}>
+          <p style={{ color: "#f59e0b", fontSize: 12, fontWeight: 700, margin: "0 0 4px" }}>⚡ Ready to connect?</p>
+          <p style={{ color: "#a07030", fontSize: 11, margin: 0 }}>Link your FPL team to see your real squad, captain picks and mini league standings.</p>
+        </div>
+      </div>
+    ),
+  },
+];
+
 export default function LandingGate({ children }: { children: React.ReactNode }) {
   const [hasTeam, setHasTeam] = useState<boolean | null>(null);
-  const [step, setStep] = useState<"hero" | "search" | "confirm" | "manual">("hero");
+  const [step, setStep] = useState<"hero" | "tour" | "search" | "confirm" | "manual">("hero");
+  const [tourSlide, setTourSlide] = useState(0);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -185,7 +289,7 @@ export default function LandingGate({ children }: { children: React.ReactNode })
               Create free account
             </button>
             <button
-              onClick={skip}
+              onClick={() => { setTourSlide(0); setStep("tour"); }}
               className="w-full text-center text-xs py-2"
               style={{ color: "#3d5570" }}
             >
@@ -196,6 +300,72 @@ export default function LandingGate({ children }: { children: React.ReactNode })
       )}
 
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
+
+      {/* Tour step */}
+      {step === "tour" && (() => {
+        const slide = TOUR_SLIDES[tourSlide];
+        const isLast = tourSlide === TOUR_SLIDES.length - 1;
+        return (
+          <div className="flex-1 flex flex-col px-5 pt-10 pb-8" style={{ maxWidth: 440, margin: "0 auto", width: "100%" }}>
+            {/* Progress dots */}
+            <div style={{ display: "flex", gap: 6, marginBottom: 24 }}>
+              {TOUR_SLIDES.map((_, i) => (
+                <div key={i} style={{ height: 3, flex: 1, borderRadius: 2, background: i <= tourSlide ? "#f59e0b" : "#1e2d42", transition: "background 0.2s" }} />
+              ))}
+            </div>
+
+            {/* Header */}
+            <p className="text-[11px] font-bold tracking-[0.12em] uppercase mb-1" style={{ color: "#f59e0b" }}>{slide.tag}</p>
+            <h2 className="text-xl font-extrabold text-white mb-1 leading-tight">{slide.title}</h2>
+            <p className="text-sm mb-5 leading-relaxed" style={{ color: "#4d6a88" }}>{slide.desc}</p>
+
+            {/* Slide content */}
+            <div className="flex-1">{slide.content}</div>
+
+            {/* Footer buttons */}
+            <div className="mt-6 space-y-3">
+              {isLast ? (
+                <>
+                  <button
+                    onClick={() => setStep("manual")}
+                    className="w-full py-3.5 rounded-xl text-sm font-bold"
+                    style={{ background: "#f59e0b", color: "#000" }}
+                  >
+                    Connect my FPL team
+                  </button>
+                  <button
+                    onClick={skip}
+                    className="w-full py-3 rounded-xl text-sm font-semibold"
+                    style={{ background: "#162030", color: "#6688aa", border: "1px solid #1e2d42" }}
+                  >
+                    Continue without connecting
+                  </button>
+                </>
+              ) : (
+                <div style={{ display: "flex", gap: 10 }}>
+                  <button
+                    onClick={() => tourSlide === 0 ? setStep("hero") : setTourSlide(tourSlide - 1)}
+                    style={{ background: "#162030", color: "#c8d8e8", border: "1px solid #2a3d55", borderRadius: 12, padding: "14px 20px", fontSize: 14, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    onClick={() => setTourSlide(tourSlide + 1)}
+                    style={{ flex: 1, background: "#f59e0b", color: "#000", border: "none", borderRadius: 12, padding: 14, fontSize: 14, fontWeight: 700, cursor: "pointer" }}
+                  >
+                    Next →
+                  </button>
+                </div>
+              )}
+              {!isLast && (
+                <button onClick={skip} className="w-full text-center text-xs py-1" style={{ color: "#3d5570" }}>
+                  Skip — take me in
+                </button>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Search step */}
       {step === "search" && (
