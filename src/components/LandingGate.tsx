@@ -306,9 +306,9 @@ export default function LandingGate({ children }: { children: React.ReactNode })
         const slide = TOUR_SLIDES[tourSlide];
         const isLast = tourSlide === TOUR_SLIDES.length - 1;
         return (
-          <div className="flex-1 flex flex-col px-5 pt-10 pb-8" style={{ maxWidth: 440, margin: "0 auto", width: "100%" }}>
+          <div className="flex-1 flex flex-col px-5 pt-5 pb-6" style={{ maxWidth: 440, margin: "0 auto", width: "100%" }}>
             {/* Progress dots */}
-            <div style={{ display: "flex", gap: 6, marginBottom: 24 }}>
+            <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
               {TOUR_SLIDES.map((_, i) => (
                 <div key={i} style={{ height: 3, flex: 1, borderRadius: 2, background: i <= tourSlide ? "#f59e0b" : "#1e2d42", transition: "background 0.2s" }} />
               ))}
@@ -317,13 +317,13 @@ export default function LandingGate({ children }: { children: React.ReactNode })
             {/* Header */}
             <p className="text-[11px] font-bold tracking-[0.12em] uppercase mb-1" style={{ color: "#f59e0b" }}>{slide.tag}</p>
             <h2 className="text-xl font-extrabold text-white mb-1 leading-tight">{slide.title}</h2>
-            <p className="text-sm mb-5 leading-relaxed" style={{ color: "#4d6a88" }}>{slide.desc}</p>
+            <p className="text-sm mb-4 leading-relaxed" style={{ color: "#4d6a88" }}>{slide.desc}</p>
 
             {/* Slide content */}
             <div className="flex-1">{slide.content}</div>
 
             {/* Footer buttons */}
-            <div className="mt-6 space-y-3">
+            <div className="mt-4 space-y-3">
               {isLast ? (
                 <>
                   <button
