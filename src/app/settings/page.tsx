@@ -102,12 +102,26 @@ export default function SettingsPage() {
   }, []);
 
   function save() {
+    const oldId = localStorage.getItem("fpl_team_id") ?? "";
     localStorage.setItem("fpl_team_id", fplId);
     localStorage.setItem("fpl_display_name", displayName);
     localStorage.setItem("fpl_language", language);
     localStorage.setItem("fpl_timezone", timezone);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+
+    // If team ID changed, fetch new team name and update display name
+    if (fplId && fplId !== oldId) {
+      fetch(`/api/fpl/team?id=${fplId}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.teamName) {
+            setDisplayName(data.teamName);
+            localStorage.setItem("fpl_display_name", data.teamName);
+          }
+        })
+        .catch(() => {});
+    }
   }
 
   return (
