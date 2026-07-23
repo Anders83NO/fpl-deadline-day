@@ -34,8 +34,31 @@ function shirtUrl(teamCode: number, isGk: boolean): string {
   return `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${teamCode}${suffix}`;
 }
 
-function PlayerCard({ pick }: { pick: Pick }) {
+function PlayerCard({ pick, bench = false }: { pick: Pick; bench?: boolean }) {
+  const isEmpty = pick.element < 0;
   const isGk = pick.element_type === 1;
+  const posLabel = TYPE_LABEL[pick.element_type] ?? pick.name;
+
+  if (isEmpty) {
+    return (
+      <div className="flex flex-col items-center gap-0.5 w-[72px]">
+        <div className="w-14 h-14 rounded-xl flex items-center justify-center"
+          style={{ background: "#0d1c12", border: "1.5px dashed #2e5c38", opacity: bench ? 0.6 : 1 }}>
+          <span style={{ color: "#2e5c38", fontSize: 18 }}>+</span>
+        </div>
+        <div className="flex flex-col items-center w-full">
+          <span className="text-[10px] font-bold text-center leading-tight rounded-t px-1 py-0.5 w-full truncate block"
+            style={{ background: "#1e3025", color: "#4d8860", maxWidth: "72px" }}>
+            {posLabel}
+          </span>
+          <span className="text-[10px] font-bold text-center rounded-b px-1.5 py-0.5 w-full"
+            style={{ background: "#1a2820", color: "#3d6048", maxWidth: "72px" }}>
+            —
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center gap-0.5 w-[72px]">
@@ -45,13 +68,7 @@ function PlayerCard({ pick }: { pick: Pick }) {
           border: `1.5px solid ${pick.is_captain ? "#f59e0b" : "#22763e"}`,
         }}>
         {pick.teamCode > 0 ? (
-          <img
-            src={shirtUrl(pick.teamCode, isGk)}
-            alt={pick.team}
-            width={36}
-            height={40}
-            className="object-contain"
-          />
+          <img src={shirtUrl(pick.teamCode, isGk)} alt={pick.team} width={36} height={40} className="object-contain" />
         ) : (
           <span className="text-[10px] font-bold text-center leading-tight px-1"
             style={{ color: pick.is_captain ? "#000" : "#fff" }}>
@@ -81,10 +98,10 @@ function PlayerCard({ pick }: { pick: Pick }) {
   );
 }
 
-function PitchRow({ picks }: { picks: Pick[] }) {
+function PitchRow({ picks, bench }: { picks: Pick[]; bench?: boolean }) {
   return (
     <div className="flex justify-center gap-2 my-1">
-      {picks.map((p) => <PlayerCard key={p.element} pick={p} />)}
+      {picks.map((p) => <PlayerCard key={p.element} pick={p} bench={bench} />)}
     </div>
   );
 }
@@ -126,6 +143,24 @@ interface League {
   standings: LeagueStanding[];
   myRank: number;
 }
+
+const EMPTY_PICKS: Pick[] = [
+  { element: -1,  position: 1,  multiplier: 1, is_captain: false, is_vice_captain: false, name: "GKP", team: "", teamCode: 0, element_type: 1, gw_points: 0 },
+  { element: -2,  position: 2,  multiplier: 1, is_captain: false, is_vice_captain: false, name: "DEF", team: "", teamCode: 0, element_type: 2, gw_points: 0 },
+  { element: -3,  position: 3,  multiplier: 1, is_captain: false, is_vice_captain: false, name: "DEF", team: "", teamCode: 0, element_type: 2, gw_points: 0 },
+  { element: -4,  position: 4,  multiplier: 1, is_captain: false, is_vice_captain: false, name: "DEF", team: "", teamCode: 0, element_type: 2, gw_points: 0 },
+  { element: -5,  position: 5,  multiplier: 1, is_captain: false, is_vice_captain: false, name: "DEF", team: "", teamCode: 0, element_type: 2, gw_points: 0 },
+  { element: -6,  position: 6,  multiplier: 1, is_captain: false, is_vice_captain: false, name: "MID", team: "", teamCode: 0, element_type: 3, gw_points: 0 },
+  { element: -7,  position: 7,  multiplier: 1, is_captain: false, is_vice_captain: false, name: "MID", team: "", teamCode: 0, element_type: 3, gw_points: 0 },
+  { element: -8,  position: 8,  multiplier: 1, is_captain: false, is_vice_captain: false, name: "MID", team: "", teamCode: 0, element_type: 3, gw_points: 0 },
+  { element: -9,  position: 9,  multiplier: 1, is_captain: false, is_vice_captain: false, name: "MID", team: "", teamCode: 0, element_type: 3, gw_points: 0 },
+  { element: -10, position: 10, multiplier: 1, is_captain: false, is_vice_captain: false, name: "FWD", team: "", teamCode: 0, element_type: 4, gw_points: 0 },
+  { element: -11, position: 11, multiplier: 1, is_captain: false, is_vice_captain: false, name: "FWD", team: "", teamCode: 0, element_type: 4, gw_points: 0 },
+  { element: -12, position: 12, multiplier: 1, is_captain: false, is_vice_captain: false, name: "GKP", team: "", teamCode: 0, element_type: 1, gw_points: 0 },
+  { element: -13, position: 13, multiplier: 1, is_captain: false, is_vice_captain: false, name: "DEF", team: "", teamCode: 0, element_type: 2, gw_points: 0 },
+  { element: -14, position: 14, multiplier: 1, is_captain: false, is_vice_captain: false, name: "MID", team: "", teamCode: 0, element_type: 3, gw_points: 0 },
+  { element: -15, position: 15, multiplier: 1, is_captain: false, is_vice_captain: false, name: "FWD", team: "", teamCode: 0, element_type: 4, gw_points: 0 },
+];
 
 const ALL_CHIPS = [
   { key: "wildcard", label: "WC" },
@@ -224,8 +259,11 @@ export default function MyTeamPage() {
     if (inputId.trim()) fetchTeam(inputId.trim());
   }
 
-  const starting = data?.picks.filter((p) => p.position <= 11) ?? [];
-  const bench = data?.picks.filter((p) => p.position > 11) ?? [];
+  const picks = data ? (data.picks.length > 0 ? data.picks : EMPTY_PICKS) : [];
+  const isEmptySquad = data?.picks.length === 0;
+
+  const starting = picks.filter((p) => p.position <= 11);
+  const bench = picks.filter((p) => p.position > 11);
 
   const gk = starting.filter((p) => p.element_type === 1);
   const defs = starting.filter((p) => p.element_type === 2);
@@ -314,6 +352,14 @@ export default function MyTeamPage() {
             ))}
           </div>
 
+          {/* GW1 banner */}
+          {isEmptySquad && (
+            <div className="rounded-xl px-4 py-3 mb-4" style={{ background: "#1a1200", border: "1px solid #f59e0b44" }}>
+              <p className="text-xs font-bold mb-0.5" style={{ color: "#f59e0b" }}>Season hasn't started yet</p>
+              <p className="text-[11px]" style={{ color: "#a07030" }}>Build your squad in the Transfers tab before GW1 kicks off.</p>
+            </div>
+          )}
+
           {/* Pitch */}
           <div className="rounded-xl mb-4 overflow-hidden relative" style={{
             background: `repeating-linear-gradient(
@@ -336,28 +382,7 @@ export default function MyTeamPage() {
           <div className="rounded-xl p-3" style={{ background: "#162030", border: "1px solid #1e3050" }}>
             <p className="text-[10px] uppercase tracking-wider mb-3" style={{ color: "#6688aa" }}>Bench</p>
             <div className="flex justify-around">
-              {bench.map((p) => (
-                <div key={p.element} className="flex flex-col items-center gap-0.5 w-[72px]">
-                  <div className="w-14 h-14 rounded-xl flex items-center justify-center"
-                    style={{ background: "#1a1a1a", border: "1px solid #0f1520" }}>
-                    {p.teamCode > 0 ? (
-                      <img src={shirtUrl(p.teamCode, p.element_type === 1)} alt={p.team} width={36} height={40} className="object-contain opacity-60" />
-                    ) : (
-                      <span className="text-white text-[8px] text-center px-1">{p.name}</span>
-                    )}
-                  </div>
-                  <div className="flex flex-col items-center w-full">
-                    <span className="text-[10px] font-bold text-center leading-tight rounded-t px-1 py-0.5 w-full truncate block"
-                      style={{ background: "#fff", color: "#000", maxWidth: "72px" }}>
-                      {p.name}
-                    </span>
-                    <span className="text-[10px] font-bold tabular-nums text-center rounded-b px-1.5 py-0.5 w-full"
-                      style={{ background: p.gw_points > 0 ? "#f59e0b" : "#555", color: p.gw_points > 0 ? "#000" : "#fff" }}>
-                      {p.gw_points}
-                    </span>
-                  </div>
-                </div>
-              ))}
+              {bench.map((p) => <PlayerCard key={p.element} pick={p} bench />)}
             </div>
           </div>
 
