@@ -64,7 +64,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
             </p>
             <div className="space-y-2.5 mb-5">
               {[
-                { icon: "📬", text: "Deadline reminders — 24h and 2h before each GW" },
+                { icon: "📬", text: "Deadline reminders — 24h before each GW" },
                 { icon: "💾", text: "Your transfer plans saved across devices" },
                 { icon: "📊", text: "GW history — see what you planned last week" },
               ].map((item, i) => (
