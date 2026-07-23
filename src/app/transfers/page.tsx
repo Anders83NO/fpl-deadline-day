@@ -94,6 +94,24 @@ type PageMode = "lineup" | "transfers" | "fdr" | "analyse";
 
 const MAX_BANKED_FT = 5;
 
+const EMPTY_SQUAD: Pick[] = [
+  { element: -1,  position: 1,  element_type: 1, name: "GKP", team: "", teamCode: 0, is_captain: false, is_vice_captain: false },
+  { element: -2,  position: 2,  element_type: 2, name: "DEF", team: "", teamCode: 0, is_captain: false, is_vice_captain: false },
+  { element: -3,  position: 3,  element_type: 2, name: "DEF", team: "", teamCode: 0, is_captain: false, is_vice_captain: false },
+  { element: -4,  position: 4,  element_type: 2, name: "DEF", team: "", teamCode: 0, is_captain: false, is_vice_captain: false },
+  { element: -5,  position: 5,  element_type: 2, name: "DEF", team: "", teamCode: 0, is_captain: false, is_vice_captain: false },
+  { element: -6,  position: 6,  element_type: 3, name: "MID", team: "", teamCode: 0, is_captain: false, is_vice_captain: false },
+  { element: -7,  position: 7,  element_type: 3, name: "MID", team: "", teamCode: 0, is_captain: false, is_vice_captain: false },
+  { element: -8,  position: 8,  element_type: 3, name: "MID", team: "", teamCode: 0, is_captain: false, is_vice_captain: false },
+  { element: -9,  position: 9,  element_type: 3, name: "MID", team: "", teamCode: 0, is_captain: false, is_vice_captain: false },
+  { element: -10, position: 10, element_type: 4, name: "FWD", team: "", teamCode: 0, is_captain: false, is_vice_captain: false },
+  { element: -11, position: 11, element_type: 4, name: "FWD", team: "", teamCode: 0, is_captain: false, is_vice_captain: false },
+  { element: -12, position: 12, element_type: 1, name: "GKP", team: "", teamCode: 0, is_captain: false, is_vice_captain: false },
+  { element: -13, position: 13, element_type: 2, name: "DEF", team: "", teamCode: 0, is_captain: false, is_vice_captain: false },
+  { element: -14, position: 14, element_type: 3, name: "MID", team: "", teamCode: 0, is_captain: false, is_vice_captain: false },
+  { element: -15, position: 15, element_type: 4, name: "FWD", team: "", teamCode: 0, is_captain: false, is_vice_captain: false },
+];
+
 function isValidLineup(picks: Pick[]): boolean {
   const starting = picks.filter((p) => p.position <= 11);
   const gks = starting.filter((p) => p.element_type === 1).length;
@@ -232,15 +250,22 @@ export default function TransfersPage() {
           try {
             const teamRes = await fetch(`/api/fpl/team?id=${id}`);
             const teamData = await teamRes.json();
-            const enriched = (teamData.picks ?? []).map((p: Pick) => ({
-              ...p,
-              price: pm[p.element]?.price ?? 0,
-              form: pm[p.element]?.form ?? 0,
-              points: pm[p.element]?.points ?? 0,
-              teamCode: p.teamCode ?? pm[p.element]?.teamCode ?? 0,
-            }));
-            setBaseSquad(enriched);
-            setBaseBank(parseFloat(teamData.bank ?? "0"));
+            const picks = teamData.picks ?? [];
+            if (picks.length > 0) {
+              const enriched = picks.map((p: Pick) => ({
+                ...p,
+                price: pm[p.element]?.price ?? 0,
+                form: pm[p.element]?.form ?? 0,
+                points: pm[p.element]?.points ?? 0,
+                teamCode: p.teamCode ?? pm[p.element]?.teamCode ?? 0,
+              }));
+              setBaseSquad(enriched);
+              setBaseBank(parseFloat(teamData.bank ?? "0"));
+            } else {
+              // New season — no picks yet, show empty squad with £100m budget
+              setBaseSquad(EMPTY_SQUAD);
+              setBaseBank(100.0);
+            }
             setGwDataReady(false);
             if (teamData.chipsPlayed) setChipsPlayed(teamData.chipsPlayed);
           } catch { /* ignore */ }
@@ -605,6 +630,7 @@ export default function TransfersPage() {
   const fwds = starting.filter((p) => p.element_type === 4);
 
   const hasGwChanges = gwTransfers.length > 0 || gwSwaps.length > 0 || !!activeChip || !!captainPlan.find(c => c.gw === planGw);
+  const isEmptySquad = baseSquad.length > 0 && baseSquad.every(p => p.element < 0);
 
   if (loading) {
     return (
@@ -747,13 +773,23 @@ export default function TransfersPage() {
       ) : (
         <>
           {/* Data source indicator */}
-          <div className="mb-3 px-1">
-            <p className="text-[10px]" style={{ color: gwDataReady ? "#4ade80" : "#555" }}>
-              {gwDataReady
-                ? `✓ Squad based on last locked GW`
-                : `Squad based on current FPL data`}
-            </p>
-          </div>
+          {!isEmptySquad && (
+            <div className="mb-3 px-1">
+              <p className="text-[10px]" style={{ color: gwDataReady ? "#4ade80" : "#555" }}>
+                {gwDataReady
+                  ? `✓ Squad based on last locked GW`
+                  : `Squad based on current FPL data`}
+              </p>
+            </div>
+          )}
+
+          {/* GW1 empty squad banner */}
+          {isEmptySquad && (
+            <div className="rounded-xl px-4 py-3 mb-3" style={{ background: "#1a1200", border: "1px solid #f59e0b44" }}>
+              <p className="text-xs font-bold mb-0.5" style={{ color: "#f59e0b" }}>Build your squad for GW1</p>
+              <p className="text-[11px]" style={{ color: "#a07030" }}>Go to Transfers and tap a position to add a player. Budget: £{bank.toFixed(1)}m</p>
+            </div>
+          )}
 
           {/* Mode toggle */}
           <div className="flex rounded-xl overflow-hidden mb-3" style={{ border: "1px solid #1e3050" }}>
@@ -1332,9 +1368,32 @@ function shirtUrl(teamCode: number, isGk: boolean): string {
 }
 
 function PitchCard({ pick, onTap, selected, dimmed, fixtureMap, showPrice }: { pick: Pick; onTap: (p: Pick) => void; selected?: boolean; dimmed?: boolean; fixtureMap: FixtureMap; showPrice?: boolean }) {
-  const fixture = fixtureLabel(pick.team, fixtureMap);
-  const hasFixture = fixture !== pick.team;
+  const isEmpty = pick.element < 0;
+  const fixture = isEmpty ? "" : fixtureLabel(pick.team, fixtureMap);
+  const hasFixture = !isEmpty && fixture !== pick.team;
   const isGk = pick.element_type === 1;
+  const posLabel = TYPE_LABEL[pick.element_type] ?? pick.name;
+
+  if (isEmpty) {
+    return (
+      <button onClick={() => onTap(pick)} className="flex flex-col items-center gap-0.5 w-[72px] active:scale-95 transition-transform" style={{ opacity: dimmed ? 0.3 : 1 }}>
+        <div className="w-14 h-14 rounded-xl flex flex-col items-center justify-center relative"
+          style={{ background: "#0d1c12", border: "1.5px dashed #2e5c38" }}>
+          <span style={{ color: "#2e5c38", fontSize: 18, lineHeight: 1 }}>+</span>
+        </div>
+        <div className="flex flex-col items-center w-full">
+          <span className="text-[10px] font-bold text-center leading-tight rounded-t px-1 py-0.5 w-full truncate block"
+            style={{ background: "#1e3025", color: "#4d8860", maxWidth: "72px" }}>
+            {posLabel}
+          </span>
+          <span className="text-[9px] font-medium text-center leading-tight rounded-b px-1 py-0.5 w-full block"
+            style={{ background: "#1a2820", color: "#3d6048", maxWidth: "72px" }}>
+            Empty
+          </span>
+        </div>
+      </button>
+    );
+  }
 
   return (
     <button onClick={() => onTap(pick)} className="flex flex-col items-center gap-0.5 w-[72px] active:scale-95 transition-transform">
@@ -1393,8 +1452,26 @@ function PitchCard({ pick, onTap, selected, dimmed, fixtureMap, showPrice }: { p
 
 function SquadRow({ pick, playerInfo, onSelect, selected, dimmed, fixtureMap }: { pick: Pick; playerInfo?: Player; onSelect: () => void; selected?: boolean; dimmed?: boolean; fixtureMap: FixtureMap }) {
   const color = TYPE_COLOR[pick.element_type];
-  const fixture = fixtureLabel(pick.team, fixtureMap);
-  const hasFixture = fixture !== pick.team;
+  const isEmpty = pick.element < 0;
+  const fixture = isEmpty ? "" : fixtureLabel(pick.team, fixtureMap);
+  const hasFixture = !isEmpty && fixture !== pick.team;
+
+  if (isEmpty) {
+    return (
+      <button onClick={onSelect} className="w-full text-left">
+        <div className="rounded-xl px-3 py-2.5 flex items-center gap-3"
+          style={{ background: "#0d1c12", border: "1px dashed #2e5c38", opacity: dimmed ? 0.5 : 1 }}>
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded w-8 text-center" style={{ background: color + "22", color }}>
+            {TYPE_LABEL[pick.element_type]}
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold" style={{ color: "#3d6048" }}>Empty slot</p>
+          </div>
+          <span style={{ color: "#2e5c38", fontSize: 20 }}>+</span>
+        </div>
+      </button>
+    );
+  }
 
   return (
     <button onClick={onSelect} className="w-full text-left">
