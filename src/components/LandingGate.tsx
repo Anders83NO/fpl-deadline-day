@@ -535,8 +535,9 @@ function ManualIdGuide() {
       <p className="text-xs font-semibold mb-2" style={{ color: "#f59e0b" }}>How to find your Team ID</p>
       <ol className="text-xs space-y-1" style={{ color: "#6688aa" }}>
         <li>1. Open <strong className="text-white">fantasy.premierleague.com</strong> in a browser and log in</li>
-        <li>2. Click <strong className="text-white">Transfer History</strong></li>
-        <li>3. Your ID is the number in the URL after <span className="font-mono text-white">/entry/</span>:</li>
+        <li>2. Click <strong className="text-white">Pick Team</strong></li>
+        <li>3. Click <strong className="text-white">Gameweek History</strong></li>
+        <li>4. Your ID is the number in the URL after <span className="font-mono text-white">/entry/</span>:</li>
       </ol>
       <p className="font-mono text-[11px] mt-2 px-2 py-1.5 rounded" style={{ background: "#0f1520", color: "#f59e0b" }}>
         …/entry/<strong>354716</strong>/history
