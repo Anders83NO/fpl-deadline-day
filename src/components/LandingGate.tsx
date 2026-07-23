@@ -257,7 +257,7 @@ export default function LandingGate({ children }: { children: React.ReactNode })
             <p className="text-[10px] font-bold tracking-widest uppercase mb-2.5" style={{ color: "#f59e0b" }}>With a free account</p>
             <div className="space-y-2">
               {[
-                { title: "Deadline reminders", desc: "Email 24h and 2h before each GW deadline" },
+                { title: "Deadline reminders", desc: "Email 24h before each GW deadline" },
                 { title: "Plans saved across devices", desc: "Transfers, captain and chip picks synced" },
                 { title: "GW history", desc: "See what you planned last week — automatically saved" },
               ].map((item, i) => (
