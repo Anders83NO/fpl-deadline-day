@@ -213,8 +213,8 @@ export default function MyTeamPage() {
     try {
       const url = gw ? `/api/fpl/team?id=${id}&gw=${gw}` : `/api/fpl/team?id=${id}`;
       const res = await fetch(url);
-      if (!res.ok) throw new Error("Team not found");
       const json = await res.json();
+      if (!res.ok && !json.noData) throw new Error("Team not found");
       setData(json);
       if (!viewGw) setViewGw(json.currentGw ?? json.gw);
       localStorage.setItem("fpl_team_id", id);

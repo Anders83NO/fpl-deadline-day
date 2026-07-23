@@ -10,14 +10,17 @@ export async function GET(req: NextRequest) {
     fetch(`https://fantasy.premierleague.com/api/entry/${id}/history/`, { cache: "no-store" }),
   ]);
 
-  if (!entryRes.ok) return NextResponse.json({ error: "Team not found" }, { status: 404 });
+  // GW1 / new season: FPL entry endpoint may return 404 before picks exist
+  if (!entryRes.ok) {
+    return NextResponse.json({ picks: [], noData: true, gw: 1, currentGw: 1, manager: "", teamName: "", overall_points: 0, overall_rank: 0, gw_points: 0, bank: "0.0", team_value: "0.0", chipsPlayed: [], activeChipThisGw: null });
+  }
 
   const entry = await entryRes.json();
   const bootstrap = await bootstrapRes.json();
 
-  const currentEvent = entry.current_event;
+  const currentEvent = entry.current_event ?? 1;
   const gwParam = req.nextUrl.searchParams.get("gw");
-  const viewGw = gwParam ? parseInt(gwParam) : currentEvent;
+  const viewGw = gwParam ? parseInt(gwParam) : (currentEvent || 1);
 
   const [picksRes, liveRes] = await Promise.all([
     fetch(
@@ -29,6 +32,12 @@ export async function GET(req: NextRequest) {
       { cache: "no-store" }
     ),
   ]);
+
+  // No picks yet (GW1 before deadline)
+  if (!picksRes.ok) {
+    return NextResponse.json({ picks: [], noData: true, gw: viewGw, currentGw: currentEvent ?? 1, manager: `${entry.player_first_name} ${entry.player_last_name}`, teamName: entry.name ?? "", overall_points: entry.summary_overall_points ?? 0, overall_rank: entry.summary_overall_rank ?? 0, gw_points: 0, bank: "100.0", team_value: "100.0", chipsPlayed: [], activeChipThisGw: null });
+  }
+
   const picksData = await picksRes.json();
 
   const livePoints: Record<number, number> = {};
@@ -101,8 +110,8 @@ export async function GET(req: NextRequest) {
     gw_points: picksData.entry_history?.points ?? 0,
     gw: viewGw,
     currentGw: currentEvent,
-    bank: (picksData.entry_history.bank / 10).toFixed(1),
-    team_value: (picksData.entry_history.value / 10).toFixed(1),
+    bank: ((picksData.entry_history?.bank ?? 1000) / 10).toFixed(1),
+    team_value: ((picksData.entry_history?.value ?? 1000) / 10).toFixed(1),
     picks,
     chipsPlayed,
     activeChipThisGw,
