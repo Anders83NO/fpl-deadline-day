@@ -1506,19 +1506,26 @@ function PlayerRow({ player, fixtureMap }: { player: Player; fixtureMap: Fixture
   const injured = player.status === "i" || player.status === "d";
   const fixture = fixtureLabel(player.team, fixtureMap);
   const hasFixture = fixture !== player.team;
+  const isGk = player.type === 1;
 
   return (
     <div className="rounded-xl px-3 py-2.5 flex items-center gap-3 active:opacity-70"
       style={{ background: "#1a2538", border: "1px solid #1e3050" }}>
-      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded w-8 text-center flex-shrink-0" style={{ background: color + "22", color }}>
-        {TYPE_LABEL[player.type]}
-      </span>
+      <div className="flex flex-col items-center flex-shrink-0 w-10">
+        <img
+          src={shirtUrl(player.teamCode, isGk)}
+          alt={player.team}
+          className="w-8 h-8 object-contain"
+          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+        />
+        <span className="text-[8px] font-bold mt-0.5" style={{ color }}>{TYPE_LABEL[player.type]}</span>
+      </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
           <p className="text-sm font-semibold text-white truncate">{player.name}</p>
           {injured && <span className="text-[9px]" style={{ color: "#ef4444" }}>⚠</span>}
         </div>
-        <p className="text-[10px]" style={{ color: hasFixture ? "#f59e0b" : "#555" }}>{fixture}</p>
+        <p className="text-[10px]" style={{ color: "#6688aa" }}>{player.team} · <span style={{ color: hasFixture ? "#f59e0b" : "#555" }}>{fixture}</span></p>
       </div>
       <div className="text-right flex-shrink-0">
         <p className="text-xs font-bold" style={{ color: "#f59e0b" }}>£{player.price.toFixed(1)}m</p>
