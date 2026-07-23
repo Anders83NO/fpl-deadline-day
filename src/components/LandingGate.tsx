@@ -533,46 +533,14 @@ function ManualIdGuide() {
   return (
     <div className="rounded-xl p-4 mb-4" style={{ background: "#1a2538", border: "1px solid #1e3050" }}>
       <p className="text-xs font-semibold mb-2" style={{ color: "#f59e0b" }}>How to find your Team ID</p>
-      <div className="space-y-3">
-        <div>
-          <div className="flex items-center gap-1.5 mb-1">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg>
-              <p className="text-xs font-semibold" style={{ color: "#99bbdd" }}>On your phone</p>
-            </div>
-          <ol className="text-xs space-y-0.5" style={{ color: "#666" }}>
-            <li>1. Open <strong className="text-white">Safari or Chrome</strong></li>
-            <li>2. Go to <strong className="text-white">fantasy.premierleague.com</strong></li>
-            <li>3. Log in → tap <strong className="text-white">Points</strong></li>
-            <li>4. Your ID is in the address bar:</li>
-            <li className="pl-3 font-mono text-[11px]" style={{ color: "#f59e0b" }}>…/entry/<strong>1213119</strong>/event/…</li>
-          </ol>
-        </div>
-        <div style={{ borderTop: "1px solid #0f1520", paddingTop: "10px" }}>
-          <div className="flex items-center gap-1.5 mb-1">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-              <p className="text-xs font-semibold" style={{ color: "#99bbdd" }}>Desktop</p>
-            </div>
-          <ol className="text-xs space-y-0.5" style={{ color: "#666" }}>
-            <li>1. Go to <strong className="text-white">fantasy.premierleague.com</strong></li>
-            <li>2. Click <strong className="text-white">Points</strong> — check the URL:</li>
-            <li className="pl-3 font-mono text-[11px]" style={{ color: "#f59e0b" }}>…/entry/<strong>1213119</strong>/event/…</li>
-          </ol>
-        </div>
-        <div style={{ borderTop: "1px solid #0f1520", paddingTop: "10px" }}>
-          <div className="flex items-center gap-1.5 mb-1">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
-            <p className="text-xs font-semibold" style={{ color: "#99bbdd" }}>Before GW1 — via mini league</p>
-          </div>
-          <p className="text-xs mb-1" style={{ color: "#666" }}>The Points page isn&apos;t available until GW1 has started. Instead:</p>
-          <ol className="text-xs space-y-0.5" style={{ color: "#666" }}>
-            <li>1. Go to <strong className="text-white">fantasy.premierleague.com</strong></li>
-            <li>2. Open a <strong className="text-white">mini league</strong> you&apos;re in</li>
-            <li>3. Click your <strong className="text-white">own team name</strong> in the standings</li>
-            <li>4. Your ID is in the URL:</li>
-            <li className="pl-3 font-mono text-[11px]" style={{ color: "#f59e0b" }}>…/entry/<strong>1213119</strong>/…</li>
-          </ol>
-        </div>
-      </div>
+      <ol className="text-xs space-y-1" style={{ color: "#6688aa" }}>
+        <li>1. Open <strong className="text-white">fantasy.premierleague.com</strong> in a browser and log in</li>
+        <li>2. Click <strong className="text-white">Points</strong> or <strong className="text-white">Transfer History</strong></li>
+        <li>3. Your ID is the number in the URL after <span className="font-mono text-white">/entry/</span>:</li>
+      </ol>
+      <p className="font-mono text-[11px] mt-2 px-2 py-1.5 rounded" style={{ background: "#0f1520", color: "#f59e0b" }}>
+        …/entry/<strong>354716</strong>/history
+      </p>
     </div>
   );
 }
