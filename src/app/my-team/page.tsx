@@ -216,11 +216,12 @@ export default function MyTeamPage() {
       const json = await res.json();
       if (!res.ok && !json.noData) throw new Error("Team not found");
       setData(json);
+      setTeamId(id);
       if (!viewGw) setViewGw(json.currentGw ?? json.gw);
       localStorage.setItem("fpl_team_id", id);
 
-      // Load chips and leagues in parallel (once per team load)
-      if (chips.length === 0) {
+      // Load chips and leagues in parallel (reload when team changes)
+      if (chips.length === 0 || teamId !== id) {
         Promise.all([
           fetch(`/api/fpl/history?id=${id}`).then(r => r.json()).catch(() => ({ chips: [] })),
           fetch(`/api/fpl/leagues?id=${id}`).then(r => r.json()).catch(() => ({ leagues: [] })),
