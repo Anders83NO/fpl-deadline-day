@@ -493,7 +493,8 @@ export default function TransfersPage() {
   const gwSwaps = lineupSwaps.filter((s) => s.gw === planGw);
   const activeChip = chipPlan.find((c) => c.gw === planGw)?.chip ?? null;
   const isWildcardActive = activeChip === "wildcard" || activeChip === "freehit";
-  const pointsHit = isWildcardActive ? 0 : Math.max(0, gwTransfers.length - freeTransfers) * 4;
+  const isEmptySquad = baseSquad.length > 0 && baseSquad.every(p => p.element < 0);
+  const pointsHit = (isWildcardActive || isEmptySquad) ? 0 : Math.max(0, gwTransfers.length - freeTransfers) * 4;
 
   const candidates = useMemo(() => {
     if (!transferOut) return [];
@@ -630,7 +631,6 @@ export default function TransfersPage() {
   const fwds = starting.filter((p) => p.element_type === 4);
 
   const hasGwChanges = gwTransfers.length > 0 || gwSwaps.length > 0 || !!activeChip || !!captainPlan.find(c => c.gw === planGw);
-  const isEmptySquad = baseSquad.length > 0 && baseSquad.every(p => p.element < 0);
 
   if (loading) {
     return (
@@ -829,8 +829,8 @@ export default function TransfersPage() {
                 {isNewSeason ? "Next Season" : "Planning"}
               </p>
               <p className="text-lg font-bold text-white">GW {planGw}</p>
-              <p className="text-[10px] mt-0.5" style={{ color: freeTransfers > 0 ? "#4ade80" : "#ef4444" }}>
-                {freeTransfers} free transfer{freeTransfers !== 1 ? "s" : ""}
+              <p className="text-[10px] mt-0.5" style={{ color: "#4ade80" }}>
+                {isEmptySquad ? "Unlimited free transfers" : `${freeTransfers} free transfer${freeTransfers !== 1 ? "s" : ""}`}
                 {pointsHit > 0 && <span style={{ color: "#ef4444" }}> · -{pointsHit}pts hit</span>}
               </p>
             </div>
