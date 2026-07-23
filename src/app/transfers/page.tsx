@@ -493,7 +493,7 @@ export default function TransfersPage() {
   const gwSwaps = lineupSwaps.filter((s) => s.gw === planGw);
   const activeChip = chipPlan.find((c) => c.gw === planGw)?.chip ?? null;
   const isWildcardActive = activeChip === "wildcard" || activeChip === "freehit";
-  const isEmptySquad = baseSquad.length > 0 && baseSquad.every(p => p.element < 0);
+  const isEmptySquad = baseSquad.length > 0 && baseSquad.every(p => p.element < 0) && planGw === 1;
   const pointsHit = (isWildcardActive || isEmptySquad) ? 0 : Math.max(0, gwTransfers.length - freeTransfers) * 4;
 
   const candidates = useMemo(() => {
