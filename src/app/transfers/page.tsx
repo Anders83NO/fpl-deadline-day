@@ -372,8 +372,9 @@ export default function TransfersPage() {
       }
 
       if (gw < planGw) {
-        // Wildcard/Free Hit: all transfers are free, FT stays at 1 next GW
-        const usedFt = isWildcardOrFH ? 0 : gwTransfers.length;
+        // Wildcard/Free Hit/GW1 squad build: all transfers are free
+        const isGw1Build = gw === 1 && baseSquad.every(p => p.element < 0);
+        const usedFt = (isWildcardOrFH || isGw1Build) ? 0 : gwTransfers.length;
         const unused = Math.max(0, ft - usedFt);
         ft = Math.min(MAX_BANKED_FT, unused + 1);
       }
