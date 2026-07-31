@@ -107,20 +107,20 @@ export default function PlayerInfoModal({
             </div>
 
             {/* Stats */}
-            <div style={{ padding: "14px 16px", borderBottom: "1px solid #0f1520" }}>
-              <p style={{ margin: "0 0 10px", fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#4d6a88" }}>Season stats</p>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: 8 }}>
+            <div style={{ padding: "12px 16px", borderBottom: "1px solid #0f1520" }}>
+              <p style={{ margin: "0 0 8px", fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#4d6a88" }}>Season stats</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {[
                   { label: "Total pts", value: data.totalPoints, color: "#fff" },
                   { label: "Form", value: data.form, color: parseFloat(data.form) >= 6 ? "#4ade80" : "#fff" },
                   { label: "xPts next GW", value: data.epNext ?? "–", color: "#f59e0b" },
                   { label: "Owned by", value: `${parseFloat(data.selectedBy).toFixed(1)}%`, color: "#fff" },
-                  { label: "Pts per game", value: data.pointsPerGame, color: "#fff" },
+                  { label: "Pts/game", value: data.pointsPerGame, color: "#fff" },
                   { label: "ICT index", value: data.ictIndex, color: "#fff" },
                 ].map(s => (
-                  <div key={s.label} style={{ background: "#1a2538", borderRadius: 8, padding: "10px 12px", border: "1px solid #1e3050" }}>
-                    <p style={{ margin: 0, fontSize: 11, color: "#6688aa" }}>{s.label}</p>
-                    <p style={{ margin: "2px 0 0", fontSize: 18, fontWeight: 600, color: s.color }}>{s.value}</p>
+                  <div key={s.label} style={{ background: "#1a2538", borderRadius: 8, padding: "8px 12px", border: "1px solid #1e3050", width: "calc(50% - 3px)", boxSizing: "border-box" }}>
+                    <p style={{ margin: 0, fontSize: 10, color: "#6688aa" }}>{s.label}</p>
+                    <p style={{ margin: "2px 0 0", fontSize: 16, fontWeight: 600, color: s.color }}>{s.value}</p>
                   </div>
                 ))}
               </div>
