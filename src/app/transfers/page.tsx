@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import AuthModal from "@/components/AuthModal";
+import PlayerInfoModal from "@/components/PlayerInfoModal";
 
 const TYPE_LABEL: Record<number, string> = { 1: "GK", 2: "DEF", 3: "MID", 4: "FWD" };
 const TYPE_COLOR: Record<number, string> = {
@@ -125,6 +126,7 @@ export default function TransfersPage() {
   const { user } = useAuth();
   const [showHistory, setShowHistory] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
+  const [infoPlayerId, setInfoPlayerId] = useState<number | null>(null);
   const [historyPlans, setHistoryPlans] = useState<GwHistoryPlan[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [expandedGw, setExpandedGw] = useState<number | null>(null);
@@ -1208,10 +1210,10 @@ export default function TransfersPage() {
                 }}>
                     <PitchMarkings />
                     <div className="relative z-10 py-5">
-                      <PitchRow picks={gk} onTap={pageMode === "lineup" ? handleLineupTap : setTransferOut} selectedId={swapFirst?.element ?? null} fixtureMap={fixtureMap} showPrice={pageMode === "transfers"} />
-                      <PitchRow picks={defs} onTap={pageMode === "lineup" ? handleLineupTap : setTransferOut} selectedId={swapFirst?.element ?? null} fixtureMap={fixtureMap} showPrice={pageMode === "transfers"} />
-                      <PitchRow picks={mids} onTap={pageMode === "lineup" ? handleLineupTap : setTransferOut} selectedId={swapFirst?.element ?? null} fixtureMap={fixtureMap} showPrice={pageMode === "transfers"} />
-                      <PitchRow picks={fwds} onTap={pageMode === "lineup" ? handleLineupTap : setTransferOut} selectedId={swapFirst?.element ?? null} fixtureMap={fixtureMap} showPrice={pageMode === "transfers"} />
+                      <PitchRow picks={gk} onTap={pageMode === "lineup" ? handleLineupTap : setTransferOut} selectedId={swapFirst?.element ?? null} fixtureMap={fixtureMap} showPrice={pageMode === "transfers"} onInfo={setInfoPlayerId} />
+                      <PitchRow picks={defs} onTap={pageMode === "lineup" ? handleLineupTap : setTransferOut} selectedId={swapFirst?.element ?? null} fixtureMap={fixtureMap} showPrice={pageMode === "transfers"} onInfo={setInfoPlayerId} />
+                      <PitchRow picks={mids} onTap={pageMode === "lineup" ? handleLineupTap : setTransferOut} selectedId={swapFirst?.element ?? null} fixtureMap={fixtureMap} showPrice={pageMode === "transfers"} onInfo={setInfoPlayerId} />
+                      <PitchRow picks={fwds} onTap={pageMode === "lineup" ? handleLineupTap : setTransferOut} selectedId={swapFirst?.element ?? null} fixtureMap={fixtureMap} showPrice={pageMode === "transfers"} onInfo={setInfoPlayerId} />
                     </div>
                   </div>
                   <div className="rounded-xl p-3" style={{ background: "#162030", border: "1px solid #1e3050" }}>
@@ -1223,6 +1225,7 @@ export default function TransfersPage() {
                           selected={swapFirst?.element === p.element}
                           fixtureMap={fixtureMap}
                           showPrice={pageMode === "transfers"}
+                          onInfo={setInfoPlayerId}
                           dimmed={pageMode === "lineup" && swapFirst !== null && swapFirst.element !== p.element &&
                             ((swapFirst.element_type === 1) !== (p.element_type === 1))}
                         />
@@ -1239,7 +1242,7 @@ export default function TransfersPage() {
                     {starting.map((p) => (
                       <SquadRow key={p.element} pick={p} playerInfo={playerMap[p.element]}
                         onSelect={() => pageMode === "lineup" ? handleLineupTap(p) : setTransferOut(p)}
-                        selected={swapFirst?.element === p.element} fixtureMap={fixtureMap} />
+                        selected={swapFirst?.element === p.element} fixtureMap={fixtureMap} onInfo={setInfoPlayerId} />
                     ))}
                   </div>
                   <p className="text-[10px] uppercase tracking-wider mt-4 mb-2" style={{ color: "#3d5570" }}>Bench</p>
@@ -1247,7 +1250,7 @@ export default function TransfersPage() {
                     {bench.map((p) => (
                       <SquadRow key={p.element} pick={p} playerInfo={playerMap[p.element]}
                         onSelect={() => pageMode === "lineup" ? handleLineupTap(p) : setTransferOut(p)}
-                        selected={swapFirst?.element === p.element} fixtureMap={fixtureMap} dimmed />
+                        selected={swapFirst?.element === p.element} fixtureMap={fixtureMap} onInfo={setInfoPlayerId} dimmed />
                     ))}
                   </div>
                 </div>
@@ -1277,7 +1280,7 @@ export default function TransfersPage() {
               <div className="space-y-1.5">
                 {candidates.map((p) => (
                   <button key={p.id} onClick={() => setPendingIn(p)} className="w-full text-left">
-                    <PlayerRow player={p} fixtureMap={fixtureMap} />
+                    <PlayerRow player={p} fixtureMap={fixtureMap} onInfo={setInfoPlayerId} />
                   </button>
                 ))}
                 {candidates.length === 0 && (
@@ -1300,6 +1303,7 @@ export default function TransfersPage() {
         </button>
       )}
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
+      {infoPlayerId && <PlayerInfoModal playerId={infoPlayerId} onClose={() => setInfoPlayerId(null)} />}
     </div>
   );
 }
@@ -1358,10 +1362,10 @@ function fixtureLabel(team: string, fixtureMap: FixtureMap): string {
   return fixs.map((f) => `${f.isHome ? "" : ""}${f.opponent} (${f.isHome ? "H" : "A"})`).join(", ");
 }
 
-function PitchRow({ picks, onTap, selectedId, fixtureMap, showPrice }: { picks: Pick[]; onTap: (p: Pick) => void; selectedId: number | null; fixtureMap: FixtureMap; showPrice?: boolean }) {
+function PitchRow({ picks, onTap, selectedId, fixtureMap, showPrice, onInfo }: { picks: Pick[]; onTap: (p: Pick) => void; selectedId: number | null; fixtureMap: FixtureMap; showPrice?: boolean; onInfo?: (id: number) => void }) {
   return (
     <div className="flex justify-center gap-2 my-1.5">
-      {picks.map((p) => <PitchCard key={p.element} pick={p} onTap={onTap} selected={selectedId === p.element} fixtureMap={fixtureMap} showPrice={showPrice} />)}
+      {picks.map((p) => <PitchCard key={p.element} pick={p} onTap={onTap} selected={selectedId === p.element} fixtureMap={fixtureMap} showPrice={showPrice} onInfo={onInfo} />)}
     </div>
   );
 }
@@ -1371,7 +1375,7 @@ function shirtUrl(teamCode: number, isGk: boolean): string {
   return `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${teamCode}${suffix}`;
 }
 
-function PitchCard({ pick, onTap, selected, dimmed, fixtureMap, showPrice }: { pick: Pick; onTap: (p: Pick) => void; selected?: boolean; dimmed?: boolean; fixtureMap: FixtureMap; showPrice?: boolean }) {
+function PitchCard({ pick, onTap, selected, dimmed, fixtureMap, showPrice, onInfo }: { pick: Pick; onTap: (p: Pick) => void; selected?: boolean; dimmed?: boolean; fixtureMap: FixtureMap; showPrice?: boolean; onInfo?: (id: number) => void }) {
   const isEmpty = pick.element < 0;
   const fixture = isEmpty ? "" : fixtureLabel(pick.team, fixtureMap);
   const hasFixture = !isEmpty && fixture !== pick.team;
@@ -1438,7 +1442,7 @@ function PitchCard({ pick, onTap, selected, dimmed, fixtureMap, showPrice }: { p
             style={{ background: "#f59e0b", color: "#000" }}>✓</span>
         )}
       </div>
-      <div className="flex flex-col items-center w-full">
+      <div className="flex flex-col items-center w-full relative">
         <span className="text-[10px] font-bold text-center leading-tight rounded-t px-1 py-0.5 w-full truncate block"
           style={{ background: "#fff", color: "#000", maxWidth: "72px" }}>
           {pick.name}
@@ -1447,6 +1451,13 @@ function PitchCard({ pick, onTap, selected, dimmed, fixtureMap, showPrice }: { p
           style={{ background: hasFixture ? "#f59e0b" : "#555", color: hasFixture ? "#000" : "#fff", maxWidth: "72px" }}>
           {fixture}
         </span>
+        {onInfo && pick.element > 0 && (
+          <button
+            onClick={e => { e.stopPropagation(); onInfo(pick.element); }}
+            className="absolute -right-1 -bottom-1 flex items-center justify-center"
+            style={{ width: 16, height: 16, borderRadius: "50%", background: "#0f1a2a", border: "1px solid #2a3d55", fontSize: 9, fontWeight: 700, color: "#6688aa" }}
+          >i</button>
+        )}
       </div>
     </button>
   );
@@ -1454,7 +1465,7 @@ function PitchCard({ pick, onTap, selected, dimmed, fixtureMap, showPrice }: { p
 
 // ─── List ────────────────────────────────────────────────────────
 
-function SquadRow({ pick, playerInfo, onSelect, selected, dimmed, fixtureMap }: { pick: Pick; playerInfo?: Player; onSelect: () => void; selected?: boolean; dimmed?: boolean; fixtureMap: FixtureMap }) {
+function SquadRow({ pick, playerInfo, onSelect, selected, dimmed, fixtureMap, onInfo }: { pick: Pick; playerInfo?: Player; onSelect: () => void; selected?: boolean; dimmed?: boolean; fixtureMap: FixtureMap; onInfo?: (id: number) => void }) {
   const color = TYPE_COLOR[pick.element_type];
   const isEmpty = pick.element < 0;
   const fixture = isEmpty ? "" : fixtureLabel(pick.team, fixtureMap);
@@ -1496,12 +1507,19 @@ function SquadRow({ pick, playerInfo, onSelect, selected, dimmed, fixtureMap }: 
           <p className="text-sm font-bold text-white">{pick.points ?? "—"}</p>
           <p className="text-[9px]" style={{ color: "#6688aa" }}>pts</p>
         </div>
+        {onInfo && (
+          <button
+            onClick={e => { e.stopPropagation(); onInfo(pick.element); }}
+            className="flex items-center justify-center flex-shrink-0"
+            style={{ width: 20, height: 20, borderRadius: "50%", background: "#0f1a2a", border: "1px solid #2a3d55", fontSize: 10, fontWeight: 700, color: "#6688aa" }}
+          >i</button>
+        )}
       </div>
     </button>
   );
 }
 
-function PlayerRow({ player, fixtureMap }: { player: Player; fixtureMap: FixtureMap }) {
+function PlayerRow({ player, fixtureMap, onInfo }: { player: Player; fixtureMap: FixtureMap; onInfo?: (id: number) => void }) {
   const color = TYPE_COLOR[player.type];
   const injured = player.status === "i" || player.status === "d";
   const fixture = fixtureLabel(player.team, fixtureMap);
@@ -1535,6 +1553,13 @@ function PlayerRow({ player, fixtureMap }: { player: Player; fixtureMap: Fixture
         <p className="text-sm font-bold text-white">{player.points}</p>
         <p className="text-[9px]" style={{ color: "#6688aa" }}>pts</p>
       </div>
+      {onInfo && (
+        <button
+          onClick={e => { e.stopPropagation(); onInfo(player.id); }}
+          className="flex items-center justify-center flex-shrink-0"
+          style={{ width: 20, height: 20, borderRadius: "50%", background: "#0f1a2a", border: "1px solid #2a3d55", fontSize: 10, fontWeight: 700, color: "#6688aa" }}
+        >i</button>
+      )}
     </div>
   );
 }

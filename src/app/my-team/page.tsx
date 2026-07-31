@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import PlayerInfoModal from "@/components/PlayerInfoModal";
 
 const TYPE_LABEL: Record<number, string> = { 1: "GK", 2: "DEF", 3: "MID", 4: "FWD" };
 
@@ -34,7 +35,7 @@ function shirtUrl(teamCode: number, isGk: boolean): string {
   return `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${teamCode}${suffix}`;
 }
 
-function PlayerCard({ pick, bench = false }: { pick: Pick; bench?: boolean }) {
+function PlayerCard({ pick, bench = false, onInfo }: { pick: Pick; bench?: boolean; onInfo?: (id: number) => void }) {
   const isEmpty = pick.element < 0;
   const isGk = pick.element_type === 1;
   const posLabel = TYPE_LABEL[pick.element_type] ?? pick.name;
@@ -84,7 +85,7 @@ function PlayerCard({ pick, bench = false }: { pick: Pick; bench?: boolean }) {
             style={{ background: "#000", color: "#888", border: "1.5px solid #888" }}>V</span>
         )}
       </div>
-      <div className="flex flex-col items-center w-full">
+      <div className="flex flex-col items-center w-full relative">
         <span className="text-[10px] font-bold text-center leading-tight rounded-t px-1 py-0.5 w-full truncate block"
           style={{ background: "#fff", color: "#000", maxWidth: "72px" }}>
           {pick.name}
@@ -93,15 +94,22 @@ function PlayerCard({ pick, bench = false }: { pick: Pick; bench?: boolean }) {
           style={{ background: pick.gw_points > 0 ? "#f59e0b" : "#555", color: pick.gw_points > 0 ? "#000" : "#fff" }}>
           {pick.gw_points * pick.multiplier}
         </span>
+        {onInfo && pick.element > 0 && (
+          <button
+            onClick={e => { e.stopPropagation(); onInfo(pick.element); }}
+            className="absolute -right-1 -bottom-1 flex items-center justify-center"
+            style={{ width: 16, height: 16, borderRadius: "50%", background: "#0f1a2a", border: "1px solid #2a3d55", fontSize: 9, fontWeight: 700, color: "#6688aa" }}
+          >i</button>
+        )}
       </div>
     </div>
   );
 }
 
-function PitchRow({ picks, bench }: { picks: Pick[]; bench?: boolean }) {
+function PitchRow({ picks, bench, onInfo }: { picks: Pick[]; bench?: boolean; onInfo?: (id: number) => void }) {
   return (
     <div className="flex justify-center gap-2 my-1">
-      {picks.map((p) => <PlayerCard key={p.element} pick={p} bench={bench} />)}
+      {picks.map((p) => <PlayerCard key={p.element} pick={p} bench={bench} onInfo={onInfo} />)}
     </div>
   );
 }
@@ -171,6 +179,7 @@ const ALL_CHIPS = [
 
 export default function MyTeamPage() {
   const [teamId, setTeamId] = useState("");
+  const [infoPlayerId, setInfoPlayerId] = useState<number | null>(null);
   const [inputId, setInputId] = useState("");
   const [data, setData] = useState<TeamData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -372,10 +381,10 @@ export default function MyTeamPage() {
           }}>
             <PitchMarkings />
             <div className="relative z-10 py-4">
-              <PitchRow picks={gk} />
-              <PitchRow picks={defs} />
-              <PitchRow picks={mids} />
-              <PitchRow picks={fwds} />
+              <PitchRow picks={gk} onInfo={setInfoPlayerId} />
+              <PitchRow picks={defs} onInfo={setInfoPlayerId} />
+              <PitchRow picks={mids} onInfo={setInfoPlayerId} />
+              <PitchRow picks={fwds} onInfo={setInfoPlayerId} />
             </div>
           </div>
 
@@ -383,7 +392,7 @@ export default function MyTeamPage() {
           <div className="rounded-xl p-3" style={{ background: "#162030", border: "1px solid #1e3050" }}>
             <p className="text-[10px] uppercase tracking-wider mb-3" style={{ color: "#6688aa" }}>Bench</p>
             <div className="flex justify-around">
-              {bench.map((p) => <PlayerCard key={p.element} pick={p} bench />)}
+              {bench.map((p) => <PlayerCard key={p.element} pick={p} bench onInfo={setInfoPlayerId} />)}
             </div>
           </div>
 
@@ -475,6 +484,7 @@ export default function MyTeamPage() {
           </button>
         </>
       )}
+      {infoPlayerId && <PlayerInfoModal playerId={infoPlayerId} onClose={() => setInfoPlayerId(null)} />}
     </div>
   );
 }
