@@ -168,7 +168,7 @@ export default function PlayerInfoModal({
 
             {/* Fixtures */}
             {data.fixtures.length > 0 && (
-              <div style={{ padding: "14px 16px" }}>
+              <div style={{ padding: "14px 16px", paddingBottom: 80 }}>
                 <p style={{ margin: "0 0 10px", fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#4d6a88" }}>Next fixtures</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   {data.fixtures.map(f => {
