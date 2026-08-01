@@ -16,6 +16,8 @@ interface Pick {
   teamCode: number;
   element_type: number;
   gw_points: number;
+  status?: string;
+  news?: string;
 }
 
 interface TeamData {
@@ -39,6 +41,11 @@ function PlayerCard({ pick, bench = false, onInfo }: { pick: Pick; bench?: boole
   const isEmpty = pick.element < 0;
   const isGk = pick.element_type === 1;
   const posLabel = TYPE_LABEL[pick.element_type] ?? pick.name;
+  const status = pick.status ?? "a";
+  const statusDot = status === "i" || status === "u" ? { color: "#ef4444", label: "🚑" }
+    : status === "d" ? { color: "#f59e0b", label: "?" }
+    : status === "s" ? { color: "#a855f7", label: "S" }
+    : null;
 
   if (isEmpty) {
     return (
@@ -83,6 +90,12 @@ function PlayerCard({ pick, bench = false, onInfo }: { pick: Pick; bench?: boole
         {pick.is_vice_captain && (
           <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-[9px] font-bold flex items-center justify-center"
             style={{ background: "#000", color: "#888", border: "1.5px solid #888" }}>V</span>
+        )}
+        {statusDot && !pick.is_captain && !pick.is_vice_captain && (
+          <span className="absolute -top-1 -left-1 w-4 h-4 rounded-full text-[8px] font-bold flex items-center justify-center"
+            style={{ background: "#000", color: statusDot.color, border: `1.5px solid ${statusDot.color}` }}>
+            {statusDot.label}
+          </span>
         )}
       </div>
       <div className="flex flex-col items-center w-full relative">

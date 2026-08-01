@@ -56,9 +56,9 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const elementsMap: Record<number, { web_name: string; team: number; element_type: number }> = {};
+  const elementsMap: Record<number, { web_name: string; team: number; element_type: number; status: string; news: string }> = {};
   for (const el of bootstrap.elements) {
-    elementsMap[el.id] = { web_name: el.web_name, team: el.team, element_type: el.element_type };
+    elementsMap[el.id] = { web_name: el.web_name, team: el.team, element_type: el.element_type, status: el.status ?? "a", news: el.news ?? "" };
   }
 
   const teamsMap: Record<number, string> = {};
@@ -80,6 +80,8 @@ export async function GET(req: NextRequest) {
       team: el ? teamsMap[el.team] : "?",
       teamCode: el ? teamCodeMap[el.team] : 0,
       element_type: el?.element_type ?? 0,
+      status: el?.status ?? "a",
+      news: el?.news ?? "",
       gw_points: livePoints[p.element] ?? 0,
       bonus: liveBonus[p.element] ?? 0,
       explain: liveExplain[p.element] ?? [],
