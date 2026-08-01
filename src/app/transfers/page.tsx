@@ -1182,6 +1182,7 @@ export default function TransfersPage() {
                           fixtureMap={fixtureMap}
                           showPrice={pageMode === "transfers"}
                           onInfo={setInfoPlayerId}
+                          bench
                           dimmed={pageMode === "lineup" && swapFirst !== null && swapFirst.element !== p.element &&
                             ((swapFirst.element_type === 1) !== (p.element_type === 1))}
                         />
@@ -1408,7 +1409,7 @@ function shirtUrl(teamCode: number, isGk: boolean): string {
   return `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${teamCode}${suffix}`;
 }
 
-function PitchCard({ pick, onTap, selected, dimmed, fixtureMap, showPrice, onInfo }: { pick: Pick; onTap: (p: Pick) => void; selected?: boolean; dimmed?: boolean; fixtureMap: FixtureMap; showPrice?: boolean; onInfo?: (id: number) => void }) {
+function PitchCard({ pick, onTap, selected, dimmed, fixtureMap, showPrice, onInfo, bench }: { pick: Pick; onTap: (p: Pick) => void; selected?: boolean; dimmed?: boolean; fixtureMap: FixtureMap; showPrice?: boolean; onInfo?: (id: number) => void; bench?: boolean }) {
   const isEmpty = pick.element < 0;
   const fixture = isEmpty ? "" : fixtureLabel(pick.team, fixtureMap);
   const hasFixture = !isEmpty && fixture !== pick.team;
@@ -1476,7 +1477,13 @@ function PitchCard({ pick, onTap, selected, dimmed, fixtureMap, showPrice, onInf
         )}
       </div>
       <div className="flex flex-col items-center w-full relative">
-        <span className="text-[10px] font-bold text-center leading-tight rounded-t px-1 py-0.5 w-full truncate block"
+        {bench && (
+          <span className="text-[8px] font-bold text-center leading-tight rounded-t px-1 py-0.5 w-full block"
+            style={{ background: "#1e3050", color: "#6688aa", maxWidth: "72px" }}>
+            {TYPE_LABEL[pick.element_type]}
+          </span>
+        )}
+        <span className={`text-[10px] font-bold text-center leading-tight px-1 py-0.5 w-full truncate block ${bench ? "" : "rounded-t"}`}
           style={{ background: "#fff", color: "#000", maxWidth: "72px" }}>
           {pick.name}
         </span>

@@ -86,7 +86,13 @@ function PlayerCard({ pick, bench = false, onInfo }: { pick: Pick; bench?: boole
         )}
       </div>
       <div className="flex flex-col items-center w-full relative">
-        <span className="text-[10px] font-bold text-center leading-tight rounded-t px-1 py-0.5 w-full truncate block"
+        {bench && (
+          <span className="text-[8px] font-bold text-center leading-tight rounded-t px-1 py-0.5 w-full block"
+            style={{ background: "#1e3050", color: "#6688aa", maxWidth: "72px" }}>
+            {TYPE_LABEL[pick.element_type]}
+          </span>
+        )}
+        <span className={`text-[10px] font-bold text-center leading-tight px-1 py-0.5 w-full truncate block ${bench ? "" : "rounded-t"}`}
           style={{ background: "#fff", color: "#000", maxWidth: "72px" }}>
           {pick.name}
         </span>
