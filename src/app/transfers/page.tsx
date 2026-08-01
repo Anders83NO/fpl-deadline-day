@@ -949,50 +949,6 @@ export default function TransfersPage() {
             </div>
           )}
 
-          {/* GW summary */}
-          {hasGwChanges && !transferOut && !pendingIn && !swapFirst && (
-            <div className="mb-4 rounded-xl overflow-hidden" style={{ border: "1px solid #2a2000" }}>
-              <div className="px-4 py-2" style={{ background: "#161000" }}>
-                <p className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "#f59e0b" }}>GW{planGw} Changes</p>
-              </div>
-              {gwTransfers.map((t, i) => (
-                <div key={i} className="flex items-center gap-2 px-4 py-2" style={{ background: "#162030", borderTop: "1px solid #1a2a40" }}>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs" style={{ color: "#ef4444" }}>↑</span>
-                      <span className="text-xs text-white">{t.outName}</span>
-                      <span className="text-[10px]" style={{ color: "#6688aa" }}>£{t.outPrice.toFixed(1)}m</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className="text-xs" style={{ color: "#4ade80" }}>↓</span>
-                      <span className="text-xs font-semibold text-white">{t.inName}</span>
-                      <span className="text-[10px]" style={{ color: "#6688aa" }}>£{t.inPrice.toFixed(1)}m</span>
-                    </div>
-                  </div>
-                  <button onClick={() => setTransfers((prev) => prev.filter((x) => !(x.gw === t.gw && x.outId === t.outId)))}
-                    className="text-[10px] px-2 py-1 rounded" style={{ background: "#1e2d42", color: "#6688aa" }}>Remove</button>
-                </div>
-              ))}
-              {gwSwaps.map((sw, i) => {
-                const p1 = squad.find((p) => p.element === sw.p1Id);
-                const p2 = squad.find((p) => p.element === sw.p2Id);
-                return (
-                  <div key={`sw-${i}`} className="flex items-center gap-2 px-4 py-2" style={{ background: "#162030", borderTop: "1px solid #1a2a40" }}>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-white flex items-center gap-1.5">
-                        <span style={{ color: "#a78bfa" }}>⇄</span>
-                        {p1?.name ?? "?"} ↔ {p2?.name ?? "?"}
-                        <span className="text-[10px]" style={{ color: "#6688aa" }}>(lineup swap)</span>
-                      </p>
-                    </div>
-                    <button onClick={() => setLineupSwaps((prev) => prev.filter((_, j) => j !== i))}
-                      className="text-[10px] px-2 py-1 rounded" style={{ background: "#1e2d42", color: "#6688aa" }}>Remove</button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
           {/* Confirm transfer */}
           {pendingIn && transferOut && (
             <div className="mb-4 rounded-xl p-4" style={{ background: "#161610", border: "1px solid #2a2000" }}>
@@ -1256,6 +1212,50 @@ export default function TransfersPage() {
                 </div>
               )}
             </>
+          )}
+
+          {/* GW summary — shown below bench */}
+          {hasGwChanges && !transferOut && !pendingIn && !swapFirst && (
+            <div className="mt-4 rounded-xl overflow-hidden" style={{ border: "1px solid #2a2000" }}>
+              <div className="px-4 py-2" style={{ background: "#161000" }}>
+                <p className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "#f59e0b" }}>GW{planGw} Changes</p>
+              </div>
+              {gwTransfers.map((t, i) => (
+                <div key={i} className="flex items-center gap-2 px-4 py-2" style={{ background: "#162030", borderTop: "1px solid #1a2a40" }}>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs" style={{ color: "#ef4444" }}>↑</span>
+                      <span className="text-xs text-white">{t.outName}</span>
+                      <span className="text-[10px]" style={{ color: "#6688aa" }}>£{t.outPrice.toFixed(1)}m</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className="text-xs" style={{ color: "#4ade80" }}>↓</span>
+                      <span className="text-xs font-semibold text-white">{t.inName}</span>
+                      <span className="text-[10px]" style={{ color: "#6688aa" }}>£{t.inPrice.toFixed(1)}m</span>
+                    </div>
+                  </div>
+                  <button onClick={() => setTransfers((prev) => prev.filter((x) => !(x.gw === t.gw && x.outId === t.outId)))}
+                    className="text-[10px] px-2 py-1 rounded" style={{ background: "#1e2d42", color: "#6688aa" }}>Remove</button>
+                </div>
+              ))}
+              {gwSwaps.map((sw, i) => {
+                const p1 = squad.find((p) => p.element === sw.p1Id);
+                const p2 = squad.find((p) => p.element === sw.p2Id);
+                return (
+                  <div key={`sw-${i}`} className="flex items-center gap-2 px-4 py-2" style={{ background: "#162030", borderTop: "1px solid #1a2a40" }}>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-white flex items-center gap-1.5">
+                        <span style={{ color: "#a78bfa" }}>⇄</span>
+                        {p1?.name ?? "?"} ↔ {p2?.name ?? "?"}
+                        <span className="text-[10px]" style={{ color: "#6688aa" }}>(lineup swap)</span>
+                      </p>
+                    </div>
+                    <button onClick={() => setLineupSwaps((prev) => prev.filter((_, j) => j !== i))}
+                      className="text-[10px] px-2 py-1 rounded" style={{ background: "#1e2d42", color: "#6688aa" }}>Remove</button>
+                  </div>
+                );
+              })}
+            </div>
           )}
 
           {/* Replacement search */}
