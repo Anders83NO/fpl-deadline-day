@@ -127,6 +127,7 @@ export default function TransfersPage() {
   const [showHistory, setShowHistory] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [infoPlayerId, setInfoPlayerId] = useState<number | null>(null);
+  const [playerPage, setPlayerPage] = useState(0);
   const [historyPlans, setHistoryPlans] = useState<GwHistoryPlan[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [expandedGw, setExpandedGw] = useState<number | null>(null);
@@ -514,8 +515,7 @@ export default function TransfersPage() {
             !p.team.toLowerCase().includes(search.toLowerCase())) return false;
         return true;
       })
-      .sort((a, b) => b[sortBy] - a[sortBy])
-      .slice(0, 30);
+      .sort((a, b) => b[sortBy] - a[sortBy]);
   }, [transferOut, allPlayers, squad, budget, search, sortBy]);
 
   // Lineup tap → show action menu (unless mid-swap)
@@ -1264,29 +1264,62 @@ export default function TransfersPage() {
               <p className="text-[10px] uppercase tracking-wider mb-3" style={{ color: "#6688aa" }}>
                 Replacements · {TYPE_LABEL[transferOut.element_type]} · Max £{budget.toFixed(1)}m
               </p>
-              <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
+              <input type="text" value={search} onChange={(e) => { setSearch(e.target.value); setPlayerPage(0); }}
                 placeholder="Search player or team…"
                 className="w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none mb-3"
                 style={{ background: "#1a2538", border: "1px solid #1e3050" }} autoFocus />
               <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
                 {(["form", "points", "epNext", "price", "selected"] as SortKey[]).map((key) => (
-                  <button key={key} onClick={() => setSortBy(key)}
+                  <button key={key} onClick={() => { setSortBy(key); setPlayerPage(0); }}
                     className="flex-shrink-0 text-[10px] font-semibold px-3 py-1.5 rounded-lg uppercase tracking-wide"
                     style={{ background: sortBy === key ? "#f59e0b" : "#161616", color: sortBy === key ? "#000" : "#555" }}>
                     {key === "epNext" ? "xPts" : key === "selected" ? "Owned%" : key}
                   </button>
                 ))}
               </div>
-              <div className="space-y-1.5">
-                {candidates.map((p) => (
-                  <button key={p.id} onClick={() => setPendingIn(p)} className="w-full text-left">
-                    <PlayerRow player={p} fixtureMap={fixtureMap} onInfo={setInfoPlayerId} />
-                  </button>
-                ))}
-                {candidates.length === 0 && (
-                  <p className="text-center py-6 text-sm" style={{ color: "#6688aa" }}>No players found within budget.</p>
-                )}
-              </div>
+              {(() => {
+                const PAGE_SIZE = 20;
+                const totalPages = Math.ceil(candidates.length / PAGE_SIZE);
+                const paginated = candidates.slice(playerPage * PAGE_SIZE, (playerPage + 1) * PAGE_SIZE);
+                return (
+                  <>
+                    <div className="space-y-1.5">
+                      {paginated.map((p) => (
+                        <button key={p.id} onClick={() => setPendingIn(p)} className="w-full text-left">
+                          <PlayerRow player={p} fixtureMap={fixtureMap} onInfo={setInfoPlayerId} />
+                        </button>
+                      ))}
+                      {candidates.length === 0 && (
+                        <p className="text-center py-6 text-sm" style={{ color: "#6688aa" }}>No players found within budget.</p>
+                      )}
+                    </div>
+                    {totalPages > 1 && (
+                      <div className="flex items-center justify-center gap-1.5 mt-4 pb-4 flex-wrap">
+                        <button
+                          onClick={() => setPlayerPage(p => Math.max(0, p - 1))}
+                          disabled={playerPage === 0}
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold"
+                          style={{ background: playerPage === 0 ? "#111" : "#1a2538", color: playerPage === 0 ? "#333" : "#6688aa", border: "1px solid #1e3050" }}
+                        >←</button>
+                        {Array.from({ length: totalPages }, (_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setPlayerPage(i)}
+                            className="w-8 h-8 rounded-lg text-xs font-semibold"
+                            style={{ background: playerPage === i ? "#f59e0b" : "#1a2538", color: playerPage === i ? "#000" : "#6688aa", border: `1px solid ${playerPage === i ? "#f59e0b" : "#1e3050"}` }}
+                          >{i + 1}</button>
+                        ))}
+                        <button
+                          onClick={() => setPlayerPage(p => Math.min(totalPages - 1, p + 1))}
+                          disabled={playerPage === totalPages - 1}
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold"
+                          style={{ background: playerPage === totalPages - 1 ? "#111" : "#1a2538", color: playerPage === totalPages - 1 ? "#333" : "#6688aa", border: "1px solid #1e3050" }}
+                        >→</button>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           )}
         </>
