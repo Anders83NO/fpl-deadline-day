@@ -32,27 +32,41 @@ const NEW_MANAGERS = [
     manager: "Xabi Alonso",
     flag: "🇪🇸",
     style: "Possession-based, tactical flexibility. Won Bundesliga with Leverkusen undefeated.",
-    fplNote: "Big squad rotation expected. Wait for settled XI.",
+    fplNote: "Big squad rotation expected early. Wait for settled XI before investing.",
   },
   {
     club: "Liverpool",
     manager: "Andoni Iraola",
     flag: "🇪🇸",
-    style: "Intense high press, aggressive gegenpressing. Proved himself at Bournemouth.",
-    fplNote: "Attackers and press-triggering midfielders likely to shine.",
+    style: "Intense high press, aggressive gegenpressing. Made his name at Bournemouth.",
+    fplNote: "Press-triggering midfielders and high-energy forwards likely to shine.",
   },
   {
     club: "Manchester City",
     manager: "Enzo Maresca",
     flag: "🇮🇹",
-    style: "Possession-based, structured build-up. Similar to Guardiola — succeeded at Leicester.",
-    fplNote: "System players carry over; watch for who fits Maresca's mould.",
+    style: "Possession-based, structured build-up. Won PL title with Chelsea in 24/25.",
+    fplNote: "System players could carry over. Watch who fits Maresca's mould.",
+  },
+  {
+    club: "Newcastle",
+    manager: "Matthias Jaissle",
+    flag: "🇩🇪",
+    style: "High press, compact 4-3-3. Won Saudi League with Al Ahli. RB-school coach.",
+    fplNote: "Unknown quantity in PL. Avoid Newcastle assets until system is clear.",
+  },
+  {
+    club: "Nott'm Forest",
+    manager: "Oliver Glasner",
+    flag: "🇦🇹",
+    style: "Intense pressing, dynamic attacking play. Won FA Cup with Crystal Palace.",
+    fplNote: "Forest attacking players could be undervalued given new ambition.",
   },
   {
     club: "Crystal Palace",
     manager: "Pierre Sage",
     flag: "🇫🇷",
-    style: "Attack-minded, won Conference League with Palace. Promoted Lyon to CL.",
+    style: "Attack-minded, won Conference League with Palace. Previously promoted Lyon to CL.",
     fplNote: "Palace assets could be undervalued early in the season.",
   },
   {
@@ -63,18 +77,18 @@ const NEW_MANAGERS = [
     fplNote: "High-press style suits physical forwards and box-to-box midfielders.",
   },
   {
-    club: "Ipswich Town",
-    manager: "Gary O'Neill",
-    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
-    style: "Defensive structure, pragmatic. Focused on survival and shape.",
-    fplNote: "Avoid Ipswich assets early — structure and first XI unclear.",
+    club: "Fulham",
+    manager: "Álvaro Arbeloa",
+    flag: "🇪🇸",
+    style: "Former Real Madrid defender. Coached Real Madrid Castilla. First senior PL job.",
+    fplNote: "Big unknown. Avoid Fulham assets until style and first XI becomes clear.",
   },
   {
-    club: "Fulham",
-    manager: "TBC",
-    flag: "❓",
-    style: "No manager appointed yet.",
-    fplNote: "Avoid Fulham assets until appointment and style is clear.",
+    club: "Ipswich",
+    manager: "Gary O'Neil",
+    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+    style: "Defensive structure, pragmatic. Solid record at Wolves and Bournemouth.",
+    fplNote: "Ipswich fighting relegation — avoid assets unless clear first-team role.",
   },
 ];
 
@@ -161,7 +175,7 @@ function SeasonIntel() {
         >
           <div className="flex items-center gap-2">
             {ICONS.managers}
-            <span className="text-sm font-semibold text-white">7 new managers</span>
+            <span className="text-sm font-semibold text-white">{NEW_MANAGERS.length} new managers</span>
             <span className="text-[10px] px-1.5 py-0.5 rounded font-bold" style={{ background: "#ef444422", color: "#ef4444" }}>
               OBS
             </span>
