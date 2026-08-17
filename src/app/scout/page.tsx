@@ -1,3 +1,9 @@
+// Redirect to /stats — Scout is now a tab inside Stats
+import { redirect } from "next/navigation";
+export default function ScoutRedirect() { redirect("/stats"); }
+
+// ─── Old code below (kept for reference, never reached) ──────────────────────
+// @ts-nocheck
 "use client";
 
 import { useEffect, useState } from "react";
