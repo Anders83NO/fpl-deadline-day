@@ -200,40 +200,56 @@ function PlayerSearchModal({ allPlayers, onSelect, onClose, title }: {
   title: string;
 }) {
   const [q, setQ] = useState("");
-  const results = useMemo(() => {
-    if (!q.trim()) return allPlayers.slice(0, 20);
-    const lower = q.toLowerCase();
-    return allPlayers.filter(p =>
-      p.name.toLowerCase().includes(lower) ||
-      p.team.toLowerCase().includes(lower) ||
-      (p.fullName ?? "").toLowerCase().includes(lower)
-    ).slice(0, 20);
-  }, [q, allPlayers]);
+
+  // Sort by points by default so popular players show first
+  const defaultList = useMemo(() =>
+    [...allPlayers].sort((a, b) => b.points - a.points).slice(0, 20),
+    [allPlayers]
+  );
+
+  const results = q.trim()
+    ? (() => {
+        const lower = q.toLowerCase();
+        return allPlayers.filter(p =>
+          p.name.toLowerCase().includes(lower) ||
+          p.team.toLowerCase().includes(lower) ||
+          (p.fullName ?? "").toLowerCase().includes(lower)
+        ).slice(0, 30);
+      })()
+    : defaultList;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end" style={{ background: "rgba(0,0,0,0.75)" }} onClick={onClose}>
-      <div className="w-full max-h-[80vh] flex flex-col"
-        style={{ background: "#0f1520", borderRadius: "16px 16px 0 0", border: "1px solid #1e3050" }}
-        onClick={e => e.stopPropagation()}>
-        <div className="px-4 pt-4 pb-3" style={{ borderBottom: "1px solid #1a2a3a" }}>
-          <p className="text-[10px] uppercase tracking-wider mb-2" style={{ color: "#f59e0b" }}>{title}</p>
-          <div className="relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4d6688" strokeWidth="2.5">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
-            <input
-              autoFocus
-              type="text"
-              value={q}
-              onChange={e => setQ(e.target.value)}
-              placeholder="Search player or club…"
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-white outline-none"
-              style={{ background: "#162030", border: "1px solid #1a2a3a" }}
-            />
-          </div>
+    // Full-screen overlay — keyboard-safe (doesn't fight with keyboard on mobile)
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#0c1420" }}>
+      {/* Header */}
+      <div className="px-4 pt-4 pb-3 flex-shrink-0" style={{ borderBottom: "1px solid #1a2a3a" }}>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xs font-bold uppercase tracking-wider" style={{ color: "#f59e0b" }}>{title}</p>
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center"
+            style={{ background: "#1a2538", color: "#6688aa", fontSize: 18 }}>×</button>
         </div>
-        <div className="overflow-y-auto flex-1">
-          {results.map(p => {
+        <div className="relative">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4d6688" strokeWidth="2.5">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input
+            autoFocus
+            type="text"
+            value={q}
+            onChange={e => setQ(e.target.value)}
+            placeholder="Search player or club…"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-white outline-none"
+            style={{ background: "#162030", border: "1px solid #1a2a3a" }}
+          />
+        </div>
+        {!q.trim() && <p className="text-[10px] mt-2" style={{ color: "#3d5570" }}>Top {defaultList.length} players by points</p>}
+        {q.trim() && <p className="text-[10px] mt-2" style={{ color: "#3d5570" }}>{results.length} results</p>}
+      </div>
+      <div className="overflow-y-auto flex-1 pb-8">
+        {results.length === 0 && q.trim() && (
+          <p className="text-center py-10 text-sm" style={{ color: "#3d5570" }}>No players found for "{q}"</p>
+        )}
+        {results.map(p => {
             const isGk = p.type === 1;
             const si = statusIcon(p.status);
             return (
@@ -255,7 +271,6 @@ function PlayerSearchModal({ allPlayers, onSelect, onClose, title }: {
               </button>
             );
           })}
-        </div>
       </div>
     </div>
   );
