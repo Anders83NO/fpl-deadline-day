@@ -389,7 +389,7 @@ function PlayersTab({ allPlayers, loading }: { allPlayers: Player[]; loading: bo
       <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1a2a3a" }}>
         {/* Header */}
         <div className="grid items-center px-3 py-2"
-          style={{ gridTemplateColumns: "28px 1fr 48px 52px 48px 48px 48px", background: "#111d2b", borderBottom: "1px solid #1a2a3a" }}>
+          style={{ gridTemplateColumns: "28px minmax(100px, 240px) 48px 56px 52px 52px 52px", background: "#111d2b", borderBottom: "1px solid #1a2a3a" }}>
           <div />
           <div className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: "#4d6688" }}>Player</div>
           {COLUMNS.map(col => (
@@ -413,7 +413,7 @@ function PlayersTab({ allPlayers, loading }: { allPlayers: Player[]; loading: bo
           const isCompared = compareA?.id === p.id || compareB?.id === p.id;
           return (
             <div key={p.id} className="grid items-center px-3 py-2"
-              style={{ gridTemplateColumns: "28px 1fr 48px 52px 48px 48px 48px", background: isCompared ? "#1a1500" : i % 2 === 0 ? "#0f1a28" : "#111d2b", borderBottom: "1px solid #0f1a25" }}>
+              style={{ gridTemplateColumns: "28px minmax(100px, 240px) 48px 56px 52px 52px 52px", background: isCompared ? "#1a1500" : i % 2 === 0 ? "#0f1a28" : "#111d2b", borderBottom: "1px solid #0f1a25" }}>
               <button onClick={() => setInfoId(p.id)}
                 className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold flex-shrink-0"
                 style={{ background: "#1a2538", border: "1px solid #2a3d55", color: "#6688aa" }}>i</button>
