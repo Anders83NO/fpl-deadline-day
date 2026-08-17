@@ -176,7 +176,7 @@ export default function PlayerCompareModal({
 
         {/* ICT tab */}
         {tab === "ict" && (
-          <div className="px-4 py-3 pb-8">
+          <div className="px-4 py-3 pb-24">
             <div className="grid grid-cols-2 gap-3 mb-4">
               {[
                 { label: "ICT index", aVal: playerA.ictIndex, bVal: playerB.ictIndex },
