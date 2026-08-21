@@ -147,6 +147,7 @@ export default function TransfersPage() {
   const [isNewSeason, setIsNewSeason] = useState(false);
   const [gwDataReady, setGwDataReady] = useState(false);
   const [planGw, setPlanGw] = useState(1);
+  const [baseFreeTransfers, setBaseFreeTransfers] = useState(1);
 
   // Fixture info for planGw: teamShortName → [{opponent, isHome}]
   const [fixtureMap, setFixtureMap] = useState<Record<string, { opponent: string; isHome: boolean }[]>>({});
@@ -246,6 +247,7 @@ export default function TransfersPage() {
               }));
               setBaseSquad(enriched);
               setBaseBank(parseFloat(picksData.bank ?? "0"));
+              setBaseFreeTransfers(picksData.freeTransfers ?? 1);
               setGwDataReady(true);
               loaded = true;
             }
@@ -341,7 +343,8 @@ export default function TransfersPage() {
   const { squad, bank, freeTransfers } = useMemo(() => {
     let s = baseSquad.map((p) => ({ ...p }));
     let b = baseBank;
-    let ft = 2;
+    // Use the real FT count from FPL API for the base GW; fall back to 1 (never assume 2)
+    let ft = baseFreeTransfers;
 
     for (let gw = firstPlanGw; gw <= planGw; gw++) {
       const gwChip = chipPlan.find((c) => c.gw === gw)?.chip;
@@ -383,7 +386,7 @@ export default function TransfersPage() {
       if (gw < planGw) {
         const isGw1Build = gw === 1 && baseSquad.every(p => p.element < 0);
         if (isGw1Build) {
-          ft = 2; // GW2 always starts with 2 FTs after squad building
+          ft = 1; // GW2 starts with 1 FT after initial squad build (FPL rule)
         } else {
           const usedFt = isWildcardOrFH ? 0 : gwTransfers.length;
           const unused = Math.max(0, ft - usedFt);
@@ -393,7 +396,7 @@ export default function TransfersPage() {
     }
 
     return { squad: s, bank: b, freeTransfers: Math.max(0, ft) };
-  }, [baseSquad, baseBank, transfers, lineupSwaps, captainPlan, chipPlan, planGw, firstPlanGw]);
+  }, [baseSquad, baseBank, baseFreeTransfers, transfers, lineupSwaps, captainPlan, chipPlan, planGw, firstPlanGw]);
 
   const analyseData = useMemo(() => {
     if (!squad.length || !allPlayers.length) return null;

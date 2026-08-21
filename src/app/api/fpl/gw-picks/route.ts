@@ -75,6 +75,7 @@ export async function GET(req: NextRequest) {
       picks: enrichedPicks,
       bank: ((picksData.entry_history?.bank ?? 0) / 10).toFixed(1),
       teamValue: ((picksData.entry_history?.value ?? 0) / 10).toFixed(1),
+      freeTransfers: picksData.transfers?.limit ?? 1,
     });
   } catch (e) {
     console.error(e);
