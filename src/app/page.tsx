@@ -520,19 +520,15 @@ function MatchCard({ match: m, timezone }: { match: Match; timezone: string }) {
       <div className="rounded-xl px-4 py-3 flex items-center active:opacity-70 transition-opacity"
         style={{ background: cardStyle.bg, border: `1px solid ${cardStyle.border}` }}>
 
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          {m.homeCrest && <Image src={m.homeCrest} alt={m.home} width={20} height={20} className="object-contain flex-shrink-0" />}
-          <span className={`text-sm font-semibold truncate ${state === "ft" ? "opacity-60" : "text-white"}`}>{m.home}</span>
-        </div>
+        {m.homeCrest && <Image src={m.homeCrest} alt={m.home} width={24} height={24} className="object-contain flex-shrink-0" />}
+        <span className={`text-sm font-semibold truncate flex-1 text-right pr-2 ${state === "ft" ? "opacity-60" : "text-white"}`}>{m.home}</span>
 
-        <div className="flex flex-col items-center mx-3 min-w-[72px]">
+        <div className="flex flex-col items-center flex-shrink-0 w-[80px]">
           <StatusBadge />
         </div>
 
-        <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
-          <span className={`text-sm font-semibold truncate ${state === "ft" ? "opacity-60" : "text-white"}`}>{m.away}</span>
-          {m.awayCrest && <Image src={m.awayCrest} alt={m.away} width={20} height={20} className="object-contain flex-shrink-0" />}
-        </div>
+        <span className={`text-sm font-semibold truncate flex-1 text-left pl-2 ${state === "ft" ? "opacity-60" : "text-white"}`}>{m.away}</span>
+        {m.awayCrest && <Image src={m.awayCrest} alt={m.away} width={24} height={24} className="object-contain flex-shrink-0" />}
       </div>
     </Link>
   );
