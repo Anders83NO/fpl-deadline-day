@@ -28,6 +28,10 @@ export const metadata: Metadata = {
     title: "FPL Deadline Day",
     description: "Free transfer planner, deadline reminders and live scores for Fantasy Premier League managers.",
   },
+  icons: {
+    icon: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export const viewport = {
