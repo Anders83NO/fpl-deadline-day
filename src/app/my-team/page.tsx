@@ -110,8 +110,15 @@ function PlayerCard({ pick, bench = false, onInfo }: { pick: Pick; bench?: boole
           {pick.name}
         </span>
         <span className="text-[10px] font-bold tabular-nums text-center rounded-b px-1.5 py-0.5 w-full"
-          style={{ background: pick.gw_points > 0 ? "#f59e0b" : "#555", color: pick.gw_points > 0 ? "#000" : "#fff" }}>
-          {pick.gw_points * pick.multiplier}
+          style={{
+            background: bench
+              ? (pick.gw_points > 0 ? "#2a4060" : "#1a2535")
+              : (pick.gw_points > 0 ? "#f59e0b" : "#555"),
+            color: bench
+              ? (pick.gw_points > 0 ? "#8ab0d8" : "#4a6070")
+              : (pick.gw_points > 0 ? "#000" : "#fff"),
+          }}>
+          {bench ? pick.gw_points : pick.gw_points * pick.multiplier}
         </span>
         {onInfo && pick.element > 0 && (
           <button

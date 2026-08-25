@@ -425,8 +425,14 @@ function PlayerRow({ pick: p, expanded, onToggle, bench }: { pick: LivePick; exp
           {p.is_vice_captain && <span className="ml-1.5 text-[8px] font-bold px-1 py-0.5 rounded" style={{ background: "#1e2d42", color: "#6688aa" }}>V</span>}
           {hasPendingBonus && <span className="ml-1.5 text-[8px] font-bold px-1 py-0.5 rounded" style={{ background: "#2a1f4a", color: "#a78bfa" }}>+{p.bonus} BP</span>}
         </span>
-        <span className="text-xs font-bold tabular-nums" style={{ color: p.gw_points > 0 ? "#f59e0b" : "#2a3a4a" }}>
-          {p.gw_points > 0 ? p.gw_points * p.multiplier : "—"}
+        <span className="text-xs font-bold tabular-nums" style={{
+          color: bench
+            ? (p.gw_points > 0 ? "#4d6a88" : "#2a3a4a")
+            : (p.gw_points > 0 ? "#f59e0b" : "#2a3a4a")
+        }}>
+          {bench
+            ? (p.gw_points > 0 ? p.gw_points : "—")
+            : (p.gw_points > 0 ? p.gw_points * p.multiplier : "—")}
         </span>
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#3d5570" strokeWidth="2.5" style={{ transform: expanded ? "rotate(180deg)" : "none", flexShrink: 0 }}>
           <polyline points="6,9 12,15 18,9" />
