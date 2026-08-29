@@ -247,7 +247,11 @@ export default function TransfersPage() {
               }));
               setBaseSquad(enriched);
               setBaseBank(parseFloat(picksData.bank ?? "0"));
-              setBaseFreeTransfers(picksData.freeTransfers ?? 1);
+              // Compute FT for the *next* GW: unused FTs from current GW + 1 new, capped at MAX_BANKED_FT
+              const ftLimit = picksData.freeTransfers ?? 1;
+              const ftMade = picksData.transfersMade ?? 0;
+              const ftForNextGw = Math.min(MAX_BANKED_FT, Math.max(0, ftLimit - ftMade) + 1);
+              setBaseFreeTransfers(ftForNextGw);
               setGwDataReady(true);
               loaded = true;
             }
