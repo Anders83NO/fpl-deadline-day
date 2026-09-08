@@ -352,7 +352,12 @@ export default function TransfersPage() {
 
     for (let gw = firstPlanGw; gw <= planGw; gw++) {
       const gwChip = chipPlan.find((c) => c.gw === gw)?.chip;
-      const isWildcardOrFH = gwChip === "wildcard" || gwChip === "freehit";
+      const isFreeHit = gwChip === "freehit";
+      const isWildcardOrFH = gwChip === "wildcard" || isFreeHit;
+
+      // Free Hit is temporary: snapshot squad before this GW and restore it after
+      const squadBeforeFH = isFreeHit ? s.map(p => ({ ...p })) : null;
+      const bankBeforeFH = isFreeHit ? b : null;
 
       // Apply transfers
       const gwTransfers = transfers.filter((t) => t.gw === gw);
@@ -395,6 +400,12 @@ export default function TransfersPage() {
           const usedFt = isWildcardOrFH ? 0 : gwTransfers.length;
           const unused = Math.max(0, ft - usedFt);
           ft = Math.min(MAX_BANKED_FT, unused + 1);
+        }
+
+        // Free Hit reverts squad to pre-FH state after this GW
+        if (isFreeHit && squadBeforeFH) {
+          s = squadBeforeFH;
+          b = bankBeforeFH!;
         }
       }
     }
