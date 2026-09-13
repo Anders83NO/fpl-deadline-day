@@ -43,7 +43,7 @@ function PlayerCard({ pick, bench = false, onInfo }: { pick: Pick; bench?: boole
   const posLabel = TYPE_LABEL[pick.element_type] ?? pick.name;
   const status = pick.status ?? "a";
   const statusDot = status === "i" || status === "u" ? { color: "#ef4444", label: "🚑" }
-    : status === "d" ? { color: "#f59e0b", label: "?" }
+    : status === "d" ? { color: "#f59e0b", label: "▲" }
     : status === "s" ? { color: "#a855f7", label: "S" }
     : null;
 
@@ -92,10 +92,18 @@ function PlayerCard({ pick, bench = false, onInfo }: { pick: Pick; bench?: boole
             style={{ background: "#000", color: "#888", border: "1.5px solid #888" }}>V</span>
         )}
         {statusDot && !pick.is_captain && !pick.is_vice_captain && (
-          <span className="absolute -top-1 -left-1 w-4 h-4 rounded-full text-[8px] font-bold flex items-center justify-center"
-            style={{ background: "#000", color: statusDot.color, border: `1.5px solid ${statusDot.color}` }}>
-            {statusDot.label}
-          </span>
+          statusDot.label === "▲" ? (
+            <span className="absolute -top-1 -left-1 flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 14 14">
+                <polygon points="7,1 13,13 1,13" fill="#f59e0b" />
+              </svg>
+            </span>
+          ) : (
+            <span className="absolute -top-1 -left-1 w-4 h-4 rounded-full text-[8px] font-bold flex items-center justify-center"
+              style={{ background: "#000", color: statusDot.color, border: `1.5px solid ${statusDot.color}` }}>
+              {statusDot.label}
+            </span>
+          )
         )}
       </div>
       <div className="flex flex-col items-center w-full relative">
