@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import AuthModal from "@/components/AuthModal";
+import { StatusTriangle } from "@/components/StatusTriangle";
 import PlayerInfoModal from "@/components/PlayerInfoModal";
 
 const TYPE_LABEL: Record<number, string> = { 1: "GK", 2: "DEF", 3: "MID", 4: "FWD" };
@@ -1459,9 +1460,9 @@ function PitchCard({ pick, onTap, selected, dimmed, fixtureMap, showPrice, onInf
   const isGk = pick.element_type === 1;
   const posLabel = TYPE_LABEL[pick.element_type] ?? pick.name;
   const status = pick.status ?? "a";
-  const statusDot = status === "i" || status === "u" ? { color: "#ef4444", label: "🚑" }
-    : status === "d" ? { color: "#f59e0b", label: "▲" }
-    : status === "s" ? { color: "#a855f7", label: "S" }
+  const statusDot = status === "i" || status === "u" ? { type: "red" as const }
+    : status === "d" ? { type: "yellow" as const }
+    : status === "s" ? { type: "suspended" as const }
     : null;
 
   if (isEmpty) {
@@ -1524,18 +1525,12 @@ function PitchCard({ pick, onTap, selected, dimmed, fixtureMap, showPrice, onInf
             style={{ background: "#f59e0b", color: "#000" }}>✓</span>
         )}
         {statusDot && !pick.is_captain && !pick.is_vice_captain && !selected && (
-          statusDot.label === "▲" ? (
-            <span className="absolute -top-1 -left-1 flex items-center justify-center">
-              <svg width="14" height="14" viewBox="0 0 14 14">
-                <polygon points="7,1 13,13 1,13" fill="#f59e0b" />
-              </svg>
-            </span>
-          ) : (
-            <span className="absolute -top-1 -left-1 w-4 h-4 rounded-full text-[8px] font-bold flex items-center justify-center"
-              style={{ background: "#000", color: statusDot.color, border: `1.5px solid ${statusDot.color}` }}>
-              {statusDot.label}
-            </span>
-          )
+          <span className="absolute -top-1 -left-1">
+            {statusDot.type === "suspended"
+              ? <span className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold" style={{ background: "#000", color: "#a855f7", border: "1.5px solid #a855f7" }}>S</span>
+              : <StatusTriangle color={statusDot.type} size={14} />
+            }
+          </span>
         )}
       </div>
       <div className="flex flex-col items-center w-full relative">

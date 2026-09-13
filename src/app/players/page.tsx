@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from "react";
 import PlayerInfoModal from "@/components/PlayerInfoModal";
 import PlayerCompareModal from "@/components/PlayerCompareModal";
+import { StatusTriangle } from "@/components/StatusTriangle";
 
 const TYPE_LABEL: Record<number, string> = { 1: "GK", 2: "DEF", 3: "MID", 4: "FWD" };
 const TYPE_COLOR: Record<number, string> = { 1: "#facc15", 2: "#4ade80", 3: "#60a5fa", 4: "#f87171" };
@@ -45,9 +46,9 @@ function shirtUrl(code: number, isGk: boolean) {
 }
 
 function statusIcon(s: string) {
-  if (s === "i" || s === "u") return { icon: "🚑", color: "#ef4444" };
-  if (s === "d") return { icon: "▲", color: "#f59e0b" };
-  if (s === "s") return { icon: "S", color: "#a855f7" };
+  if (s === "i" || s === "u") return { type: "red" as const };
+  if (s === "d") return { type: "yellow" as const };
+  if (s === "s") return { type: "suspended" as const };
   return null;
 }
 
@@ -216,9 +217,13 @@ export default function PlayersPage() {
               <button className="flex items-center gap-2 text-left min-w-0" onClick={() => handleCompare(p)}>
                 <div className="relative flex-shrink-0">
                   <img src={shirtUrl(p.teamCode, isGk)} alt={p.team} width={24} height={28} className="object-contain" />
-                  {si && (si.icon === "▲"
-                    ? <span className="absolute -top-1 -right-1"><svg width="10" height="10" viewBox="0 0 14 14"><polygon points="7,1 13,13 1,13" fill="#f59e0b" /></svg></span>
-                    : <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full flex items-center justify-center text-[6px] font-bold" style={{ background: "#000", color: si.color, border: `1px solid ${si.color}` }}>{si.icon}</span>
+                  {si && (
+                    <span className="absolute -top-1 -right-1">
+                      {si.type === "suspended"
+                        ? <span className="w-3 h-3 rounded-full flex items-center justify-center text-[6px] font-bold" style={{ background: "#000", color: "#a855f7", border: "1px solid #a855f7" }}>S</span>
+                        : <StatusTriangle color={si.type} size={10} />
+                      }
+                    </span>
                   )}
                 </div>
                 <div className="min-w-0">
