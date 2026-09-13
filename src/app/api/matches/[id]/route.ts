@@ -51,7 +51,9 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
       type: e.type,       // "Goal", "Card", "subst", "Var"
       detail: e.detail,   // "Normal Goal", "Yellow Card", "Red Card", "Penalty", etc.
       player: e.player?.name ?? null,
+      playerId: e.player?.id ?? null,
       assist: e.assist?.name ?? null,
+      assistId: e.assist?.id ?? null,   // player coming ON in subst events
       teamId: e.team?.id ?? null,
       teamName: e.team?.name ?? null,
       homeTeamId: f.teams.home.id,

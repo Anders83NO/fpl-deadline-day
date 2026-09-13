@@ -19,7 +19,9 @@ interface Event {
   type: string;
   detail: string;
   player: string | null;
+  playerId: number | null;
   assist: string | null;
+  assistId: number | null;  // player coming ON (subst)
   teamId: number;
   homeTeamId: number;
 }
@@ -320,20 +322,30 @@ function PitchView({ data }: { data: MatchDetail }) {
 // ── Substitutes section ──
 function SubstitutesSection({ data }: { data: MatchDetail }) {
   const substEvents = data.events.filter(e => e.type === "subst");
-  const cameOnNames = new Set(substEvents.map(e => e.assist).filter(Boolean));
+  // Match by ID (reliable), fall back to name if ID missing
+  const cameOnIds = new Set(substEvents.map(e => e.assistId).filter((id): id is number => id != null));
 
-  const homeUsed   = data.homeBench.filter(p => cameOnNames.has(p.name));
-  const homeUnused = data.homeBench.filter(p => !cameOnNames.has(p.name));
-  const awayUsed   = data.awayBench.filter(p => cameOnNames.has(p.name));
-  const awayUnused = data.awayBench.filter(p => !cameOnNames.has(p.name));
+  function didComeOn(p: Player): boolean {
+    if (cameOnIds.size > 0) return cameOnIds.has(p.id);
+    // fallback: name match
+    return substEvents.some(e => e.assist === p.name);
+  }
 
-  const subMinute = (name: string): string | null => {
-    const e = substEvents.find(e => e.assist === name);
+  const homeUsed   = data.homeBench.filter(p => didComeOn(p));
+  const homeUnused = data.homeBench.filter(p => !didComeOn(p));
+  const awayUsed   = data.awayBench.filter(p => didComeOn(p));
+  const awayUnused = data.awayBench.filter(p => !didComeOn(p));
+
+  const subEventFor = (p: Player) =>
+    substEvents.find(e => e.assistId === p.id || e.assist === p.name);
+
+  const subMinute = (p: Player): string | null => {
+    const e = subEventFor(p);
     if (!e) return null;
     return e.extraMinute ? `${e.minute}+${e.extraMinute}'` : `${e.minute}'`;
   };
-  const replacedName = (name: string): string | null =>
-    substEvents.find(e => e.assist === name)?.player ?? null;
+  const replacedName = (p: Player): string | null =>
+    subEventFor(p)?.player ?? null;
 
   const hasUsed = homeUsed.length > 0 || awayUsed.length > 0;
   const hasUnused = homeUnused.length > 0 || awayUnused.length > 0;
@@ -355,11 +367,11 @@ function SubstitutesSection({ data }: { data: MatchDetail }) {
                       style={{ color: "#4d6a88" }}>{p.number}</span>
                     <span className="text-xs text-white truncate">{p.name}</span>
                     <span className="text-[10px] flex-shrink-0 font-bold ml-auto"
-                      style={{ color: "#f59e0b" }}>{subMinute(p.name)}</span>
+                      style={{ color: "#f59e0b" }}>{subMinute(p)}</span>
                   </div>
-                  {replacedName(p.name) && (
+                  {replacedName(p) && (
                     <p className="text-[10px] ml-7" style={{ color: "#4d6a88" }}>
-                      ↑ av {replacedName(p.name)}
+                      ↑ av {replacedName(p)}
                     </p>
                   )}
                 </div>
@@ -373,11 +385,11 @@ function SubstitutesSection({ data }: { data: MatchDetail }) {
                       style={{ color: "#4d6a88" }}>{p.number}</span>
                     <span className="text-xs text-white truncate">{p.name}</span>
                     <span className="text-[10px] flex-shrink-0 font-bold ml-auto"
-                      style={{ color: "#f59e0b" }}>{subMinute(p.name)}</span>
+                      style={{ color: "#f59e0b" }}>{subMinute(p)}</span>
                   </div>
-                  {replacedName(p.name) && (
+                  {replacedName(p) && (
                     <p className="text-[10px] ml-7" style={{ color: "#4d6a88" }}>
-                      ↑ av {replacedName(p.name)}
+                      ↑ av {replacedName(p)}
                     </p>
                   )}
                 </div>
