@@ -162,50 +162,56 @@ function groupByRow(players: Player[]): Map<number, { player: Player; col: numbe
   return map;
 }
 
-// ── Jersey SVG shape ──
-// Centered at (0,0), roughly 34px wide × 34px tall.
-// body = main torso+sleeve color, sleeve = sleeve color, collar = collar accent
-const JERSEY_BODY =
-  "M -6,-17 L -13,-17 L -17,-13 L -17,-8 L -13,-8 L -13,17 L 13,17 L 13,-8 L 17,-8 L 17,-13 L 13,-17 L 6,-17 L 3,-13 L 0,-11 L -3,-13 Z";
-const JERSEY_SLEEVE_L = "M -13,-17 L -17,-13 L -17,-8 L -13,-8 Z";
-const JERSEY_SLEEVE_R = "M 13,-17 L 17,-13 L 17,-8 L 13,-8 Z";
-const JERSEY_COLLAR   = "M -3,-17 L -3,-13 L 0,-11 L 3,-13 L 3,-17 Z";
+// ── Player card: circular photo + team color ring + number badge ──
+const PHOTO_R = 19; // photo circle radius
+const RING_R  = 21; // team color ring radius
 
-function Jersey({
-  x, y, number, name,
-  body, sleeve, collar, text,
+function PlayerCard({
+  x, y, playerId, number, name, ringColor, badgeText,
 }: {
-  x: number; y: number; number: number; name: string;
-  body: string; sleeve: string; collar: string; text: string;
+  x: number; y: number; playerId: number; number: number; name: string;
+  ringColor: string; badgeText: string;
 }) {
-  const lastName = name.split(" ").pop()?.slice(0, 11) ?? name;
-  const nameW = Math.min(lastName.length * 5.2 + 10, 72);
-  const JERSEY_H = 34; // half-height of jersey shape bottom
+  const lastName = name.split(" ").pop()?.slice(0, 12) ?? name;
+  const nameW = Math.min(lastName.length * 5.2 + 10, 76);
+  const clipId = `pc-${playerId}`;
+  const photoUrl = `https://media.api-sports.io/football/players/${playerId}.png`;
 
   return (
     <g transform={`translate(${x},${y})`}>
-      {/* Drop shadow */}
-      <g transform="translate(0,2)" opacity={0.18}>
-        <path d={JERSEY_BODY} fill="#000" />
-      </g>
-      {/* Jersey body */}
-      <path d={JERSEY_BODY} fill={body} />
-      {/* Sleeves (accent color) */}
-      <path d={JERSEY_SLEEVE_L} fill={sleeve} />
-      <path d={JERSEY_SLEEVE_R} fill={sleeve} />
-      {/* Collar */}
-      <path d={JERSEY_COLLAR} fill={collar} />
-      {/* Outline */}
-      <path d={JERSEY_BODY} fill="none" stroke="rgba(0,0,0,0.25)" strokeWidth={0.8} />
-      {/* Number */}
-      <text x={0} y={5} textAnchor="middle" dominantBaseline="middle"
-        fontSize={10} fontWeight={800} fill={text} fontFamily="system-ui,sans-serif">
+      {/* Subtle drop shadow */}
+      <circle cx={0} cy={2} r={RING_R} fill="rgba(0,0,0,0.22)" />
+
+      {/* Team color ring */}
+      <circle cx={0} cy={0} r={RING_R} fill={ringColor} />
+
+      {/* Clip photo to circle */}
+      <defs>
+        <clipPath id={clipId}>
+          <circle cx={0} cy={0} r={PHOTO_R} />
+        </clipPath>
+      </defs>
+
+      {/* Photo */}
+      <image
+        href={photoUrl}
+        x={-PHOTO_R} y={-PHOTO_R}
+        width={PHOTO_R * 2} height={PHOTO_R * 2}
+        clipPath={`url(#${clipId})`}
+        preserveAspectRatio="xMidYMid slice"
+      />
+
+      {/* Number badge — bottom right of circle */}
+      <circle cx={13} cy={13} r={8} fill={ringColor} stroke="rgba(0,0,0,0.3)" strokeWidth={0.8} />
+      <text x={13} y={14} textAnchor="middle" dominantBaseline="middle"
+        fontSize={7} fontWeight={800} fill={badgeText} fontFamily="system-ui,sans-serif">
         {number}
       </text>
+
       {/* Name pill */}
-      <rect x={-nameW / 2} y={JERSEY_H / 2 + 2} width={nameW} height={14} rx={4}
-        fill="rgba(0,0,0,0.38)" />
-      <text x={0} y={JERSEY_H / 2 + 10} textAnchor="middle" dominantBaseline="middle"
+      <rect x={-nameW / 2} y={RING_R + 3} width={nameW} height={14} rx={4}
+        fill="rgba(0,0,0,0.4)" />
+      <text x={0} y={RING_R + 11} textAnchor="middle" dominantBaseline="middle"
         fontSize={8} fontWeight={600} fill="#fff" fontFamily="system-ui,sans-serif">
         {lastName}
       </text>
@@ -281,15 +287,14 @@ function PitchView({ data }: { data: MatchDetail }) {
       {/* Home players */}
       {Array.from(homeRows.entries()).map(([row, cols]) =>
         cols.map(({ player }, colIdx) => (
-          <Jersey key={player.id}
+          <PlayerCard key={player.id}
             x={xPos(colIdx, cols.length)}
             y={homeRowY(row, homeMaxRow)}
+            playerId={player.id}
             number={player.number}
             name={player.name}
-            body={homeC.body}
-            sleeve={homeC.sleeve}
-            collar={homeC.collar}
-            text={homeC.text}
+            ringColor={homeC.body}
+            badgeText={homeC.text}
           />
         ))
       )}
@@ -297,15 +302,14 @@ function PitchView({ data }: { data: MatchDetail }) {
       {/* Away players */}
       {Array.from(awayRows.entries()).map(([row, cols]) =>
         cols.map(({ player }, colIdx) => (
-          <Jersey key={player.id}
+          <PlayerCard key={player.id}
             x={xPos(colIdx, cols.length)}
             y={awayRowY(row, awayMaxRow)}
+            playerId={player.id}
             number={player.number}
             name={player.name}
-            body={awayC.body}
-            sleeve={awayC.sleeve}
-            collar={awayC.collar}
-            text={awayC.text}
+            ringColor={awayC.body}
+            badgeText={awayC.text}
           />
         ))
       )}
