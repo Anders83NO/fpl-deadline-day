@@ -236,7 +236,20 @@ export default function TransfersPage() {
             const picksRes = await fetch(`/api/fpl/gw-picks?id=${id}&gw=${lastLocked}`);
             const picksData = await picksRes.json();
             if (picksData.ready && picksData.picks) {
-              const enriched = picksData.picks.map((p: Pick) => ({
+              // If Free Hit was active in the last locked GW, the picks are the temporary FH squad.
+              // We must fetch the GW before instead, which is the real persistent squad.
+              let realPicksData = picksData;
+              if (picksData.activeChip === "freehit" && lastLocked > 1) {
+                try {
+                  const prevRes = await fetch(`/api/fpl/gw-picks?id=${id}&gw=${lastLocked - 1}`);
+                  const prevData = await prevRes.json();
+                  if (prevData.ready && prevData.picks) {
+                    realPicksData = prevData;
+                  }
+                } catch { /* keep original if prev fetch fails */ }
+              }
+
+              const enriched = realPicksData.picks.map((p: Pick) => ({
                 ...p,
                 price: pm[p.element]?.price ?? 0,
                 form: pm[p.element]?.form ?? 0,
@@ -246,10 +259,11 @@ export default function TransfersPage() {
                 news: pm[p.element]?.news ?? "",
               }));
               setBaseSquad(enriched);
-              setBaseBank(parseFloat(picksData.bank ?? "0"));
+              setBaseBank(parseFloat(realPicksData.bank ?? "0"));
               // Compute FT for the *next* GW: unused FTs from current GW + 1 new, capped at MAX_BANKED_FT
-              const ftLimit = picksData.freeTransfers ?? 1;
-              const ftMade = picksData.transfersMade ?? 0;
+              // After a FH, you always get 1 FT for the next GW
+              const ftLimit = picksData.activeChip === "freehit" ? 1 : (picksData.freeTransfers ?? 1);
+              const ftMade = picksData.activeChip === "freehit" ? 0 : (picksData.transfersMade ?? 0);
               const ftForNextGw = Math.min(MAX_BANKED_FT, Math.max(0, ftLimit - ftMade) + 1);
               setBaseFreeTransfers(ftForNextGw);
               setGwDataReady(true);

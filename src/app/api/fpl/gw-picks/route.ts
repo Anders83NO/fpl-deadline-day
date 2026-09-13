@@ -77,6 +77,7 @@ export async function GET(req: NextRequest) {
       teamValue: ((picksData.entry_history?.value ?? 0) / 10).toFixed(1),
       freeTransfers: picksData.transfers?.limit ?? 1,
       transfersMade: picksData.transfers?.made ?? 0,
+      activeChip: picksData.active_chip ?? null, // e.g. "freehit", "wildcard", "bboost", "3xc"
     });
   } catch (e) {
     console.error(e);
