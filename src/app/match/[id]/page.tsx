@@ -112,7 +112,7 @@ export default function MatchPage() {
   const displayEvents = data.events.filter(e =>
     ["Goal", "Card", "subst"].includes(e.type) &&
     !(e.type === "Card" && e.detail === "Yellow Card" && false) // show all cards
-  );
+  ).slice().reverse(); // newest first
 
   return (
     <div className="max-w-lg mx-auto pb-24">
