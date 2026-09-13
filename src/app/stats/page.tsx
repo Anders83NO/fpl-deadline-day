@@ -139,7 +139,7 @@ function shirtUrl(code: number, isGk: boolean) {
 
 function statusIcon(s: string) {
   if (s === "i" || s === "u") return { icon: "🚑", color: "#ef4444" };
-  if (s === "d") return { icon: "?", color: "#f59e0b" };
+  if (s === "d") return { icon: "▲", color: "#f59e0b" };
   if (s === "s") return { icon: "S", color: "#a855f7" };
   return null;
 }
@@ -258,8 +258,10 @@ function PlayerSearchModal({ allPlayers, onSelect, onClose, title }: {
                 style={{ borderBottom: "1px solid #0f1a25" }}>
                 <div className="relative flex-shrink-0">
                   <img src={shirtUrl(p.teamCode, isGk)} alt={p.team} width={24} height={28} className="object-contain" />
-                  {si && <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full flex items-center justify-center text-[6px] font-bold"
-                    style={{ background: "#000", color: si.color, border: `1px solid ${si.color}` }}>{si.icon}</span>}
+                  {si && (si.icon === "▲"
+                    ? <span className="absolute -top-1 -right-1"><svg width="10" height="10" viewBox="0 0 14 14"><polygon points="7,1 13,13 1,13" fill="#f59e0b" /></svg></span>
+                    : <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full flex items-center justify-center text-[6px] font-bold" style={{ background: "#000", color: si.color, border: `1px solid ${si.color}` }}>{si.icon}</span>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-white truncate">{p.name}</p>
@@ -420,8 +422,10 @@ function PlayersTab({ allPlayers, loading }: { allPlayers: Player[]; loading: bo
               <div className="flex items-center gap-2 min-w-0">
                 <div className="relative flex-shrink-0">
                   <img src={shirtUrl(p.teamCode, isGk)} alt={p.team} width={22} height={26} className="object-contain" />
-                  {si && <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full flex items-center justify-center text-[6px] font-bold"
-                    style={{ background: "#000", color: si.color, border: `1px solid ${si.color}` }}>{si.icon}</span>}
+                  {si && (si.icon === "▲"
+                    ? <span className="absolute -top-1 -right-1"><svg width="10" height="10" viewBox="0 0 14 14"><polygon points="7,1 13,13 1,13" fill="#f59e0b" /></svg></span>
+                    : <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full flex items-center justify-center text-[6px] font-bold" style={{ background: "#000", color: si.color, border: `1px solid ${si.color}` }}>{si.icon}</span>
+                  )}
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-1">
