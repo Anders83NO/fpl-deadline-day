@@ -52,49 +52,48 @@ interface MatchDetail {
 type Tab = "events" | "lineups";
 
 // ── Team jersey colors (API-Football team IDs) ──
-// bg = primary jersey color, text = number/name text color
-const TEAM_COLORS: Record<number, { bg: string; text: string }> = {
-  33:  { bg: "#DA291C", text: "#fff" }, // Manchester United
-  34:  { bg: "#241F20", text: "#fff" }, // Newcastle
-  35:  { bg: "#DA291C", text: "#fff" }, // Bournemouth
-  36:  { bg: "#CC0000", text: "#fff" }, // Fulham (away red / at home white–use fallback)
-  39:  { bg: "#FDB913", text: "#231F20" }, // Wolves
-  40:  { bg: "#C8102E", text: "#fff" }, // Liverpool
-  41:  { bg: "#D71920", text: "#fff" }, // Southampton
-  42:  { bg: "#EF0107", text: "#fff" }, // Arsenal
-  45:  { bg: "#003399", text: "#fff" }, // Everton
-  46:  { bg: "#003090", text: "#fff" }, // Leicester
-  47:  { bg: "#132257", text: "#fff" }, // Tottenham
-  48:  { bg: "#7A263A", text: "#fff" }, // West Ham
-  49:  { bg: "#034694", text: "#fff" }, // Chelsea
-  50:  { bg: "#6CABDD", text: "#fff" }, // Manchester City
-  51:  { bg: "#0057B8", text: "#fff" }, // Brighton
-  52:  { bg: "#1B458F", text: "#fff" }, // Crystal Palace
-  55:  { bg: "#E30613", text: "#fff" }, // Brentford
-  57:  { bg: "#0044A9", text: "#fff" }, // Ipswich
-  62:  { bg: "#EE2737", text: "#fff" }, // Sheffield United
-  63:  { bg: "#FFCD00", text: "#003087" }, // Leeds
-  65:  { bg: "#DD0000", text: "#fff" }, // Nottingham Forest
-  66:  { bg: "#670E36", text: "#fff" }, // Aston Villa
-  71:  { bg: "#1D1D1B", text: "#fff" }, // Burnley
-  73:  { bg: "#005DAA", text: "#fff" }, // Luton
-  80:  { bg: "#7A263A", text: "#fff" }, // Middlesbrough
-  88:  { bg: "#EF0107", text: "#fff" }, // Sunderland
+// body = main jersey color, sleeve = sleeve/accent color, collar = collar color, text = number text
+const TEAM_COLORS: Record<number, { body: string; sleeve: string; collar: string; text: string }> = {
+  33:  { body: "#DA291C", sleeve: "#DA291C", collar: "#fff",    text: "#fff" }, // Man United
+  34:  { body: "#241F20", sleeve: "#fff",    collar: "#fff",    text: "#fff" }, // Newcastle (black+white)
+  35:  { body: "#DA291C", sleeve: "#000",    collar: "#000",    text: "#fff" }, // Bournemouth
+  36:  { body: "#fff",    sleeve: "#fff",    collar: "#CC0000", text: "#000" }, // Fulham
+  39:  { body: "#FDB913", sleeve: "#FDB913", collar: "#000",    text: "#231F20" }, // Wolves
+  40:  { body: "#C8102E", sleeve: "#C8102E", collar: "#fff",    text: "#fff" }, // Liverpool
+  41:  { body: "#D71920", sleeve: "#D71920", collar: "#fff",    text: "#fff" }, // Southampton
+  42:  { body: "#EF0107", sleeve: "#fff",    collar: "#fff",    text: "#fff" }, // Arsenal (red+white sleeves)
+  45:  { body: "#003399", sleeve: "#003399", collar: "#fff",    text: "#fff" }, // Everton
+  46:  { body: "#003090", sleeve: "#003090", collar: "#fff",    text: "#fff" }, // Leicester
+  47:  { body: "#132257", sleeve: "#132257", collar: "#fff",    text: "#fff" }, // Tottenham
+  48:  { body: "#7A263A", sleeve: "#1BB1E7", collar: "#1BB1E7", text: "#fff" }, // West Ham (claret+sky)
+  49:  { body: "#034694", sleeve: "#034694", collar: "#fff",    text: "#fff" }, // Chelsea
+  50:  { body: "#6CABDD", sleeve: "#6CABDD", collar: "#fff",    text: "#fff" }, // Man City
+  51:  { body: "#0057B8", sleeve: "#FFCD00", collar: "#FFCD00", text: "#fff" }, // Brighton (blue+yellow)
+  52:  { body: "#1B458F", sleeve: "#C4122E", collar: "#C4122E", text: "#fff" }, // Crystal Palace (blue+red)
+  55:  { body: "#E30613", sleeve: "#E30613", collar: "#fff",    text: "#fff" }, // Brentford
+  57:  { body: "#0044A9", sleeve: "#0044A9", collar: "#fff",    text: "#fff" }, // Ipswich
+  62:  { body: "#EE2737", sleeve: "#EE2737", collar: "#000",    text: "#fff" }, // Sheffield United
+  63:  { body: "#FFCD00", sleeve: "#FFCD00", collar: "#003087", text: "#003087" }, // Leeds
+  65:  { body: "#DD0000", sleeve: "#DD0000", collar: "#fff",    text: "#fff" }, // Nottingham Forest
+  66:  { body: "#670E36", sleeve: "#95BFE5", collar: "#95BFE5", text: "#fff" }, // Aston Villa (claret+blue)
+  71:  { body: "#6C1D45", sleeve: "#6C1D45", collar: "#fff",    text: "#fff" }, // Burnley
+  73:  { body: "#F78F1E", sleeve: "#003DAD", collar: "#003DAD", text: "#fff" }, // Luton
+  80:  { body: "#E3001B", sleeve: "#E3001B", collar: "#fff",    text: "#fff" }, // Middlesbrough
+  88:  { body: "#EB172B", sleeve: "#000",    collar: "#000",    text: "#fff" }, // Sunderland
 };
 
-const FALLBACK_COLOR = { bg: "#2a3a4a", text: "#fff" };
+const FALLBACK_COLOR = { body: "#2a3a4a", sleeve: "#2a3a4a", collar: "#fff", text: "#fff" };
 
 function teamColor(teamId: number) {
   return TEAM_COLORS[teamId] ?? FALLBACK_COLOR;
 }
 
 // ── Pitch constants ──
-const W = 400, H = 580;
+const W = 400, H = 600;
 const ML = 14, MT = 14;
 const PW = W - ML * 2;
 const PH = H - MT * 2;
 const MID_Y = MT + PH / 2;
-const R_PLAYER = 16;
 
 function statusLabel(status: string, minute: number | null): string {
   if (["1H", "2H", "ET", "P"].includes(status)) return minute ? `${minute}'` : "LIVE";
@@ -163,25 +162,50 @@ function groupByRow(players: Player[]): Map<number, { player: Player; col: numbe
   return map;
 }
 
-// ── Player circle ──
-function PlayerDot({
-  x, y, number, name, bg, text,
+// ── Jersey SVG shape ──
+// Centered at (0,0), roughly 34px wide × 34px tall.
+// body = main torso+sleeve color, sleeve = sleeve color, collar = collar accent
+const JERSEY_BODY =
+  "M -6,-17 L -13,-17 L -17,-13 L -17,-8 L -13,-8 L -13,17 L 13,17 L 13,-8 L 17,-8 L 17,-13 L 13,-17 L 6,-17 L 3,-13 L 0,-11 L -3,-13 Z";
+const JERSEY_SLEEVE_L = "M -13,-17 L -17,-13 L -17,-8 L -13,-8 Z";
+const JERSEY_SLEEVE_R = "M 13,-17 L 17,-13 L 17,-8 L 13,-8 Z";
+const JERSEY_COLLAR   = "M -3,-17 L -3,-13 L 0,-11 L 3,-13 L 3,-17 Z";
+
+function Jersey({
+  x, y, number, name,
+  body, sleeve, collar, text,
 }: {
-  x: number; y: number; number: number; name: string; bg: string; text: string;
+  x: number; y: number; number: number; name: string;
+  body: string; sleeve: string; collar: string; text: string;
 }) {
   const lastName = name.split(" ").pop()?.slice(0, 11) ?? name;
   const nameW = Math.min(lastName.length * 5.2 + 10, 72);
+  const JERSEY_H = 34; // half-height of jersey shape bottom
+
   return (
-    <g>
-      <circle cx={x} cy={y + 2} r={R_PLAYER} fill="rgba(0,0,0,0.18)" />
-      <circle cx={x} cy={y} r={R_PLAYER} fill={bg} />
-      <text x={x} y={y + 1} textAnchor="middle" dominantBaseline="middle"
-        fontSize={11} fontWeight={800} fill={text} fontFamily="system-ui,sans-serif">
+    <g transform={`translate(${x},${y})`}>
+      {/* Drop shadow */}
+      <g transform="translate(0,2)" opacity={0.18}>
+        <path d={JERSEY_BODY} fill="#000" />
+      </g>
+      {/* Jersey body */}
+      <path d={JERSEY_BODY} fill={body} />
+      {/* Sleeves (accent color) */}
+      <path d={JERSEY_SLEEVE_L} fill={sleeve} />
+      <path d={JERSEY_SLEEVE_R} fill={sleeve} />
+      {/* Collar */}
+      <path d={JERSEY_COLLAR} fill={collar} />
+      {/* Outline */}
+      <path d={JERSEY_BODY} fill="none" stroke="rgba(0,0,0,0.25)" strokeWidth={0.8} />
+      {/* Number */}
+      <text x={0} y={5} textAnchor="middle" dominantBaseline="middle"
+        fontSize={10} fontWeight={800} fill={text} fontFamily="system-ui,sans-serif">
         {number}
       </text>
-      <rect x={x - nameW / 2} y={y + R_PLAYER + 3} width={nameW} height={14} rx={4}
-        fill="rgba(0,0,0,0.35)" />
-      <text x={x} y={y + R_PLAYER + 11} textAnchor="middle" dominantBaseline="middle"
+      {/* Name pill */}
+      <rect x={-nameW / 2} y={JERSEY_H / 2 + 2} width={nameW} height={14} rx={4}
+        fill="rgba(0,0,0,0.38)" />
+      <text x={0} y={JERSEY_H / 2 + 10} textAnchor="middle" dominantBaseline="middle"
         fontSize={8} fontWeight={600} fill="#fff" fontFamily="system-ui,sans-serif">
         {lastName}
       </text>
@@ -257,12 +281,14 @@ function PitchView({ data }: { data: MatchDetail }) {
       {/* Home players */}
       {Array.from(homeRows.entries()).map(([row, cols]) =>
         cols.map(({ player }, colIdx) => (
-          <PlayerDot key={player.id}
+          <Jersey key={player.id}
             x={xPos(colIdx, cols.length)}
             y={homeRowY(row, homeMaxRow)}
             number={player.number}
             name={player.name}
-            bg={homeC.bg}
+            body={homeC.body}
+            sleeve={homeC.sleeve}
+            collar={homeC.collar}
             text={homeC.text}
           />
         ))
@@ -271,12 +297,14 @@ function PitchView({ data }: { data: MatchDetail }) {
       {/* Away players */}
       {Array.from(awayRows.entries()).map(([row, cols]) =>
         cols.map(({ player }, colIdx) => (
-          <PlayerDot key={player.id}
+          <Jersey key={player.id}
             x={xPos(colIdx, cols.length)}
             y={awayRowY(row, awayMaxRow)}
             number={player.number}
             name={player.name}
-            bg={awayC.bg}
+            body={awayC.body}
+            sleeve={awayC.sleeve}
+            collar={awayC.collar}
             text={awayC.text}
           />
         ))
