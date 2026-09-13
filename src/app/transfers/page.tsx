@@ -261,10 +261,15 @@ export default function TransfersPage() {
               setBaseSquad(enriched);
               setBaseBank(parseFloat(realPicksData.bank ?? "0"));
               // Compute FT for the *next* GW: unused FTs from current GW + 1 new, capped at MAX_BANKED_FT
-              // After a FH, you always get 1 FT for the next GW
-              const ftLimit = picksData.activeChip === "freehit" ? 1 : (picksData.freeTransfers ?? 1);
-              const ftMade = picksData.activeChip === "freehit" ? 0 : (picksData.transfersMade ?? 0);
-              const ftForNextGw = Math.min(MAX_BANKED_FT, Math.max(0, ftLimit - ftMade) + 1);
+              // After a FH, FPL always resets to exactly 1 FT — no accumulation
+              let ftForNextGw: number;
+              if (picksData.activeChip === "freehit") {
+                ftForNextGw = 1;
+              } else {
+                const ftLimit = picksData.freeTransfers ?? 1;
+                const ftMade = picksData.transfersMade ?? 0;
+                ftForNextGw = Math.min(MAX_BANKED_FT, Math.max(0, ftLimit - ftMade) + 1);
+              }
               setBaseFreeTransfers(ftForNextGw);
               setGwDataReady(true);
               loaded = true;
