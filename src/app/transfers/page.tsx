@@ -375,7 +375,18 @@ export default function TransfersPage() {
       for (const t of gwTransfers) {
         s = s.map((p) =>
           p.element === t.outId
-            ? { ...p, element: t.inId, name: t.inName, team: t.inTeam, teamCode: t.inTeamCode, element_type: t.inType, price: t.inPrice }
+            ? {
+                ...p,
+                element: t.inId,
+                name: t.inName,
+                team: t.inTeam,
+                teamCode: t.inTeamCode,
+                element_type: t.inType,
+                price: t.inPrice,
+                // Pick up status/news from playerMap so the incoming player's injury status is correct
+                status: playerMap[t.inId]?.status ?? "a",
+                news: playerMap[t.inId]?.news ?? "",
+              }
             : p
         );
         b = b + t.outPrice - t.inPrice;
@@ -422,7 +433,7 @@ export default function TransfersPage() {
     }
 
     return { squad: s, bank: b, freeTransfers: Math.max(0, ft) };
-  }, [baseSquad, baseBank, baseFreeTransfers, transfers, lineupSwaps, captainPlan, chipPlan, planGw, firstPlanGw]);
+  }, [baseSquad, baseBank, baseFreeTransfers, transfers, lineupSwaps, captainPlan, chipPlan, planGw, firstPlanGw, playerMap]);
 
   const analyseData = useMemo(() => {
     if (!squad.length || !allPlayers.length) return null;
