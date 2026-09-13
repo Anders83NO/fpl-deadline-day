@@ -276,15 +276,25 @@ function PitchView({ data }: { data: MatchDetail }) {
       <path d={`M ${ML} ${MT + PH - R} A ${R} ${R} 0 0 0 ${ML + R} ${MT + PH}`} fill="none" stroke={LC} strokeWidth={1.5} />
       <path d={`M ${ML + PW} ${MT + PH - R} A ${R} ${R} 0 0 1 ${ML + PW - R} ${MT + PH}`} fill="none" stroke={LC} strokeWidth={1.5} />
 
-      {/* Team labels */}
-      <text x={ML + 6} y={MT + 10} fontSize={10} fontWeight={800} fill="rgba(255,255,255,0.6)"
+      {/* Home team label — top left */}
+      {data.homeCrest && (
+        <image href={data.homeCrest} x={ML + 6} y={MT + 6} width={22} height={22}
+          preserveAspectRatio="xMidYMid meet" />
+      )}
+      <text x={ML + 33} y={MT + 14} fontSize={11} fontWeight={800} fill="rgba(255,255,255,0.85)"
         fontFamily="system-ui,sans-serif">{data.home}</text>
-      <text x={ML + 6} y={MT + 22} fontSize={9} fill="rgba(255,255,255,0.35)"
+      <text x={ML + 33} y={MT + 26} fontSize={9} fill="rgba(255,255,255,0.45)"
         fontFamily="system-ui,sans-serif">{data.homeFormation}</text>
-      <text x={ML + PW - 6} y={MT + PH - 22} fontSize={10} fontWeight={800} fill="rgba(255,255,255,0.6)"
-        textAnchor="end" fontFamily="system-ui,sans-serif">{data.away}</text>
-      <text x={ML + PW - 6} y={MT + PH - 10} fontSize={9} fill="rgba(255,255,255,0.35)"
-        textAnchor="end" fontFamily="system-ui,sans-serif">{data.awayFormation}</text>
+
+      {/* Away team label — bottom left */}
+      {data.awayCrest && (
+        <image href={data.awayCrest} x={ML + 6} y={MT + PH - 28} width={22} height={22}
+          preserveAspectRatio="xMidYMid meet" />
+      )}
+      <text x={ML + 33} y={MT + PH - 16} fontSize={11} fontWeight={800} fill="rgba(255,255,255,0.85)"
+        fontFamily="system-ui,sans-serif">{data.away}</text>
+      <text x={ML + 33} y={MT + PH - 4} fontSize={9} fill="rgba(255,255,255,0.45)"
+        fontFamily="system-ui,sans-serif">{data.awayFormation}</text>
 
       {/* Home players */}
       {Array.from(homeRows.entries()).map(([row, cols]) =>
