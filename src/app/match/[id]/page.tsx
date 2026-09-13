@@ -244,10 +244,10 @@ function PitchView({ data }: { data: MatchDetail }) {
     <svg viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg"
       style={{ width: "100%", height: "auto", display: "block" }}>
 
-      {/* Stripes */}
+      {/* Stripes — same green as my-team/transfers pitch */}
       {Array.from({ length: 10 }, (_, i) => (
         <rect key={i} x={ML} y={MT + i * PH / 10} width={PW} height={PH / 10}
-          fill={i % 2 === 0 ? "#5cb85c" : "#52a852"} />
+          fill={i % 2 === 0 ? "#1e6b35" : "#1a5f2e"} />
       ))}
 
       {/* Lines */}
