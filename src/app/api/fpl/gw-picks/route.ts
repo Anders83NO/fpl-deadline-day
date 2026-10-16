@@ -14,8 +14,8 @@ const MAX_BANKED_FT = 5; // 2026/27 FPL rule
  * Rules:
  *   - Everyone starts GW1 with 1 FT (initial squad build is free/unlimited)
  *   - Each GW: unused = max(0, ft - transfers_made), next_ft = min(MAX, unused + 1)
- *   - Free Hit: next_ft = 1 (resets regardless of banked FTs)
- *   - Wildcard: transfers are free so unused = ft, next_ft = min(MAX, ft + 1)
+ *   - GW1 is unlimited squad building, so GW2 always starts with 1 FT
+ *   - Wildcard / Free Hit: banked FTs are kept, no new FT gained (next_ft = ft)
  */
 function computeFreeTransfers(
   history: { event: number; event_transfers: number }[],
@@ -33,23 +33,20 @@ function computeFreeTransfers(
     const chip = chipMap[gw.event] ?? null;
     const transfersMade = gw.event_transfers ?? 0;
 
-    if (gw.event === upToGw) {
-      // This is the last locked GW — compute FT for the next GW
-      if (chip === "freehit") return 1;
-      if (chip === "wildcard") return Math.min(MAX_BANKED_FT, ft + 1); // WC = all FTs unused
-      const unused = Math.max(0, ft - transfersMade);
-      return Math.min(MAX_BANKED_FT, unused + 1);
-    }
-
-    // Advance ft to next GW
-    if (chip === "freehit") {
-      ft = 1;
-    } else if (chip === "wildcard") {
-      ft = Math.min(MAX_BANKED_FT, ft + 1); // WC = transfers free, accumulate normally
+    let next: number;
+    if (gw.event === 1) {
+      // GW1 squad building is unlimited — everyone starts GW2 with 1 FT
+      next = 1;
+    } else if (chip === "freehit" || chip === "wildcard") {
+      // WC/FH: banked FTs are kept, but no new FT is gained
+      next = ft;
     } else {
       const unused = Math.max(0, ft - transfersMade);
-      ft = Math.min(MAX_BANKED_FT, unused + 1);
+      next = Math.min(MAX_BANKED_FT, unused + 1);
     }
+
+    if (gw.event === upToGw) return next; // FT for the GW after the last locked one
+    ft = next;
   }
 
   return ft; // fallback: return whatever ft is at this point

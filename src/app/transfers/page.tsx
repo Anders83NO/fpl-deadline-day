@@ -418,9 +418,10 @@ export default function TransfersPage() {
         const isGw1Build = gw === 1 && baseSquad.every(p => p.element < 0);
         if (isGw1Build) {
           ft = 1; // GW2 starts with 1 FT after initial squad build (FPL rule)
+        } else if (isWildcardOrFH) {
+          // WC/FH: banked FTs are kept, but no new FT is gained (FPL rule)
         } else {
-          const usedFt = isWildcardOrFH ? 0 : gwTransfers.length;
-          const unused = Math.max(0, ft - usedFt);
+          const unused = Math.max(0, ft - gwTransfers.length);
           ft = Math.min(MAX_BANKED_FT, unused + 1);
         }
 
