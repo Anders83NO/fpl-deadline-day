@@ -50,86 +50,79 @@ function PlayerCard({ pick, bench = false, onInfo }: { pick: Pick; bench?: boole
 
   if (isEmpty) {
     return (
-      <div className="flex flex-col items-center gap-0.5 w-[72px]">
-        <div className="w-14 h-14 rounded-xl flex items-center justify-center"
-          style={{ background: "#0d1c12", border: "1.5px dashed #2e5c38", opacity: bench ? 0.6 : 1 }}>
-          <span style={{ color: "#2e5c38", fontSize: 18 }}>+</span>
+      <div className="flex flex-col items-center gap-1 w-[72px]">
+        <div className="w-14 h-14 rounded-full flex items-center justify-center"
+          style={{ background: "rgba(0,0,0,0.18)", border: "1.5px dashed rgba(255,255,255,0.25)", opacity: bench ? 0.6 : 1 }}>
+          <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 18 }}>+</span>
         </div>
-        <div className="flex flex-col items-center w-full">
-          <span className="text-[10px] font-bold text-center leading-tight rounded-t px-1 py-0.5 w-full truncate block"
-            style={{ background: "#1e3025", color: "#4d8860", maxWidth: "72px" }}>
-            {posLabel}
-          </span>
-          <span className="text-[10px] font-bold text-center rounded-b px-1.5 py-0.5 w-full"
-            style={{ background: "#1a2820", color: "#3d6048", maxWidth: "72px" }}>
-            —
-          </span>
+        <div className="w-[68px] rounded-md overflow-hidden text-center shadow-lg">
+          <span className="block text-[10px] font-bold py-0.5" style={{ background: "rgba(15,21,32,0.85)", color: "#6688aa" }}>{posLabel}</span>
         </div>
       </div>
     );
   }
 
+  const pts = bench ? pick.gw_points : pick.gw_points * pick.multiplier;
+
   return (
-    <div className="flex flex-col items-center gap-0.5 w-[72px]">
-      <div className="w-14 h-14 rounded-xl flex items-center justify-center relative"
-        style={{
-          background: pick.is_captain ? "#f59e0b" : "#14532d",
-          border: `1.5px solid ${pick.is_captain ? "#f59e0b" : "#22763e"}`,
-        }}>
+    <div className="flex flex-col items-center gap-1 w-[72px]">
+      <div className="w-14 h-14 flex items-center justify-center relative">
+        {pick.is_captain && (
+          <span aria-hidden="true" className="absolute inset-0 rounded-full"
+            style={{ background: "radial-gradient(circle, rgba(245,158,11,0.55) 0%, rgba(245,158,11,0) 70%)" }} />
+        )}
         {pick.teamCode > 0 ? (
-          <img src={shirtUrl(pick.teamCode, isGk)} alt={pick.team} width={36} height={40} className="object-contain" />
+          <img src={shirtUrl(pick.teamCode, isGk)} alt={pick.team} width={46} height={52}
+            className="relative object-contain" style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.45))", opacity: bench ? 0.75 : 1 }} />
         ) : (
-          <span className="text-[10px] font-bold text-center leading-tight px-1"
-            style={{ color: pick.is_captain ? "#000" : "#fff" }}>
+          <span className="relative text-[10px] font-bold text-center leading-tight px-1 text-white">
             {pick.name}
           </span>
         )}
         {pick.is_captain && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-[9px] font-bold flex items-center justify-center"
-            style={{ background: "#000", color: "#f59e0b", border: "1.5px solid #f59e0b" }}>C</span>
+          <span className="absolute -top-0.5 -right-1 w-5 h-5 rounded-full text-[10px] font-extrabold flex items-center justify-center"
+            style={{ background: "#f59e0b", color: "#000", boxShadow: "0 0 0 2px #0f1520" }}>C</span>
         )}
         {pick.is_vice_captain && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-[9px] font-bold flex items-center justify-center"
-            style={{ background: "#000", color: "#888", border: "1.5px solid #888" }}>V</span>
+          <span className="absolute -top-0.5 -right-1 w-5 h-5 rounded-full text-[10px] font-extrabold flex items-center justify-center"
+            style={{ background: "#0f1520", color: "#c8d4e3", boxShadow: "0 0 0 1.5px #6688aa" }}>V</span>
         )}
         {statusDot && !pick.is_captain && !pick.is_vice_captain && (
-          <span className="absolute -top-1 -left-1">
+          <span className="absolute -top-0.5 -left-0.5">
             {statusDot.type === "suspended"
               ? <span className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold" style={{ background: "#000", color: "#a855f7", border: "1.5px solid #a855f7" }}>S</span>
-              : <StatusTriangle color={statusDot.type} size={14} />
+              : <StatusTriangle color={statusDot.type} size={15} />
             }
           </span>
         )}
-      </div>
-      <div className="flex flex-col items-center w-full relative">
-        {bench && (
-          <span className="text-[8px] font-bold text-center leading-tight rounded-t px-1 py-0.5 w-full block"
-            style={{ background: "#1e3050", color: "#6688aa", maxWidth: "72px" }}>
-            {TYPE_LABEL[pick.element_type]}
-          </span>
-        )}
-        <span className={`text-[10px] font-bold text-center leading-tight px-1 py-0.5 w-full truncate block ${bench ? "" : "rounded-t"}`}
-          style={{ background: "#fff", color: "#000", maxWidth: "72px" }}>
-          {pick.name}
-        </span>
-        <span className="text-[10px] font-bold tabular-nums text-center rounded-b px-1.5 py-0.5 w-full"
-          style={{
-            background: bench
-              ? (pick.gw_points > 0 ? "#2a4060" : "#1a2535")
-              : (pick.gw_points > 0 ? "#f59e0b" : "#555"),
-            color: bench
-              ? (pick.gw_points > 0 ? "#8ab0d8" : "#4a6070")
-              : (pick.gw_points > 0 ? "#000" : "#fff"),
-          }}>
-          {bench ? pick.gw_points : pick.gw_points * pick.multiplier}
-        </span>
         {onInfo && pick.element > 0 && (
           <button
             onClick={e => { e.stopPropagation(); onInfo(pick.element); }}
-            className="absolute -right-1 -bottom-1 flex items-center justify-center"
-            style={{ width: 16, height: 16, borderRadius: "50%", background: "#0f1a2a", border: "1px solid #2a3d55", fontSize: 9, fontWeight: 700, color: "#6688aa" }}
+            aria-label={`Info about ${pick.name}`}
+            className="absolute -right-2 bottom-0 flex items-center justify-center"
+            style={{ width: 18, height: 18, borderRadius: "50%", background: "rgba(15,21,32,0.9)", border: "1px solid #2a3d55", fontSize: 10, fontWeight: 700, color: "#c8d4e3" }}
           >i</button>
         )}
+      </div>
+      <div className="w-[68px] rounded-md overflow-hidden text-center"
+        style={{ boxShadow: "0 4px 10px -2px rgba(0,0,0,0.5)" }}>
+        {bench && (
+          <span className="block text-[8px] font-bold tracking-wider py-px"
+            style={{ background: "#1e3050", color: "#8aa4c2" }}>
+            {TYPE_LABEL[pick.element_type]}
+          </span>
+        )}
+        <span className="block text-[10.5px] font-bold leading-tight px-1 py-[3px] truncate"
+          style={{ background: bench ? "#c8d4e3" : "#fff", color: "#0f1520" }}>
+          {pick.name}
+        </span>
+        <span className="block text-[11px] font-extrabold tabular-nums py-[2px]"
+          style={{
+            background: pick.is_captain ? "#f59e0b" : "rgba(15,21,32,0.92)",
+            color: pick.is_captain ? "#000" : pts > 0 ? (bench ? "#8ab0d8" : "#f59e0b") : "#4d6a88",
+          }}>
+          {pts}
+        </span>
       </div>
     </div>
   );
@@ -137,7 +130,7 @@ function PlayerCard({ pick, bench = false, onInfo }: { pick: Pick; bench?: boole
 
 function PitchRow({ picks, bench, onInfo }: { picks: Pick[]; bench?: boolean; onInfo?: (id: number) => void }) {
   return (
-    <div className="flex justify-center gap-2 my-1">
+    <div className="flex justify-center gap-1.5">
       {picks.map((p) => <PlayerCard key={p.element} pick={p} bench={bench} onInfo={onInfo} />)}
     </div>
   );
@@ -354,26 +347,29 @@ export default function MyTeamPage() {
       {data && !loading && (
         <>
           {/* GW Navigator */}
-          <div className="flex items-center justify-between rounded-xl px-4 py-3 mb-4"
-            style={{ background: "#162030", border: "1px solid #1e3050" }}>
+          <div className="card flex items-center justify-between px-3 py-3 mb-3">
             <button
               onClick={() => changeGw(-1)}
               disabled={!viewGw || viewGw <= 1}
-              className="w-8 h-8 flex items-center justify-center rounded-lg transition-opacity disabled:opacity-20"
-              style={{ background: "#1e2d42" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5"><polyline points="15,18 9,12 15,6"/></svg>
+              aria-label="Previous gameweek"
+              className="w-11 h-11 flex items-center justify-center rounded-xl disabled:opacity-20"
+              style={{ background: "#1a2538", border: "1px solid #1e3050" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15,18 9,12 15,6"/></svg>
             </button>
             <div className="text-center">
-              <p className="text-[10px] uppercase tracking-widest" style={{ color: "#6688aa" }}>Gameweek</p>
-              <p className="text-lg font-bold text-white">{viewGw ?? data.gw}</p>
-              <p className="text-2xl font-bold" style={{ color: "#f59e0b" }}>{data.gw_points} pts</p>
+              <p className="eyebrow">Gameweek {viewGw ?? data.gw}</p>
+              <p className="mt-1 leading-none tabular-nums">
+                <span className="text-4xl font-extrabold tracking-tight" style={{ color: "#f59e0b" }}>{data.gw_points}</span>
+                <span className="text-sm font-semibold ml-1" style={{ color: "#6688aa" }}>pts</span>
+              </p>
             </div>
             <button
               onClick={() => changeGw(1)}
               disabled={!viewGw || viewGw >= data.currentGw}
-              className="w-8 h-8 flex items-center justify-center rounded-lg transition-opacity disabled:opacity-20"
-              style={{ background: "#1e2d42" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5"><polyline points="9,18 15,12 9,6"/></svg>
+              aria-label="Next gameweek"
+              className="w-11 h-11 flex items-center justify-center rounded-xl disabled:opacity-20"
+              style={{ background: "#1a2538", border: "1px solid #1e3050" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9,18 15,12 9,6"/></svg>
             </button>
           </div>
 
@@ -384,9 +380,9 @@ export default function MyTeamPage() {
               { label: "Rank", value: data.overall_rank.toLocaleString() },
               { label: "Bank", value: "£" + data.bank + "m" },
             ].map((s, i) => (
-              <div key={i} className="rounded-xl p-2.5 text-center" style={{ background: "#162030", border: "1px solid #1e3050" }}>
-                <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "#6688aa" }}>{s.label}</p>
-                <p className="text-sm font-bold text-white">{s.value}</p>
+              <div key={i} className="card px-2 py-3 text-center">
+                <p className="eyebrow mb-1">{s.label}</p>
+                <p className="text-[15px] font-bold text-white tabular-nums">{s.value}</p>
               </div>
             ))}
           </div>
@@ -400,7 +396,8 @@ export default function MyTeamPage() {
           )}
 
           {/* Pitch */}
-          <div className="rounded-xl mb-4 overflow-hidden relative" style={{
+          <div className="rounded-2xl mb-4 overflow-hidden relative" style={{
+            boxShadow: "inset 0 0 60px rgba(0,0,0,0.35), 0 12px 30px -12px rgba(0,0,0,0.6)",
             background: `repeating-linear-gradient(
               180deg,
               #1e6b35 0px, #1e6b35 60px,
@@ -409,7 +406,7 @@ export default function MyTeamPage() {
             border: "1px solid #2e7a3e",
           }}>
             <PitchMarkings />
-            <div className="relative z-10 py-4">
+            <div className="relative z-10 py-5 space-y-3">
               <PitchRow picks={gk} onInfo={setInfoPlayerId} />
               <PitchRow picks={defs} onInfo={setInfoPlayerId} />
               <PitchRow picks={mids} onInfo={setInfoPlayerId} />
@@ -418,15 +415,15 @@ export default function MyTeamPage() {
           </div>
 
           {/* Bench */}
-          <div className="rounded-xl p-3" style={{ background: "#162030", border: "1px solid #1e3050" }}>
-            <p className="text-[10px] uppercase tracking-wider mb-3" style={{ color: "#6688aa" }}>Bench</p>
+          <div className="card p-3 pt-2.5">
+            <p className="eyebrow mb-3">Bench</p>
             <div className="flex justify-around">
               {bench.map((p) => <PlayerCard key={p.element} pick={p} bench onInfo={setInfoPlayerId} />)}
             </div>
           </div>
 
           {/* Chips */}
-          <div className="rounded-xl px-4 py-3 mt-4 mb-4" style={{ background: "#162030", border: "1px solid #1e3050" }}>
+          <div className="card px-4 py-3 mt-4 mb-4">
             <p className="text-[10px] uppercase tracking-wider mb-2" style={{ color: "#6688aa" }}>Chips</p>
             <div className="flex gap-2">
               {ALL_CHIPS.map((c) => {
@@ -434,7 +431,7 @@ export default function MyTeamPage() {
                 return (
                   <div key={c.key} className="flex-1 rounded-lg py-2 text-center"
                     style={{
-                      background: used ? "#1a1a1a" : "#f59e0b11",
+                      background: used ? "#121b29" : "#f59e0b11",
                       border: `1px solid ${used ? "#0f1520" : "#f59e0b33"}`,
                     }}>
                     <p className="text-xs font-bold" style={{ color: used ? "#555" : "#f59e0b" }}>{c.label}</p>
@@ -458,7 +455,7 @@ export default function MyTeamPage() {
               <p className="text-[10px] uppercase tracking-wider mb-2 px-1" style={{ color: "#6688aa" }}>Mini Leagues</p>
               <div className="space-y-2">
                 {leagues.map((league) => (
-                  <div key={league.id} className="rounded-xl overflow-hidden" style={{ background: "#162030", border: "1px solid #1e3050" }}>
+                  <div key={league.id} className="card overflow-hidden">
                     <button
                       onClick={() => setExpandedLeague(expandedLeague === league.id ? null : league.id)}
                       className="w-full text-left px-4 py-3 flex items-center justify-between active:opacity-70">

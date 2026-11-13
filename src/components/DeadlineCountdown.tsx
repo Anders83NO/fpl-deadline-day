@@ -54,12 +54,19 @@ export default function DeadlineCountdown() {
   const isUrgent = deadline && (new Date(deadline).getTime() - Date.now()) < 3600000;
 
   return (
-    <div className="flex items-center gap-1.5">
-      <span className="text-[9px] uppercase tracking-wider" style={{ color: "#6688aa" }}>
+    <div className="flex items-center gap-2 h-8 pl-2.5 pr-3 rounded-full"
+      style={{
+        background: isUrgent ? "rgba(239,68,68,0.1)" : "#162030",
+        border: `1px solid ${isUrgent ? "rgba(239,68,68,0.35)" : "#1e3050"}`,
+      }}>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={isUrgent ? "#ef4444" : "#6688aa"} strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+        <circle cx="12" cy="13" r="8" /><path d="M12 9v4l2 2" /><path d="M9 2h6" />
+      </svg>
+      <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "#6688aa" }}>
         GW{nextGw}
       </span>
       <span
-        className="text-[11px] font-bold tabular-nums"
+        className="text-xs font-bold tabular-nums"
         style={{ color: isUrgent ? "#ef4444" : "#f59e0b" }}
       >
         {remaining}

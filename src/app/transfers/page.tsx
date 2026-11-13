@@ -699,14 +699,14 @@ export default function TransfersPage() {
       {/* Header */}
       <header className="flex items-center justify-between mb-5">
         <div>
-          <p className="text-[11px] font-semibold tracking-[0.15em] uppercase" style={{ color: "#f59e0b" }}>Squad Planner</p>
+          <p className="eyebrow" style={{ color: "#f59e0b" }}>Squad Planner</p>
           <h1 className="text-2xl font-bold tracking-tight text-white mt-0.5">{showHistory ? "History" : "Plan Ahead"}</h1>
         </div>
         <div className="flex items-center gap-2">
           {hasGwChanges && (
             <button onClick={resetGw}
-              className="text-xs px-3 py-1.5 rounded-lg font-semibold"
-              style={{ background: "#1a0a0a", color: "#ef4444", border: "1px solid #2a1010" }}>
+              className="text-xs h-9 px-3 rounded-xl font-semibold"
+              style={{ background: "rgba(239,68,68,0.08)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.3)" }}>
               Reset GW
             </button>
           )}
@@ -715,22 +715,22 @@ export default function TransfersPage() {
               {user && (
                 <button
                   onClick={() => setShowHistory(!showHistory)}
-                  className="text-xs px-3 py-1.5 rounded-lg font-semibold"
-                  style={{ background: showHistory ? "#1a1500" : "#1e2d42", color: showHistory ? "#f59e0b" : "#7799bb", border: `1px solid ${showHistory ? "#f59e0b44" : "#1e3050"}` }}
+                  className="text-xs h-9 px-3 rounded-xl font-semibold"
+                  style={{ background: showHistory ? "#1a1500" : "#162030", color: showHistory ? "#f59e0b" : "#7799bb", border: `1px solid ${showHistory ? "#f59e0b44" : "#1e3050"}` }}
                 >
                   {showHistory ? "← Plan" : "History"}
                 </button>
               )}
-              <div className="flex rounded-lg overflow-hidden" style={{ border: "1px solid #1e3050" }}>
-                <button onClick={() => setViewMode("pitch")}
-                  className="px-3 py-1.5 text-xs font-semibold"
-                  style={{ background: viewMode === "pitch" ? "#f59e0b" : "#162030", color: viewMode === "pitch" ? "#000" : "#555" }}>
-                  ⬡
+              <div className="flex p-0.5 rounded-xl" style={{ background: "#121b29", border: "1px solid #1e3050" }}>
+                <button onClick={() => setViewMode("pitch")} aria-label="Pitch view" aria-pressed={viewMode === "pitch"}
+                  className="w-9 h-9 flex items-center justify-center rounded-[10px]"
+                  style={{ background: viewMode === "pitch" ? "#f59e0b" : "transparent" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={viewMode === "pitch" ? "#000" : "#7799bb"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
-                <button onClick={() => setViewMode("list")}
-                  className="px-3 py-1.5 text-xs font-semibold"
-                  style={{ background: viewMode === "list" ? "#f59e0b" : "#162030", color: viewMode === "list" ? "#000" : "#555" }}>
-                  ☰
+                <button onClick={() => setViewMode("list")} aria-label="List view" aria-pressed={viewMode === "list"}
+                  className="w-9 h-9 flex items-center justify-center rounded-[10px]"
+                  style={{ background: viewMode === "list" ? "#f59e0b" : "transparent" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={viewMode === "list" ? "#000" : "#7799bb"} strokeWidth="2" strokeLinecap="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>
                 </button>
               </div>
             </div>
@@ -845,53 +845,58 @@ export default function TransfersPage() {
           )}
 
           {/* Mode toggle */}
-          <div className="flex rounded-xl overflow-hidden mb-3" style={{ border: "1px solid #1e3050" }}>
+          <div className="flex p-1 gap-1 rounded-2xl mb-3" style={{ background: "#121b29", border: "1px solid #1e3050" }}>
             <button onClick={() => { setPageMode("lineup"); setTransferOut(null); setPendingIn(null); setSearch(""); setActionPlayer(null); }}
-              className="flex-1 py-2.5 text-xs font-semibold tracking-wide uppercase"
-              style={{ background: pageMode === "lineup" ? "#f59e0b" : "#162030", color: pageMode === "lineup" ? "#000" : "#555" }}>
+              aria-pressed={pageMode === "lineup"}
+              className="flex-1 h-9 rounded-xl text-[11px] font-bold tracking-wider uppercase"
+              style={{ background: pageMode === "lineup" ? "#f59e0b" : "transparent", color: pageMode === "lineup" ? "#000" : "#7799bb", boxShadow: pageMode === "lineup" ? "0 4px 14px -4px rgba(245,158,11,0.6)" : "none" }}>
               Lineup
             </button>
             <button onClick={() => { setPageMode("transfers"); setSwapFirst(null); setActionPlayer(null); }}
-              className="flex-1 py-2.5 text-xs font-semibold tracking-wide uppercase"
-              style={{ background: pageMode === "transfers" ? "#f59e0b" : "#162030", color: pageMode === "transfers" ? "#000" : "#555" }}>
+              aria-pressed={pageMode === "transfers"}
+              className="flex-1 h-9 rounded-xl text-[11px] font-bold tracking-wider uppercase"
+              style={{ background: pageMode === "transfers" ? "#f59e0b" : "transparent", color: pageMode === "transfers" ? "#000" : "#7799bb", boxShadow: pageMode === "transfers" ? "0 4px 14px -4px rgba(245,158,11,0.6)" : "none" }}>
               Transfers
             </button>
             <button onClick={() => { setPageMode("fdr"); setTransferOut(null); setPendingIn(null); setSwapFirst(null); }}
-              className="flex-1 py-2.5 text-xs font-semibold tracking-wide uppercase"
-              style={{ background: pageMode === "fdr" ? "#f59e0b" : "#162030", color: pageMode === "fdr" ? "#000" : "#555" }}>
+              aria-pressed={pageMode === "fdr"}
+              className="flex-1 h-9 rounded-xl text-[11px] font-bold tracking-wider uppercase"
+              style={{ background: pageMode === "fdr" ? "#f59e0b" : "transparent", color: pageMode === "fdr" ? "#000" : "#7799bb", boxShadow: pageMode === "fdr" ? "0 4px 14px -4px rgba(245,158,11,0.6)" : "none" }}>
               FDR
             </button>
             <button onClick={() => { setPageMode("analyse"); setTransferOut(null); setPendingIn(null); setSwapFirst(null); }}
-              className="flex-1 py-2.5 text-xs font-semibold tracking-wide uppercase"
-              style={{ background: pageMode === "analyse" ? "#f59e0b" : "#162030", color: pageMode === "analyse" ? "#000" : "#555" }}>
+              aria-pressed={pageMode === "analyse"}
+              className="flex-1 h-9 rounded-xl text-[11px] font-bold tracking-wider uppercase"
+              style={{ background: pageMode === "analyse" ? "#f59e0b" : "transparent", color: pageMode === "analyse" ? "#000" : "#7799bb", boxShadow: pageMode === "analyse" ? "0 4px 14px -4px rgba(245,158,11,0.6)" : "none" }}>
               Analyse
             </button>
           </div>
 
           {/* GW Navigator (not shown in FDR mode) */}
-          {(pageMode !== "fdr" && pageMode !== "analyse") && <div className="flex items-center justify-between rounded-xl px-4 py-3 mb-3"
-            style={{ background: "#162030", border: "1px solid #1e3050" }}>
+          {(pageMode !== "fdr" && pageMode !== "analyse") && <div className="card flex items-center justify-between px-3 py-3 mb-3">
             <button onClick={() => { setPlanGw((g) => Math.max(firstPlanGw, g - 1)); setSwapFirst(null); setTransferOut(null); }}
               disabled={planGw <= firstPlanGw}
-              className="w-8 h-8 flex items-center justify-center rounded-lg disabled:opacity-20"
-              style={{ background: "#1e2d42" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5"><polyline points="15,18 9,12 15,6" /></svg>
+              aria-label="Previous gameweek"
+              className="w-11 h-11 flex items-center justify-center rounded-xl disabled:opacity-20"
+              style={{ background: "#1a2538", border: "1px solid #1e3050" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15,18 9,12 15,6" /></svg>
             </button>
             <div className="text-center">
-              <p className="text-[10px] uppercase tracking-widest" style={{ color: "#6688aa" }}>
+              <p className="eyebrow">
                 {isNewSeason ? "Next Season" : "Planning"}
               </p>
-              <p className="text-lg font-bold text-white">GW {planGw}</p>
-              <p className="text-[10px] mt-0.5" style={{ color: "#4ade80" }}>
+              <p className="text-2xl font-extrabold text-white leading-none mt-1 tabular-nums">GW {planGw}</p>
+              <p className="inline-block text-[10px] font-semibold mt-2 px-2 py-0.5 rounded-full" style={{ color: "#4ade80", background: "rgba(74,222,128,0.1)" }}>
                 {isEmptySquad ? "Unlimited free transfers" : `${freeTransfers} free transfer${freeTransfers !== 1 ? "s" : ""}`}
                 {pointsHit > 0 && <span style={{ color: "#ef4444" }}> · -{pointsHit}pts hit</span>}
               </p>
             </div>
             <button onClick={() => { setPlanGw((g) => Math.min(totalGws, g + 1)); setSwapFirst(null); setTransferOut(null); }}
               disabled={planGw >= totalGws}
-              className="w-8 h-8 flex items-center justify-center rounded-lg disabled:opacity-20"
-              style={{ background: "#1e2d42" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5"><polyline points="9,18 15,12 9,6" /></svg>
+              aria-label="Next gameweek"
+              className="w-11 h-11 flex items-center justify-center rounded-xl disabled:opacity-20"
+              style={{ background: "#1a2538", border: "1px solid #1e3050" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9,18 15,12 9,6" /></svg>
             </button>
           </div>}
 
@@ -905,18 +910,19 @@ export default function TransfersPage() {
                 return (
                   <button key={chip} onClick={() => !isUsed && toggleChip(chip)}
                     disabled={isUsed}
-                    className="flex-1 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wide transition-all relative"
+                    aria-pressed={isActive}
+                    className="flex-1 h-11 rounded-xl text-[11px] font-bold uppercase tracking-wider relative"
                     style={{
-                      background: isUsed ? "#0f1520" : isActive ? info.color + "33" : "#162030",
-                      border: `1px solid ${isUsed ? "#1a2030" : isActive ? info.color : "#1e3050"}`,
-                      color: isUsed ? "#2a3a4a" : isActive ? info.color : "#3d5570",
+                      background: isUsed ? "transparent" : isActive ? info.color + "26" : "#162030",
+                      border: `1px ${isUsed ? "dashed" : "solid"} ${isUsed ? "#1e2a3c" : isActive ? info.color : "#1e3050"}`,
+                      color: isUsed ? "#2f4058" : isActive ? info.color : "#8aa4c2",
                       cursor: isUsed ? "default" : "pointer",
-                      textDecoration: isUsed ? "line-through" : "none",
+                      boxShadow: isActive ? `0 0 0 3px ${info.color}22` : "none",
                     }}
                     title={isUsed ? `${info.label} already used this season` : info.desc}>
                     {info.short}
                     {isUsed && (
-                      <span style={{ display: "block", fontSize: "8px", color: "#2a3a4a", textDecoration: "none", marginTop: "1px" }}>used</span>
+                      <span style={{ display: "block", fontSize: "8px", color: "#2f4058", marginTop: "1px", letterSpacing: "0.08em" }}>used</span>
                     )}
                   </button>
                 );
@@ -1200,10 +1206,11 @@ export default function TransfersPage() {
             <>
               {viewMode === "pitch" ? (
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider mb-2" style={{ color: "#6688aa" }}>
+                  <p className="eyebrow mb-2">
                     {pageMode === "lineup" ? "Tap to select · tap again to swap" : "Tap to transfer out"}
                   </p>
-                  <div className="rounded-xl mb-3 overflow-hidden relative" style={{
+                  <div className="rounded-2xl mb-3 overflow-hidden relative" style={{
+                  boxShadow: "inset 0 0 60px rgba(0,0,0,0.35), 0 12px 30px -12px rgba(0,0,0,0.6)",
                   background: `repeating-linear-gradient(
                     180deg,
                     #1e6b35 0px, #1e6b35 60px,
@@ -1212,15 +1219,15 @@ export default function TransfersPage() {
                   border: "1px solid #2e7a3e",
                 }}>
                     <PitchMarkings />
-                    <div className="relative z-10 py-5">
+                    <div className="relative z-10 py-5 space-y-3">
                       <PitchRow picks={gk} onTap={pageMode === "lineup" ? handleLineupTap : setTransferOut} selectedId={swapFirst?.element ?? null} fixtureMap={fixtureMap} showPrice={pageMode === "transfers"} onInfo={setInfoPlayerId} />
                       <PitchRow picks={defs} onTap={pageMode === "lineup" ? handleLineupTap : setTransferOut} selectedId={swapFirst?.element ?? null} fixtureMap={fixtureMap} showPrice={pageMode === "transfers"} onInfo={setInfoPlayerId} />
                       <PitchRow picks={mids} onTap={pageMode === "lineup" ? handleLineupTap : setTransferOut} selectedId={swapFirst?.element ?? null} fixtureMap={fixtureMap} showPrice={pageMode === "transfers"} onInfo={setInfoPlayerId} />
                       <PitchRow picks={fwds} onTap={pageMode === "lineup" ? handleLineupTap : setTransferOut} selectedId={swapFirst?.element ?? null} fixtureMap={fixtureMap} showPrice={pageMode === "transfers"} onInfo={setInfoPlayerId} />
                     </div>
                   </div>
-                  <div className="rounded-xl p-3" style={{ background: "#162030", border: "1px solid #1e3050" }}>
-                    <p className="text-[10px] uppercase tracking-wider mb-3" style={{ color: "#6688aa" }}>Bench</p>
+                  <div className="card p-3">
+                    <p className="eyebrow mb-3">Bench</p>
                     <div className="flex justify-around">
                       {bench.map((p) => (
                         <PitchCard key={p.element} pick={p}
@@ -1445,7 +1452,7 @@ function fixtureLabel(team: string, fixtureMap: FixtureMap): string {
 
 function PitchRow({ picks, onTap, selectedId, fixtureMap, showPrice, onInfo }: { picks: Pick[]; onTap: (p: Pick) => void; selectedId: number | null; fixtureMap: FixtureMap; showPrice?: boolean; onInfo?: (id: number) => void }) {
   return (
-    <div className="flex justify-center gap-2 my-1.5">
+    <div className="flex justify-center gap-1.5">
       {picks.map((p) => <PitchCard key={p.element} pick={p} onTap={onTap} selected={selectedId === p.element} fixtureMap={fixtureMap} showPrice={showPrice} onInfo={onInfo} />)}
     </div>
   );
@@ -1470,94 +1477,95 @@ function PitchCard({ pick, onTap, selected, dimmed, fixtureMap, showPrice, onInf
 
   if (isEmpty) {
     return (
-      <button onClick={() => onTap(pick)} className="flex flex-col items-center gap-0.5 w-[72px] active:scale-95 transition-transform" style={{ opacity: dimmed ? 0.3 : 1 }}>
-        <div className="w-14 h-14 rounded-xl flex flex-col items-center justify-center relative"
-          style={{ background: "#0d1c12", border: "1.5px dashed #2e5c38" }}>
-          <span style={{ color: "#2e5c38", fontSize: 18, lineHeight: 1 }}>+</span>
+      <button onClick={() => onTap(pick)} className="flex flex-col items-center gap-1 w-[72px]" style={{ opacity: dimmed ? 0.3 : 1 }}>
+        <div className="w-14 h-14 rounded-full flex items-center justify-center"
+          style={{ background: "rgba(0,0,0,0.18)", border: "1.5px dashed rgba(255,255,255,0.3)" }}>
+          <span style={{ color: "rgba(255,255,255,0.6)", fontSize: 20, lineHeight: 1 }}>+</span>
         </div>
-        <div className="flex flex-col items-center w-full">
-          <span className="text-[10px] font-bold text-center leading-tight rounded-t px-1 py-0.5 w-full truncate block"
-            style={{ background: "#1e3025", color: "#4d8860", maxWidth: "72px" }}>
-            {posLabel}
-          </span>
-          <span className="text-[9px] font-medium text-center leading-tight rounded-b px-1 py-0.5 w-full block"
-            style={{ background: "#1a2820", color: "#3d6048", maxWidth: "72px" }}>
-            Empty
-          </span>
+        <div className="w-[68px] rounded-md overflow-hidden text-center" style={{ boxShadow: "0 4px 10px -2px rgba(0,0,0,0.5)" }}>
+          <span className="block text-[10px] font-bold py-0.5" style={{ background: "rgba(15,21,32,0.9)", color: "#8aa4c2" }}>{posLabel}</span>
         </div>
       </button>
     );
   }
 
   return (
-    <button onClick={() => onTap(pick)} className="flex flex-col items-center gap-0.5 w-[72px] active:scale-95 transition-transform">
+    <button onClick={() => onTap(pick)} className="flex flex-col items-center gap-1 w-[72px]" style={{ opacity: dimmed ? 0.3 : 1 }}>
       {showPrice && (pick.price ?? 0) > 0 && (
-        <span className="text-[10px] font-bold" style={{ color: "#e5e5e5" }}>
+        <span className="text-[10px] font-bold tabular-nums px-1.5 rounded-full" style={{ color: "#fff", background: "rgba(15,21,32,0.55)" }}>
           £{(pick.price ?? 0).toFixed(1)}m
         </span>
       )}
-      <div className="w-14 h-14 rounded-xl flex items-center justify-center relative"
-        style={{
-          background: selected ? "#f59e0b22" : "#14532d",
-          border: `1.5px solid ${selected ? "#f59e0b" : "#22763e"}`,
-          opacity: dimmed ? 0.3 : 1,
-        }}>
+      <div className="w-14 h-14 flex items-center justify-center relative">
+        {(selected || pick.is_captain) && (
+          <span aria-hidden="true" className="absolute inset-0 rounded-full"
+            style={{ background: selected
+              ? "radial-gradient(circle, rgba(245,158,11,0.7) 0%, rgba(245,158,11,0) 72%)"
+              : "radial-gradient(circle, rgba(245,158,11,0.5) 0%, rgba(245,158,11,0) 70%)" }} />
+        )}
+        {selected && (
+          <span aria-hidden="true" className="absolute -inset-0.5 rounded-full" style={{ border: "2px solid #f59e0b" }} />
+        )}
         {pick.teamCode > 0 ? (
           <img
             src={shirtUrl(pick.teamCode, isGk)}
             alt={pick.team}
-            width={36}
-            height={40}
-            className="object-contain"
+            width={46}
+            height={52}
+            className="relative object-contain"
+            style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.45))", opacity: bench ? 0.8 : 1 }}
           />
         ) : (
-          <span className="text-[10px] font-bold text-center leading-tight px-1" style={{ color: "#fff" }}>
+          <span className="relative text-[10px] font-bold text-center leading-tight px-1 text-white">
             {pick.name}
           </span>
         )}
         {pick.is_captain && !selected && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-[9px] font-bold flex items-center justify-center"
-            style={{ background: "#000", color: "#f59e0b", border: "1.5px solid #f59e0b" }}>C</span>
+          <span className="absolute -top-0.5 -right-1 w-5 h-5 rounded-full text-[10px] font-extrabold flex items-center justify-center"
+            style={{ background: "#f59e0b", color: "#000", boxShadow: "0 0 0 2px #0f1520" }}>C</span>
         )}
         {pick.is_vice_captain && !selected && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-[9px] font-bold flex items-center justify-center"
-            style={{ background: "#000", color: "#888", border: "1.5px solid #888" }}>V</span>
+          <span className="absolute -top-0.5 -right-1 w-5 h-5 rounded-full text-[10px] font-extrabold flex items-center justify-center"
+            style={{ background: "#0f1520", color: "#c8d4e3", boxShadow: "0 0 0 1.5px #6688aa" }}>V</span>
         )}
         {selected && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-[9px] font-bold flex items-center justify-center"
-            style={{ background: "#f59e0b", color: "#000" }}>✓</span>
+          <span className="absolute -top-0.5 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
+            style={{ background: "#f59e0b", boxShadow: "0 0 0 2px #0f1520" }}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20,6 9,17 4,12" /></svg>
+          </span>
         )}
         {statusDot && !pick.is_captain && !pick.is_vice_captain && !selected && (
-          <span className="absolute -top-1 -left-1">
+          <span className="absolute -top-0.5 -left-0.5">
             {statusDot.type === "suspended"
               ? <span className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold" style={{ background: "#000", color: "#a855f7", border: "1.5px solid #a855f7" }}>S</span>
-              : <StatusTriangle color={statusDot.type} size={14} />
+              : <StatusTriangle color={statusDot.type} size={15} />
             }
           </span>
         )}
+        {onInfo && pick.element > 0 && (
+          <span
+            role="button"
+            aria-label={`Info about ${pick.name}`}
+            onClick={e => { e.stopPropagation(); onInfo(pick.element); }}
+            className="absolute -right-2 bottom-0 flex items-center justify-center"
+            style={{ width: 18, height: 18, borderRadius: "50%", background: "rgba(15,21,32,0.9)", border: "1px solid #2a3d55", fontSize: 10, fontWeight: 700, color: "#c8d4e3" }}
+          >i</span>
+        )}
       </div>
-      <div className="flex flex-col items-center w-full relative">
+      <div className="w-[68px] rounded-md overflow-hidden text-center" style={{ boxShadow: "0 4px 10px -2px rgba(0,0,0,0.5)" }}>
         {bench && (
-          <span className="text-[8px] font-bold text-center leading-tight rounded-t px-1 py-0.5 w-full block"
-            style={{ background: "#1e3050", color: "#6688aa", maxWidth: "72px" }}>
+          <span className="block text-[8px] font-bold tracking-wider py-px" style={{ background: "#1e3050", color: "#8aa4c2" }}>
             {TYPE_LABEL[pick.element_type]}
           </span>
         )}
-        <span className={`text-[10px] font-bold text-center leading-tight px-1 py-0.5 w-full truncate block ${bench ? "" : "rounded-t"}`}
-          style={{ background: "#fff", color: "#000", maxWidth: "72px" }}>
+        <span className="block text-[10.5px] font-bold leading-tight px-1 py-[3px] truncate"
+          style={{ background: selected ? "#f59e0b" : bench ? "#c8d4e3" : "#fff", color: "#0f1520" }}>
           {pick.name}
         </span>
-        <span className="text-[9px] font-medium text-center leading-tight rounded-b px-1 py-0.5 w-full truncate block"
-          style={{ background: hasFixture ? "#f59e0b" : "#555", color: hasFixture ? "#000" : "#fff", maxWidth: "72px" }}>
+        <span className="block text-[9.5px] font-semibold leading-tight px-1 py-[3px] truncate"
+          style={{ background: "rgba(15,21,32,0.92)", color: hasFixture ? "#f59e0b" : "#6688aa" }}>
           {fixture}
         </span>
-        {onInfo && pick.element > 0 && (
-          <button
-            onClick={e => { e.stopPropagation(); onInfo(pick.element); }}
-            className="absolute -right-1 -bottom-1 flex items-center justify-center"
-            style={{ width: 16, height: 16, borderRadius: "50%", background: "#0f1a2a", border: "1px solid #2a3d55", fontSize: 9, fontWeight: 700, color: "#6688aa" }}
-          >i</button>
-        )}
       </div>
     </button>
   );

@@ -182,48 +182,47 @@ export default function Home() {
 
       {/* Header */}
       {hasLive && (
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-          <span className="text-xs font-medium" style={{ color: "#f59e0b" }}>LIVE</span>
+        <div className="inline-flex items-center gap-2 mb-4 h-7 px-3 rounded-full"
+          style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)" }}>
+          <span className="live-dot" />
+          <span className="text-[11px] font-bold tracking-widest" style={{ color: "#f59e0b" }}>LIVE</span>
         </div>
       )}
 
       {/* Gameweek navigator */}
-      <div className="flex items-center justify-between mb-4 rounded-xl px-4 py-3"
-        style={{ background: "#162030", border: "1px solid #1e3050" }}>
+      <div className="card flex items-center justify-between mb-6 px-3 py-3">
         <button
           onClick={() => changeGw(-1)}
           disabled={!canGoBack}
-          className="w-8 h-8 flex items-center justify-center rounded-lg transition-opacity disabled:opacity-20"
-          style={{ background: "#1e2d42" }}
+          aria-label="Previous gameweek"
+          className="w-11 h-11 flex items-center justify-center rounded-xl disabled:opacity-20"
+          style={{ background: "#1a2538", border: "1px solid #1e3050" }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5"><polyline points="15,18 9,12 15,6"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15,18 9,12 15,6"/></svg>
         </button>
 
         <div className="text-center">
-          <p className="text-[10px] uppercase tracking-widest" style={{ color: "#6688aa" }}>Gameweek</p>
-          <p className="text-lg font-bold text-white">{gw ?? "—"}</p>
-          {season && (
-            <p className="text-[10px] mt-0.5" style={{ color: "#4d6a88" }}>{season}</p>
+          <p className="eyebrow">Gameweek{season ? ` · ${season}` : ""}</p>
+          <p className="text-3xl font-extrabold text-white leading-none mt-1 tabular-nums">{gw ?? "—"}</p>
+          {deadline && (
+            <p className="text-[11px] mt-2 font-medium" style={{ color: "#f59e0b" }}>Deadline {deadline}</p>
           )}
         </div>
 
         <button
           onClick={() => changeGw(1)}
           disabled={!canGoForward}
-          className="w-8 h-8 flex items-center justify-center rounded-lg transition-opacity disabled:opacity-20"
-          style={{ background: "#1e2d42" }}
+          aria-label="Next gameweek"
+          className="w-11 h-11 flex items-center justify-center rounded-xl disabled:opacity-20"
+          style={{ background: "#1a2538", border: "1px solid #1e3050" }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5"><polyline points="9,18 15,12 9,6"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9,18 15,12 9,6"/></svg>
         </button>
       </div>
 
       {/* Deadline */}
       {deadline && (
-        <div className="text-center mb-4">
-          <p className="text-sm font-bold text-white">Deadline: {deadline}</p>
-          <p className="text-[11px] mt-0.5" style={{ color: "#6688aa" }}>*All times are shown in your local time</p>
-        </div>
+        <p className="text-[11px] text-center -mt-4 mb-6" style={{ color: "#3d5570" }}>All times shown in your local time</p>
       )}
 
       {/* Matches */}
@@ -232,7 +231,7 @@ export default function Home() {
           <div className="w-5 h-5 rounded-full border-2 animate-spin" style={{ borderColor: "#f59e0b", borderTopColor: "transparent" }} />
         </div>
       ) : fetchError ? (
-        <div className="rounded-xl p-8 text-center mb-8" style={{ background: "#162030", border: "1px solid #1e3050" }}>
+        <div className="card p-8 text-center mb-8">
           <p className="text-sm mb-3" style={{ color: "#6688aa" }}>Could not load matches.</p>
           <button
             onClick={() => setGw(gw)}
@@ -243,7 +242,7 @@ export default function Home() {
           </button>
         </div>
       ) : matches.length === 0 ? (
-        <div className="rounded-xl p-8 text-center mb-8" style={{ background: "#162030", border: "1px solid #1e3050" }}>
+        <div className="card p-8 text-center mb-8">
           <p className="text-sm" style={{ color: "#6688aa" }}>No matches for GW{gw}.</p>
         </div>
       ) : (
@@ -257,9 +256,9 @@ export default function Home() {
               else groups.push({ date: dateKey, matches: [m] });
             }
             return groups.map((g) => (
-              <div key={g.date} className="mb-4">
-                <p className="text-[11px] font-semibold tracking-[0.12em] uppercase mb-2 px-1" style={{ color: "#6688aa" }}>{g.date}</p>
-                <div className="space-y-2">
+              <div key={g.date} className="mb-5 animate-fade-up">
+                <p className="eyebrow mb-2 px-1">{g.date}</p>
+                <div className="card overflow-hidden divide-y divide-[#1a2a40]">
                   {g.matches.map((m) => (
                     <MatchCard key={m.id} match={m} timezone={timezone} />
                   ))}
@@ -272,7 +271,7 @@ export default function Home() {
 
       {/* My FPL Team */}
       <section className="mb-8">
-        <h2 className="text-[11px] font-semibold tracking-[0.12em] uppercase mb-3" style={{ color: "#6688aa" }}>
+        <h2 className="eyebrow mb-3 px-1">
           My FPL Team
         </h2>
         <LiveTeamSection />
@@ -280,17 +279,17 @@ export default function Home() {
 
       {/* Scout */}
       <section>
-        <h2 className="text-[11px] font-semibold tracking-[0.12em] uppercase mb-3" style={{ color: "#6688aa" }}>
+        <h2 className="eyebrow mb-3 px-1">
           Scout Tips
         </h2>
-        <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e3050" }}>
+        <div className="card overflow-hidden">
           {[
             { label: "Captain", value: "—", sub: "Top recommendation" },
             { label: "Transfer In", value: "—", sub: "Most transferred" },
             { label: "Differential", value: "—", sub: "Low ownership pick" },
           ].map((tip, i, arr) => (
             <div key={i} className="flex items-center justify-between px-4 py-3"
-              style={{ background: "#162030", borderBottom: i < arr.length - 1 ? "1px solid #1a2a40" : "none" }}>
+              style={{ borderBottom: i < arr.length - 1 ? "1px solid #1a2a40" : "none" }}>
               <div>
                 <p className="text-[10px] uppercase tracking-wider" style={{ color: "#6688aa" }}>{tip.label}</p>
                 <p className="text-sm font-semibold text-white mt-0.5">{tip.value}</p>
@@ -352,13 +351,13 @@ function LiveTeamSection() {
 
   if (!data) {
     return (
-      <div className="rounded-xl p-5 flex items-center justify-between" style={{ background: "#162030", border: "1px solid #1e3050" }}>
+      <div className="card p-5 flex items-center justify-between">
         <div>
           <p className="text-[11px] uppercase tracking-wider mb-1" style={{ color: "#6688aa" }}>GW Points</p>
-          <p className="text-5xl font-bold tracking-tight" style={{ color: "#f59e0b" }}>—</p>
+          <p className="text-5xl font-extrabold tracking-tight tabular-nums leading-none mt-1" style={{ color: "#f59e0b" }}>—</p>
           <p className="text-xs mt-1" style={{ color: "#6688aa" }}>Enter your FPL ID to track</p>
         </div>
-        <Link href="/my-team" className="text-xs font-semibold px-4 py-2 rounded-lg tracking-wide" style={{ background: "#f59e0b", color: "#000" }}>SET UP →</Link>
+        <Link href="/my-team" className="h-10 inline-flex items-center text-xs font-bold px-4 rounded-full tracking-wide" style={{ background: "#f59e0b", color: "#000", boxShadow: "0 6px 20px -6px rgba(245,158,11,0.6)" }}>SET UP →</Link>
       </div>
     );
   }
@@ -368,19 +367,19 @@ function LiveTeamSection() {
   const captain = starters.find(p => p.is_captain);
 
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e3050" }}>
+    <div className="card overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-4" style={{ background: "#162030", borderBottom: "1px solid #1a2a40" }}>
+      <div className="flex items-center justify-between px-5 py-5" style={{ background: "radial-gradient(120% 140% at 0% 0%, rgba(245,158,11,0.12), transparent 60%)", borderBottom: "1px solid #1a2a40" }}>
         <div>
           <p className="text-[11px] uppercase tracking-wider mb-1" style={{ color: "#6688aa" }}>GW{data.gw} Points</p>
-          <p className="text-5xl font-bold tracking-tight" style={{ color: "#f59e0b" }}>{data.gw_points}</p>
+          <p className="text-5xl font-extrabold tracking-tight tabular-nums leading-none mt-1" style={{ color: "#f59e0b" }}>{data.gw_points}</p>
         </div>
-        <Link href="/my-team" className="text-xs font-semibold px-4 py-2 rounded-lg tracking-wide" style={{ background: "#f59e0b", color: "#000" }}>VIEW →</Link>
+        <Link href="/my-team" className="h-10 inline-flex items-center text-xs font-bold px-4 rounded-full tracking-wide" style={{ background: "#f59e0b", color: "#000", boxShadow: "0 6px 20px -6px rgba(245,158,11,0.6)" }}>VIEW →</Link>
       </div>
 
       {/* Captain highlight */}
       {captain && (
-        <div className="flex items-center gap-3 px-4 py-3" style={{ background: "#1a1500", borderBottom: "1px solid #1a2a40" }}>
+        <div className="flex items-center gap-3 px-5 py-3" style={{ background: "rgba(245,158,11,0.06)", borderBottom: "1px solid #1a2a40" }}>
           <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0" style={{ background: "#f59e0b", color: "#000" }}>C</div>
           <div className="flex-1">
             <p className="text-sm font-bold text-white">{captain.name}</p>
@@ -415,17 +414,17 @@ function PlayerRow({ pick: p, expanded, onToggle, bench }: { pick: LivePick; exp
     <>
       <button
         onClick={onToggle}
-        className="w-full flex items-center gap-2 px-4 py-2.5 text-left"
-        style={{ background: "#162030", borderBottom: "1px solid #111c2a" }}
+        className="w-full flex items-center gap-2 px-5 py-3 text-left hover:bg-white/[0.02]"
+        style={{ borderBottom: "1px solid #111c2a" }}
       >
-        <span className="text-[9px] w-5 flex-shrink-0" style={{ color: "#3d5570" }}>{POS_LABEL[p.element_type]}</span>
-        <span className="text-xs font-semibold flex-1 truncate" style={{ color: bench ? "#3d5570" : "#f0f0f0" }}>
+        <span className="text-[9px] font-bold w-7 text-center py-0.5 rounded flex-shrink-0" style={{ color: "#6688aa", background: "#1a2538" }}>{POS_LABEL[p.element_type]}</span>
+        <span className="text-[13px] font-semibold flex-1 truncate ml-1" style={{ color: bench ? "#4d6a88" : "#f0f0f0" }}>
           {p.name}
           {p.is_captain && <span className="ml-1.5 text-[8px] font-bold px-1 py-0.5 rounded" style={{ background: "#f59e0b", color: "#000" }}>C</span>}
           {p.is_vice_captain && <span className="ml-1.5 text-[8px] font-bold px-1 py-0.5 rounded" style={{ background: "#1e2d42", color: "#6688aa" }}>V</span>}
           {hasPendingBonus && <span className="ml-1.5 text-[8px] font-bold px-1 py-0.5 rounded" style={{ background: "#2a1f4a", color: "#a78bfa" }}>+{p.bonus} BP</span>}
         </span>
-        <span className="text-xs font-bold tabular-nums" style={{
+        <span className="text-sm font-bold tabular-nums w-7 text-right" style={{
           color: bench
             ? (p.gw_points > 0 ? "#4d6a88" : "#2a3a4a")
             : (p.gw_points > 0 ? "#f59e0b" : "#2a3a4a")
@@ -465,19 +464,11 @@ function MatchCard({ match: m, timezone }: { match: Match; timezone: string }) {
   const state = getMatchState(m.status);
   const kickoff = new Date(m.utcDate).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: timezone });
 
-  // Border and background per state
-  const cardStyle = {
-    ns:         { bg: "#162030",     border: "#2a2520" },
-    live:       { bg: "#0f0e00",  border: "#3a2e00" },
-    ht:         { bg: "#0a0f14",  border: "#1a2a3a" },
-    ft:         { bg: "#162030",     border: "#2a2520" },
-    postponed:  { bg: "#162030",     border: "#2a2520" },
-  }[state];
 
   // Centre status badge
   const StatusBadge = () => {
     if (state === "ns") {
-      return <span className="text-sm font-medium" style={{ color: "#4d6a88" }}>{kickoff}</span>;
+      return <span className="text-[13px] font-semibold tabular-nums px-2.5 py-1 rounded-lg" style={{ color: "#c8d4e3", background: "#1a2538", border: "1px solid #1e3050" }}>{kickoff}</span>;
     }
     if (state === "postponed") {
       return <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: "#6688aa" }}>PPD</span>;
@@ -494,7 +485,7 @@ function MatchCard({ match: m, timezone }: { match: Match; timezone: string }) {
         <div className="flex flex-col items-center gap-0.5">
           {scoreEl}
           <div className="flex items-center gap-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+            <span className="live-dot" />
             <span className="text-[10px] font-bold tabular-nums" style={{ color: "#f59e0b" }}>
               {m.minute ? `${m.minute}'` : "LIVE"}
             </span>
@@ -523,18 +514,23 @@ function MatchCard({ match: m, timezone }: { match: Match; timezone: string }) {
 
   return (
     <Link href={`/match/${m.id}`}>
-      <div className="rounded-xl px-4 py-3 flex items-center active:opacity-70 transition-opacity"
-        style={{ background: cardStyle.bg, border: `1px solid ${cardStyle.border}` }}>
+      <div className="relative px-3 h-[60px] flex items-center gap-2 hover:bg-white/[0.02] active:bg-white/[0.04]"
+        style={{ background: state === "live" ? "rgba(245,158,11,0.05)" : "transparent" }}>
+        {state === "live" && <span aria-hidden="true" className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full" style={{ background: "#f59e0b" }} />}
 
-        {m.homeCrest && <Image src={m.homeCrest} alt={m.home} width={24} height={24} className="object-contain flex-shrink-0" />}
-        <span className={`text-sm font-semibold truncate flex-1 text-right pr-2 ${state === "ft" ? "opacity-60" : "text-white"}`}>{m.home}</span>
+        <span className={`text-[13px] font-semibold truncate flex-1 min-w-0 text-right ${state === "ft" ? "opacity-60" : "text-white"}`}>{m.home}</span>
+        <span className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+          {m.homeCrest && <Image src={m.homeCrest} alt="" width={26} height={26} className="max-w-full max-h-full object-contain" />}
+        </span>
 
-        <div className="flex flex-col items-center flex-shrink-0 w-[80px]">
+        <div className="flex flex-col items-center justify-center flex-shrink-0 w-[68px]">
           <StatusBadge />
         </div>
 
-        <span className={`text-sm font-semibold truncate flex-1 text-left pl-2 ${state === "ft" ? "opacity-60" : "text-white"}`}>{m.away}</span>
-        {m.awayCrest && <Image src={m.awayCrest} alt={m.away} width={24} height={24} className="object-contain flex-shrink-0" />}
+        <span className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+          {m.awayCrest && <Image src={m.awayCrest} alt="" width={26} height={26} className="max-w-full max-h-full object-contain" />}
+        </span>
+        <span className={`text-[13px] font-semibold truncate flex-1 min-w-0 text-left ${state === "ft" ? "opacity-60" : "text-white"}`}>{m.away}</span>
       </div>
     </Link>
   );

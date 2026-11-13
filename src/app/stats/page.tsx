@@ -673,22 +673,24 @@ export default function StatsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: "#0c1420" }}>
+    <div className="min-h-screen pb-24 max-w-lg mx-auto">
       {/* Header */}
-      <div className="sticky top-0 z-30 px-4 pt-4 pb-0" style={{ background: "#0c1420" }}>
-        <p className="text-[10px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: "#f59e0b" }}>FPL</p>
-        <h1 className="text-xl font-bold text-white mb-3">Stats</h1>
+      <div className="px-4 pt-6 pb-0">
+        <p className="eyebrow" style={{ color: "#f59e0b" }}>Players &amp; Scout</p>
+        <h1 className="text-2xl font-bold tracking-tight text-white mt-0.5 mb-5">Stats</h1>
 
         {/* Tab toggle */}
-        <div className="flex rounded-xl overflow-hidden mb-4" style={{ border: "1px solid #1e3050" }}>
+        <div className="flex p-1 gap-1 rounded-2xl mb-4" style={{ background: "#121b29", border: "1px solid #1e3050" }}>
           <button onClick={() => setTab("players")}
-            className="flex-1 py-2.5 text-xs font-semibold tracking-wide uppercase"
-            style={{ background: tab === "players" ? "#f59e0b" : "#162030", color: tab === "players" ? "#000" : "#555" }}>
+            aria-pressed={tab === "players"}
+            className="flex-1 h-9 rounded-xl text-[11px] font-bold tracking-wider uppercase"
+            style={{ background: tab === "players" ? "#f59e0b" : "transparent", color: tab === "players" ? "#000" : "#7799bb", boxShadow: tab === "players" ? "0 4px 14px -4px rgba(245,158,11,0.6)" : "none" }}>
             Players
           </button>
           <button onClick={() => setTab("scout")}
-            className="flex-1 py-2.5 text-xs font-semibold tracking-wide uppercase"
-            style={{ background: tab === "scout" ? "#f59e0b" : "#162030", color: tab === "scout" ? "#000" : "#555" }}>
+            aria-pressed={tab === "scout"}
+            className="flex-1 h-9 rounded-xl text-[11px] font-bold tracking-wider uppercase"
+            style={{ background: tab === "scout" ? "#f59e0b" : "transparent", color: tab === "scout" ? "#000" : "#7799bb", boxShadow: tab === "scout" ? "0 4px 14px -4px rgba(245,158,11,0.6)" : "none" }}>
             Scout
           </button>
         </div>

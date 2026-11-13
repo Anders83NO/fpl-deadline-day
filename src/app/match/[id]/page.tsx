@@ -111,19 +111,46 @@ function isLive(status: string): boolean {
 function isFinished(status: string): boolean {
   return status === "FT";
 }
-function eventIcon(type: string, detail: string): string {
+function EventIcon({ type, detail }: { type: string; detail: string }) {
   if (type === "Goal") {
-    if (detail === "Own Goal") return "⚽🔴";
-    if (detail === "Penalty") return "⚽🟣";
-    return "⚽";
+    const color = detail === "Own Goal" ? "#ef4444" : "#f0f2f5";
+    return (
+      <span className="relative inline-flex">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" fill={color} />
+          <path d="M12 7l4 3-1.5 4.5h-5L8 10z" fill="#0f1520" />
+          <path d="M12 2v5M16 10l5-2M14.5 14.5l3 5M9.5 14.5l-3 5M8 10L3 8" stroke="#0f1520" strokeWidth="1.3" />
+        </svg>
+        {detail === "Penalty" && (
+          <span className="absolute -bottom-1 -right-1.5 text-[7px] font-extrabold leading-none px-0.5 rounded-sm" style={{ background: "#f59e0b", color: "#000" }}>P</span>
+        )}
+      </span>
+    );
   }
   if (type === "Card") {
-    if (detail === "Red Card") return "🟥";
-    if (detail === "Yellow Red Card") return "🟨🟥";
-    return "🟨";
+    if (detail === "Yellow Red Card") {
+      return (
+        <span className="relative inline-flex w-4 h-4" aria-hidden="true">
+          <span className="absolute left-0 top-0 w-[9px] h-[13px] rounded-[2px]" style={{ background: "#facc15" }} />
+          <span className="absolute left-[5px] top-[3px] w-[9px] h-[13px] rounded-[2px]" style={{ background: "#ef4444", boxShadow: "-1px 0 0 #0f1520" }} />
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex w-4 h-4 items-center justify-center" aria-hidden="true">
+        <span className="w-[10px] h-[14px] rounded-[2px]" style={{ background: detail === "Red Card" ? "#ef4444" : "#facc15" }} />
+      </span>
+    );
   }
-  if (type === "subst") return "🔄";
-  return "•";
+  if (type === "subst") {
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M7 4v14M7 4L3.5 7.5M7 4l3.5 3.5" stroke="#4ade80" />
+        <path d="M17 20V6M17 20l-3.5-3.5M17 20l3.5-3.5" stroke="#ef4444" />
+      </svg>
+    );
+  }
+  return <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#6688aa" }} />;
 }
 
 // ── X position for a player in a row ──
@@ -484,26 +511,33 @@ export default function MatchPage() {
     <div className="max-w-lg mx-auto pb-24">
 
       {/* Back */}
-      <div className="px-4 pt-5 pb-2">
-        <Link href="/" className="text-xs flex items-center gap-1" style={{ color: "#6688aa" }}>← Back</Link>
+      <div className="px-4 pt-4 pb-3">
+        <Link href="/" className="inline-flex items-center gap-1.5 h-9 pl-2.5 pr-3.5 rounded-full text-xs font-semibold"
+          style={{ background: "#162030", border: "1px solid #1e3050", color: "#c8d4e3" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="15,18 9,12 15,6" /></svg>
+          Matches
+        </Link>
       </div>
 
       {/* Score header */}
-      <div className="px-4 py-8 flex flex-col items-center"
-        style={{ background: "#162030", borderBottom: "1px solid #1a2a40" }}>
+      <div className="card mx-4 px-4 pt-7 pb-5 flex flex-col items-center"
+        style={{ background: "radial-gradient(90% 120% at 50% 0%, rgba(245,158,11,0.10), transparent 60%), linear-gradient(180deg, #182436 0%, #162030 100%)" }}>
         <div className="flex items-center justify-between w-full max-w-xs">
           <div className="flex flex-col items-center gap-2 flex-1">
-            {data.homeCrest && <Image src={data.homeCrest} alt={data.home} width={48} height={48} className="object-contain" />}
-            <span className="text-xs font-semibold text-white text-center">{data.home}</span>
-            {data.homeFormation && <span className="text-[10px]" style={{ color: "#6688aa" }}>{data.homeFormation}</span>}
+            <span className="w-14 h-14 flex items-center justify-center">
+              {data.homeCrest && <Image src={data.homeCrest} alt="" width={56} height={56} className="max-w-full max-h-full object-contain" style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.4))" }} />}
+            </span>
+            <span className="text-[13px] font-bold text-white text-center leading-tight">{data.home}</span>
+            {data.homeFormation && <span className="text-[10px] font-semibold tabular-nums px-1.5 py-0.5 rounded" style={{ color: "#8aa4c2", background: "#1a2538" }}>{data.homeFormation}</span>}
           </div>
 
           <div className="flex flex-col items-center mx-4">
-            <div className="text-5xl font-bold tracking-tight text-white">
-              {data.homeScore ?? "–"} – {data.awayScore ?? "–"}
+            <div className="text-5xl font-extrabold tracking-tight text-white tabular-nums leading-none">
+              {data.homeScore ?? "–"}<span className="mx-1.5" style={{ color: "#3d5570" }}>–</span>{data.awayScore ?? "–"}
             </div>
-            <div className="text-xs font-semibold mt-2 tracking-wider"
-              style={{ color: live ? "#f59e0b" : "#555" }}>
+            <div className="inline-flex items-center gap-1.5 mt-3 h-6 px-2.5 rounded-full text-[11px] font-bold tracking-wider"
+              style={{ color: live ? "#f59e0b" : "#8aa4c2", background: live ? "rgba(245,158,11,0.12)" : "#1a2538" }}>
+              {live && <span className="live-dot" />}
               {statusLabel(data.status, data.minute)}
             </div>
             {finished && data.halfTimeHome !== null && (
@@ -514,33 +548,49 @@ export default function MatchPage() {
           </div>
 
           <div className="flex flex-col items-center gap-2 flex-1">
-            {data.awayCrest && <Image src={data.awayCrest} alt={data.away} width={48} height={48} className="object-contain" />}
-            <span className="text-xs font-semibold text-white text-center">{data.away}</span>
-            {data.awayFormation && <span className="text-[10px]" style={{ color: "#6688aa" }}>{data.awayFormation}</span>}
+            <span className="w-14 h-14 flex items-center justify-center">
+              {data.awayCrest && <Image src={data.awayCrest} alt="" width={56} height={56} className="max-w-full max-h-full object-contain" style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.4))" }} />}
+            </span>
+            <span className="text-[13px] font-bold text-white text-center leading-tight">{data.away}</span>
+            {data.awayFormation && <span className="text-[10px] font-semibold tabular-nums px-1.5 py-0.5 rounded" style={{ color: "#8aa4c2", background: "#1a2538" }}>{data.awayFormation}</span>}
           </div>
         </div>
 
-        <div className="flex gap-4 mt-5">
-          {data.venue && <span className="text-[10px]" style={{ color: "#4d6a88" }}>📍 {data.venue}</span>}
-          {data.referee && <span className="text-[10px]" style={{ color: "#4d6a88" }}>🟡 {data.referee}</span>}
+        <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-5 pt-4 w-full" style={{ borderTop: "1px solid #1a2a40" }}>
+          {data.venue && (
+            <span className="inline-flex items-center gap-1 text-[11px]" style={{ color: "#6688aa" }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z" /><circle cx="12" cy="9" r="2.5" /></svg>
+              {data.venue}
+            </span>
+          )}
+          {data.referee && (
+            <span className="inline-flex items-center gap-1 text-[11px]" style={{ color: "#6688aa" }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="4" /><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" /></svg>
+              {data.referee}
+            </span>
+          )}
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex sticky top-0 z-10" style={{ background: "#162030", borderBottom: "1px solid #1a2a40" }}>
+      <div className="sticky top-14 z-30 px-4 py-3 glass">
+       <div className="flex p-1 gap-1 rounded-2xl" style={{ background: "#121b29", border: "1px solid #1e3050" }}>
         {(["events", "lineups"] as Tab[]).map((t) => (
           <button key={t} onClick={() => setTab(t)}
-            className="flex-1 py-3 text-xs font-semibold tracking-wider uppercase"
+            aria-pressed={tab === t}
+            className="flex-1 h-9 rounded-xl text-[11px] font-bold tracking-wider uppercase"
             style={{
-              color: tab === t ? "#f59e0b" : "#555",
-              borderBottom: tab === t ? "2px solid #f59e0b" : "2px solid transparent",
+              color: tab === t ? "#000" : "#7799bb",
+              background: tab === t ? "#f59e0b" : "transparent",
+              boxShadow: tab === t ? "0 4px 14px -4px rgba(245,158,11,0.6)" : "none",
             }}>
             {t === "events" ? "Goals & Events" : "Lineups"}
           </button>
         ))}
+       </div>
       </div>
 
-      <div className="py-4">
+      <div className="pb-4 pt-1">
 
         {/* Events tab */}
         {tab === "events" && (
@@ -551,18 +601,19 @@ export default function MatchPage() {
               <div>
                 {displayEvents.map((e, i) => {
                   const isHome = e.teamId === data.homeTeamId;
-                  const icon = eventIcon(e.type, e.detail);
                   const minuteStr = e.extraMinute ? `${e.minute}+${e.extraMinute}'` : `${e.minute}'`;
                   return (
                     <div key={i}
                       className={`flex items-center gap-3 py-2.5 ${isHome ? "" : "flex-row-reverse"}`}
                       style={{ borderBottom: "1px solid #161e2a" }}>
                       <div className="w-10 flex-shrink-0 text-center">
-                        <span className="text-[11px] font-bold" style={{ color: "#f59e0b" }}>{minuteStr}</span>
+                        <span className="text-[11px] font-bold tabular-nums" style={{ color: "#f59e0b" }}>{minuteStr}</span>
                       </div>
                       <div className={`flex-1 ${isHome ? "" : "text-right"}`}>
                         <p className={`text-sm font-semibold text-white flex items-center gap-1.5 ${isHome ? "" : "justify-end"}`}>
-                          <span>{icon}</span>
+                          <span className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#1a2538", border: "1px solid #1e3050" }}>
+                            <EventIcon type={e.type} detail={e.detail} />
+                          </span>
                           <span className="truncate">{e.player ?? e.detail}</span>
                         </p>
                         {e.type === "Goal" && e.assist && (

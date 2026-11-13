@@ -141,7 +141,7 @@ export default function SettingsPage() {
             onChange={(e) => setFplId(e.target.value)}
             placeholder="e.g. 1213119"
             className="w-full px-3 py-2 rounded-lg text-sm text-white outline-none"
-            style={{ background: "#1a1a1a", border: "1px solid #0f1520" }}
+            style={{ background: "#162030", border: "1px solid #1e3050" }}
           />
           <p className="text-[10px] mt-1.5" style={{ color: "#4d6a88" }}>
             Find it in the URL on fantasy.premierleague.com
@@ -154,7 +154,7 @@ export default function SettingsPage() {
             onChange={(e) => setDisplayName(e.target.value)}
             placeholder="Your name"
             className="w-full px-3 py-2 rounded-lg text-sm text-white outline-none"
-            style={{ background: "#1a1a1a", border: "1px solid #0f1520" }}
+            style={{ background: "#162030", border: "1px solid #1e3050" }}
           />
         </Field>
       </Section>
@@ -169,8 +169,8 @@ export default function SettingsPage() {
                 onClick={() => setLanguage(lang.code)}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors"
                 style={{
-                  background: language === lang.code ? "#1a1500" : "#1a1a1a",
-                  border: `1px solid ${language === lang.code ? "#f59e0b" : "#0f1520"}`,
+                  background: language === lang.code ? "rgba(245,158,11,0.08)" : "#162030",
+                  border: `1px solid ${language === lang.code ? "#f59e0b" : "#1e3050"}`,
                 }}
               >
                 <span className="text-lg">{lang.flag}</span>
@@ -193,7 +193,7 @@ export default function SettingsPage() {
             value={timezone}
             onChange={(e) => setTimezone(e.target.value)}
             className="w-full px-3 py-2 rounded-lg text-sm text-white outline-none"
-            style={{ background: "#1a1a1a", border: "1px solid #0f1520" }}
+            style={{ background: "#162030", border: "1px solid #1e3050" }}
           >
             {TIMEZONES.map((tz) => (
               <option key={tz.value} value={tz.value}>{tz.label}</option>
@@ -205,7 +205,7 @@ export default function SettingsPage() {
 
       {/* Notifications */}
       <Section title="Notifications">
-        <div className="rounded-xl p-4 flex items-center justify-between" style={{ background: "#1a1a1a", border: "1px solid #0f1520" }}>
+        <div className="rounded-xl p-4 flex items-center justify-between" style={{ background: "#162030", border: "1px solid #1e3050" }}>
           <div>
             <p className="text-sm font-semibold text-white">Email reminders</p>
             <p className="text-[11px] mt-0.5" style={{ color: "#6688aa" }}>Deadline reminder 24h before each GW</p>
@@ -224,9 +224,9 @@ export default function SettingsPage() {
 
       {/* Account */}
       <Section title="Account">
-        <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #0f1520" }}>
+        <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e3050" }}>
           <div className="flex items-center justify-between px-4 py-3"
-            style={{ background: "#1a1a1a", borderBottom: "1px solid #222" }}>
+            style={{ background: "#162030", borderBottom: "1px solid #1a2a40" }}>
             <div>
               <p className="text-[10px] uppercase tracking-wider" style={{ color: "#6688aa" }}>Email</p>
               <p className="text-sm text-white mt-0.5">{user ? user.email : "Sign in to access"}</p>
@@ -243,14 +243,14 @@ export default function SettingsPage() {
 
       {/* About */}
       <Section title="About">
-        <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #0f1520" }}>
+        <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e3050" }}>
           {[
             { label: "Version", value: "0.1.0 (Beta)" },
             { label: "Give feedback", value: "→" },
             { label: "Privacy policy", value: "→" },
           ].map((item, i, arr) => (
             <div key={i} className="flex items-center justify-between px-4 py-3"
-              style={{ background: "#1a1a1a", borderBottom: i < arr.length - 1 ? "1px solid #222" : "none" }}>
+              style={{ background: "#162030", borderBottom: i < arr.length - 1 ? "1px solid #1a2a40" : "none" }}>
               <p className="text-sm text-white">{item.label}</p>
               <p className="text-sm" style={{ color: "#6688aa" }}>{item.value}</p>
             </div>
@@ -263,7 +263,7 @@ export default function SettingsPage() {
         <Section title="Admin">
 
           {/* Stats */}
-          <div className="rounded-xl p-4 mb-3" style={{ background: "#1a1a1a", border: "1px solid #0f1520" }}>
+          <div className="rounded-xl p-4 mb-3" style={{ background: "#162030", border: "1px solid #1e3050" }}>
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold text-white">Statistics</p>
               <button
@@ -313,7 +313,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Send reminder */}
-          <div className="rounded-xl p-4" style={{ background: "#1a1a1a", border: "1px solid #0f1520" }}>
+          <div className="rounded-xl p-4" style={{ background: "#162030", border: "1px solid #1e3050" }}>
             <p className="text-sm font-semibold text-white mb-1">Send deadline reminder</p>
             <p className="text-[11px] mb-3" style={{ color: "#6688aa" }}>Sends email to all registered users now</p>
             <button

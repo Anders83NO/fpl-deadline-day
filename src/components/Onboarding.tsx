@@ -137,7 +137,7 @@ export default function Onboarding() {
                     {results.map((r, i) => (
                       <button key={r.id} onClick={() => selectResult(r)}
                         className="w-full text-left px-4 py-3 flex items-center justify-between active:opacity-70"
-                        style={{ background: "#111", borderTop: i > 0 ? "1px solid #1a1a1a" : "none" }}>
+                        style={{ background: "#162030", borderTop: i > 0 ? "1px solid #1a2a40" : "none" }}>
                         <div>
                           <p className="text-sm font-semibold text-white">{r.teamName}</p>
                           <p className="text-xs mt-0.5" style={{ color: "#555" }}>{r.managerName}</p>

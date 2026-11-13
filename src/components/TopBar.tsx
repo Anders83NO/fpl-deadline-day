@@ -13,8 +13,8 @@ export default function TopBar() {
 
   return (
     <>
-      <div className="sticky top-0 z-40 px-4 h-14 flex items-center justify-between"
-        style={{ background: "#0f1520", borderBottom: "1px solid #1e3050" }}>
+      <div className="glass sticky top-0 z-40 px-4 h-14 flex items-center justify-between"
+        style={{ borderBottom: "1px solid rgba(30,48,80,0.7)" }}>
         <Logo size={36} showText={true} />
         <div className="flex items-center gap-3">
           <DeadlineCountdown />
@@ -22,15 +22,15 @@ export default function TopBar() {
             <div className="relative">
               <button
                 onClick={() => setShowMenu(!showMenu)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-                style={{ background: "#f59e0b", color: "#000" }}
+                aria-label="Account menu"
+                className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold"
+                style={{ background: "linear-gradient(135deg, #fbbf24, #f59e0b)", color: "#000", boxShadow: "0 0 0 2px #0f1520, 0 0 0 3px rgba(245,158,11,0.35)" }}
               >
                 {user.email?.[0].toUpperCase()}
               </button>
               {showMenu && (
                 <div
-                  className="absolute right-0 top-10 rounded-xl py-1 z-50 min-w-[160px]"
-                  style={{ background: "#162030", border: "1px solid #1e3050" }}
+                  className="card animate-fade-up absolute right-0 top-11 py-1 z-50 min-w-[200px] overflow-hidden"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <p className="px-4 py-2 text-xs truncate" style={{ color: "#6688aa" }}>{user.email}</p>
@@ -51,8 +51,8 @@ export default function TopBar() {
           ) : (
             <button
               onClick={() => setShowAuth(true)}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold"
-              style={{ background: "#1a2538", color: "#f59e0b", border: "1px solid #1e3050" }}
+              className="h-9 px-3.5 rounded-full text-xs font-semibold"
+              style={{ background: "rgba(245,158,11,0.1)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }}
             >
               Sign in
             </button>
