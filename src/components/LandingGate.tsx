@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Logo from "@/components/Logo";
 import AuthModal from "@/components/AuthModal";
+import DeadlineCountdown from "@/components/DeadlineCountdown";
 
 interface SearchResult {
   id: number;
@@ -13,7 +14,7 @@ interface SearchResult {
 const FEATURES = [
   {
     icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="1.8">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="10" /><polygon points="10,8 16,12 10,16" />
       </svg>
     ),
@@ -22,7 +23,7 @@ const FEATURES = [
   },
   {
     icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="1.8">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M7 16V4m0 0L3 8m4-4l4 4" /><path d="M17 8v12m0 0l4-4m-4 4l-4-4" />
       </svg>
     ),
@@ -31,7 +32,7 @@ const FEATURES = [
   },
   {
     icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="1.8">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <polyline points="22,12 18,12 15,21 9,3 6,12 2,12" />
       </svg>
     ),
@@ -40,7 +41,7 @@ const FEATURES = [
   },
   {
     icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="1.8">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
       </svg>
     ),
@@ -152,6 +153,33 @@ const TOUR_SLIDES = [
   },
 ];
 
+const PREVIEW_ROWS: { name: string; code: number; gk?: boolean; pts: number; captain?: boolean }[][] = [
+  [{ name: "Raya", code: 3, gk: true, pts: 6 }],
+  [{ name: "Gabriel", code: 3, pts: 8 }, { name: "Van Dijk", code: 14, pts: 2 }, { name: "Gvardiol", code: 43, pts: 6 }],
+  [{ name: "Saka", code: 3, pts: 22, captain: true }, { name: "Palmer", code: 8, pts: 5 }, { name: "Haaland", code: 43, pts: 9 }],
+];
+
+function PreviewPlayer({ name, code, gk, pts, captain }: { name: string; code: number; gk?: boolean; pts: number; captain?: boolean }) {
+  return (
+    <div className="flex flex-col items-center gap-1 w-[70px]">
+      <div className="relative w-12 h-12 flex items-center justify-center">
+        {captain && <span aria-hidden="true" className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle, rgba(245,158,11,0.55) 0%, rgba(245,158,11,0) 70%)" }} />}
+        <img src={`https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${code}${gk ? "_1" : ""}-110.webp`} alt="" width={40} height={46}
+          className="relative object-contain" style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.45))" }} />
+        {captain && (
+          <span className="absolute -top-0.5 -right-1 w-[18px] h-[18px] rounded-full text-[9px] font-extrabold flex items-center justify-center"
+            style={{ background: "#f59e0b", color: "#000", boxShadow: "0 0 0 2px #0f1520" }}>C</span>
+        )}
+      </div>
+      <div className="w-[64px] rounded-md overflow-hidden text-center" style={{ boxShadow: "0 4px 10px -2px rgba(0,0,0,0.5)" }}>
+        <span className="block text-[10px] font-bold leading-tight py-[3px] truncate" style={{ background: "#fff", color: "#0f1520" }}>{name}</span>
+        <span className="block text-[10.5px] font-extrabold tabular-nums py-[2px]"
+          style={{ background: captain ? "#f59e0b" : "rgba(15,21,32,0.92)", color: captain ? "#000" : "#f59e0b" }}>{pts}</span>
+      </div>
+    </div>
+  );
+}
+
 export default function LandingGate({ children }: { children: React.ReactNode }) {
   const [hasTeam, setHasTeam] = useState<boolean | null>(null);
   const [step, setStep] = useState<"hero" | "tour" | "search" | "confirm" | "manual">("hero");
@@ -225,75 +253,90 @@ export default function LandingGate({ children }: { children: React.ReactNode })
   if (hasTeam) return <>{children}</>;
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden w-full" style={{ background: "#0f1520" }}>
+    <div className="min-h-screen flex flex-col overflow-x-hidden w-full">
 
       {/* Hero */}
       {step === "hero" && (
-        <div className="flex-1 flex flex-col px-5 pb-8">
-          <div className="flex flex-col items-center pt-16 pb-6">
-            <Logo size={64} showText={false} />
-            <h1 className="text-3xl font-black text-white mt-5 text-center tracking-tight leading-tight">
+        <div className="flex-1 flex flex-col w-full max-w-md mx-auto px-5 pb-10">
+          {/* Top row: logo + live deadline */}
+          <div className="flex items-center justify-between pt-5">
+            <Logo size={34} showText={false} />
+            <DeadlineCountdown />
+          </div>
+
+          {/* Headline + primary CTA — visible without scrolling */}
+          <div className="flex flex-col items-center text-center pt-10 animate-fade-up">
+            <h1 className="text-[30px] font-black text-white tracking-tight leading-[1.08]">
               Everything you need<br />
               for <span style={{ color: "#f59e0b" }}>FPL</span>. One app.
             </h1>
-            <p className="text-sm mt-3 text-center leading-relaxed" style={{ color: "#555e70" }}>
-              Stop jumping between the FPL app, livescore sites and X.<br />Get it all here — for free.
+            <p className="text-[15px] mt-4 leading-relaxed" style={{ color: "#8aa4c2" }}>
+              Live scores, transfer planner and deadline reminders.<br />Free, no ads.
+            </p>
+            <button
+              onClick={() => setStep("manual")}
+              className="w-full h-14 mt-7 rounded-full text-[15px] font-bold"
+              style={{ background: "#f59e0b", color: "#000", boxShadow: "0 10px 30px -8px rgba(245,158,11,0.65)" }}
+            >
+              Connect my FPL team
+            </button>
+            <p className="text-xs mt-4" style={{ color: "#6688aa" }}>
+              Just looking?{" "}
+              <button
+                onClick={() => { setTourSlide(0); setStep("tour"); }}
+                className="underline underline-offset-2 font-semibold"
+                style={{ color: "#c8d4e3" }}
+              >
+                Explore without connecting
+              </button>
             </p>
           </div>
 
-          {/* Features grid */}
-          <div className="grid grid-cols-2 gap-2.5 mb-4">
-            {FEATURES.map((f, i) => (
-              <div key={i} className="rounded-xl p-3.5" style={{ background: "#141e2e", border: "1px solid #1e2d42" }}>
-                <div className="mb-1.5">{f.icon}</div>
-                <p className="text-sm font-bold text-white mb-1">{f.title}</p>
-                <p className="text-[11px] leading-snug" style={{ color: "#4d6a88" }}>{f.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Account upsell */}
-          <div className="rounded-xl px-4 py-3.5 mb-5" style={{ background: "#1a1500", border: "1px solid #f59e0b44" }}>
-            <p className="text-[10px] font-bold tracking-widest uppercase mb-2.5" style={{ color: "#f59e0b" }}>With a free account</p>
-            <div className="space-y-2">
-              {[
-                { title: "Deadline reminders", desc: "Email 24h before each GW deadline" },
-                { title: "Plans saved across devices", desc: "Transfers, captain and chip picks synced" },
-                { title: "GW history", desc: "See what you planned last week — automatically saved" },
-              ].map((item, i) => (
-                <div key={i} className="flex items-start gap-2.5">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" className="flex-shrink-0 mt-0.5"><polyline points="20,6 9,17 4,12" /></svg>
-                  <div>
-                    <p className="text-xs font-semibold text-white">{item.title}</p>
-                    <p className="text-[11px]" style={{ color: "#8a6d30" }}>{item.desc}</p>
-                  </div>
+          {/* Product preview: example squad on the pitch */}
+          <div className="relative mt-10 rounded-2xl overflow-hidden" style={{
+            background: "repeating-linear-gradient(180deg, #1e6b35 0px, #1e6b35 44px, #1a5f2e 44px, #1a5f2e 88px)",
+            border: "1px solid #2e7a3e",
+            boxShadow: "inset 0 0 60px rgba(0,0,0,0.35), 0 16px 40px -16px rgba(0,0,0,0.7)",
+          }}>
+            <svg aria-hidden="true" className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 400 300" preserveAspectRatio="none">
+              <rect x="110" y="0" width="180" height="60" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="2" />
+              <rect x="160" y="0" width="80" height="24" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="2" />
+              <path d="M 160 60 A 40 40 0 0 0 240 60" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="2" />
+              <path d="M 130 300 A 70 70 0 0 1 270 300" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="2" />
+            </svg>
+            <span className="absolute top-2.5 left-3 text-[9px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded"
+              style={{ background: "rgba(15,21,32,0.6)", color: "#c8d4e3" }}>Example</span>
+            <div className="relative py-5 space-y-3">
+              {PREVIEW_ROWS.map((row, r) => (
+                <div key={r} className="flex justify-center gap-2">
+                  {row.map((pl) => <PreviewPlayer key={pl.name} {...pl} />)}
                 </div>
               ))}
             </div>
           </div>
+          <p className="text-center text-xs mt-3" style={{ color: "#6688aa" }}>Your squad, live points and next fixtures on one pitch.</p>
 
-          {/* CTA */}
-          <div className="space-y-2.5">
-            <button
-              onClick={() => setStep("manual")}
-              className="w-full py-3.5 rounded-xl text-sm font-bold"
-              style={{ background: "#f59e0b", color: "#000" }}
-            >
-              Connect my FPL team
-            </button>
+          {/* Features — compact */}
+          <div className="grid grid-cols-2 gap-2 mt-8">
+            {FEATURES.map((f, i) => (
+              <div key={i} className="card flex items-center gap-2.5 px-3 py-3">
+                <span className="w-8 h-8 flex items-center justify-center rounded-lg flex-shrink-0" style={{ background: "rgba(245,158,11,0.1)" }}>{f.icon}</span>
+                <p className="text-[13px] font-bold text-white leading-tight">{f.title}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Account — one line */}
+          <div className="card mt-3 px-4 py-3 flex items-center justify-between gap-3">
+            <p className="text-xs leading-snug" style={{ color: "#8aa4c2" }}>
+              <span className="text-white font-semibold">Free account:</span> deadline emails and plans saved across devices.
+            </p>
             <button
               onClick={() => setShowAuth(true)}
-              className="w-full py-3 rounded-xl text-sm font-semibold"
-              style={{ background: "#141e2e", color: "#f0f0f0", border: "1px solid #1e3050" }}
+              className="h-9 px-3.5 rounded-full text-xs font-bold flex-shrink-0"
+              style={{ background: "rgba(245,158,11,0.1)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }}
             >
-              Create free account
-            </button>
-            <button
-              onClick={() => { setTourSlide(0); setStep("tour"); }}
-              className="w-full text-center text-xs py-2"
-              style={{ color: "#3d5570" }}
-            >
-              Explore without connecting
+              Create
             </button>
           </div>
         </div>
