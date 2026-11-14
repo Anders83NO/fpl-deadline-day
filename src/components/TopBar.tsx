@@ -5,6 +5,7 @@ import Logo from "@/components/Logo";
 import DeadlineCountdown from "@/components/DeadlineCountdown";
 import AuthModal from "@/components/AuthModal";
 import { useAuth } from "@/context/AuthContext";
+import { track } from "@/lib/track";
 
 export default function TopBar() {
   const { user, signOut } = useAuth();
@@ -50,7 +51,7 @@ export default function TopBar() {
             </div>
           ) : (
             <button
-              onClick={() => setShowAuth(true)}
+              onClick={() => { track("cta_click", { cta: "sign_in", location: "top_bar" }); setShowAuth(true); }}
               className="h-9 px-3.5 rounded-full text-xs font-semibold"
               style={{ background: "rgba(245,158,11,0.1)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }}
             >

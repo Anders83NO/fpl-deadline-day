@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { track } from "@/lib/track";
 
 interface AuthModalProps {
   onClose: () => void;
@@ -21,7 +22,8 @@ export default function AuthModal({ onClose }: AuthModalProps) {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (error) { setError(error.message); return; }
+    if (error) { setError(error.message); track("login_failed"); return; }
+    track("login", { method: "email" });
     onClose();
   }
 
@@ -30,7 +32,8 @@ export default function AuthModal({ onClose }: AuthModalProps) {
     setLoading(true);
     const { error } = await supabase.auth.signUp({ email, password });
     setLoading(false);
-    if (error) { setError(error.message); return; }
+    if (error) { setError(error.message); track("sign_up_failed"); return; }
+    track("sign_up", { method: "email" });
     setStep("check-email");
   }
 

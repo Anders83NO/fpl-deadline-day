@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import AuthModal from "@/components/AuthModal";
 import { StatusTriangle } from "@/components/StatusTriangle";
+import { track } from "@/lib/track";
 import PlayerInfoModal from "@/components/PlayerInfoModal";
 
 const TYPE_LABEL: Record<number, string> = { 1: "GK", 2: "DEF", 3: "MID", 4: "FWD" };
@@ -1381,7 +1382,7 @@ export default function TransfersPage() {
       )}
 
       {!user && !showHistory && (
-        <button onClick={() => setShowAuth(true)} className="w-full mt-6 rounded-xl px-4 py-3.5 flex items-center justify-between text-left"
+        <button onClick={() => { track("cta_click", { cta: "create_account", location: "planner_save" }); setShowAuth(true); }} className="w-full mt-6 rounded-xl px-4 py-3.5 flex items-center justify-between text-left"
           style={{ background: "#1a1500", border: "1px solid #f59e0b33" }}>
           <div>
             <p className="text-sm font-bold text-white mb-0.5">Save your GW history</p>

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Logo from "@/components/Logo";
 import AuthModal from "@/components/AuthModal";
 import DeadlineCountdown from "@/components/DeadlineCountdown";
+import { track } from "@/lib/track";
 
 interface TeamPreview {
   id: number;
@@ -212,13 +213,22 @@ export default function LandingGate({ children }: { children: React.ReactNode })
     setHasTeam(!!localStorage.getItem("fpl_team_id"));
   }, []);
 
+  // Funnel: one event per onboarding screen shown
+  useEffect(() => {
+    if (hasTeam !== false) return;
+    track("onboarding_step_view", { step: step === "search" ? "paste_link" : step === "manual" ? "team_id" : step, slide: step === "tour" ? tourSlide + 1 : undefined });
+  }, [hasTeam, step, tourSlide]);
+
   // Paste-link step: look up the team as soon as a valid ID is recognised
   useEffect(() => {
     if (step !== "search") return;
     const id = parseTeamId(linkInput);
     if (!linkInput.trim()) return;
     if (!id) {
-      const t = setTimeout(() => setLookupError("That doesn't look like an FPL link. It should contain /entry/ followed by a number."), 600);
+      const t = setTimeout(() => {
+        setLookupError("That doesn't look like an FPL link. It should contain /entry/ followed by a number.");
+        track("link_lookup", { result: "invalid_link" });
+      }, 600);
       return () => clearTimeout(t);
     }
     let cancelled = false;
@@ -228,6 +238,8 @@ export default function LandingGate({ children }: { children: React.ReactNode })
         const res = await fetch(`/api/fpl/entry?id=${id}`);
         const data = await res.json();
         if (cancelled) return;
+        if (data.found) track("link_lookup", { result: "found" });
+        else track("link_lookup", { result: res.status === 404 ? "not_found" : "error" });
         if (data.found) setSelected({ id: data.id, teamName: data.teamName, managerName: data.managerName, overallRank: data.overallRank });
         else if (res.status === 404) setLookupError(`We couldn't find a team with ID ${id}. Check the link and try again.`);
         else setLookupError("FPL isn't responding right now. Try again in a moment.");
@@ -241,6 +253,7 @@ export default function LandingGate({ children }: { children: React.ReactNode })
 
   function confirm() {
     if (!selected) return;
+    track("team_connected", { method: "paste_link" });
     localStorage.setItem("fpl_team_id", String(selected.id));
     localStorage.setItem("fpl_onboarding_done", "1");
     window.location.href = "/transfers";
@@ -251,14 +264,17 @@ export default function LandingGate({ children }: { children: React.ReactNode })
     const id = manualId.trim();
     if (!id || isNaN(Number(id))) {
       setManualError("Enter a valid numeric Team ID.");
+      track("team_id_invalid");
       return;
     }
+    track("team_connected", { method: "team_id" });
     localStorage.setItem("fpl_team_id", id);
     localStorage.setItem("fpl_onboarding_done", "1");
     window.location.href = "/transfers";
   }
 
   function skip() {
+    track("onboarding_skip", { from: step === "search" ? "paste_link" : step === "manual" ? "team_id" : step });
     localStorage.setItem("fpl_onboarding_done", "1");
     setHasTeam(true);
   }
@@ -291,7 +307,7 @@ export default function LandingGate({ children }: { children: React.ReactNode })
               Live scores, transfer planner and deadline reminders.<br />Free, no ads.
             </p>
             <button
-              onClick={() => setStep("manual")}
+              onClick={() => { track("cta_click", { cta: "connect", location: "hero" }); setStep("manual"); }}
               className="w-full h-14 mt-7 rounded-full text-[15px] font-bold"
               style={{ background: "#f59e0b", color: "#000", boxShadow: "0 10px 30px -8px rgba(245,158,11,0.65)" }}
             >
@@ -300,7 +316,7 @@ export default function LandingGate({ children }: { children: React.ReactNode })
             <p className="text-xs mt-4" style={{ color: "#6688aa" }}>
               Just looking?{" "}
               <button
-                onClick={() => { setTourSlide(0); setStep("tour"); }}
+                onClick={() => { track("cta_click", { cta: "explore", location: "hero" }); setTourSlide(0); setStep("tour"); }}
                 className="underline underline-offset-2 font-semibold"
                 style={{ color: "#c8d4e3" }}
               >
@@ -349,7 +365,7 @@ export default function LandingGate({ children }: { children: React.ReactNode })
               <span className="text-white font-semibold">Free account:</span> deadline emails and plans saved across devices.
             </p>
             <button
-              onClick={() => setShowAuth(true)}
+              onClick={() => { track("cta_click", { cta: "create_account", location: "hero" }); setShowAuth(true); }}
               className="h-9 px-3.5 rounded-full text-xs font-bold flex-shrink-0"
               style={{ background: "rgba(245,158,11,0.1)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }}
             >
@@ -396,7 +412,7 @@ export default function LandingGate({ children }: { children: React.ReactNode })
               {isLast ? (
                 <>
                   <button
-                    onClick={() => setStep("manual")}
+                    onClick={() => { track("cta_click", { cta: "connect", location: "tour" }); setStep("manual"); }}
                     className="w-full h-14 rounded-full text-[15px] font-bold"
                     style={{ background: "#f59e0b", color: "#000", boxShadow: "0 10px 30px -8px rgba(245,158,11,0.65)" }}
                   >
