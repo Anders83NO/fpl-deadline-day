@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "FPL Deadline Day — Free Tools for Fantasy Premier League Managers",
     description: "Transfer planner, live scores, deadline reminders and GW history. Free FPL tool.",
-    url: "https://fpldeadlineday.com",
+    url: "https://www.fpldeadlineday.com",
     siteName: "FPL Deadline Day",
     type: "website",
   },
@@ -46,16 +46,16 @@ const STRUCTURED_DATA = {
   "@graph": [
     {
       "@type": "WebSite",
-      "@id": "https://fpldeadlineday.com/#website",
+      "@id": "https://www.fpldeadlineday.com/#website",
       name: "FPL Deadline Day",
-      url: "https://fpldeadlineday.com",
+      url: "https://www.fpldeadlineday.com",
       inLanguage: "en",
     },
     {
       "@type": "WebApplication",
-      "@id": "https://fpldeadlineday.com/#app",
+      "@id": "https://www.fpldeadlineday.com/#app",
       name: "FPL Deadline Day",
-      url: "https://fpldeadlineday.com",
+      url: "https://www.fpldeadlineday.com",
       applicationCategory: "SportsApplication",
       operatingSystem: "Web",
       description:

@@ -10,7 +10,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/reset-password", "/settings"],
       },
     ],
-    sitemap: "https://fpldeadlineday.com/sitemap.xml",
-    host: "https://fpldeadlineday.com",
+    sitemap: "https://www.fpldeadlineday.com/sitemap.xml",
+    host: "https://www.fpldeadlineday.com",
   };
 }

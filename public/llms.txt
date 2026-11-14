@@ -2,15 +2,15 @@
 
 > FPL Deadline Day is a free web app for Fantasy Premier League (FPL) managers. It brings live Premier League scores, a transfer planner, gameweek deadline reminders, player stats and gameweek history into one place. Free, no ads.
 
-Website: https://fpldeadlineday.com
+Website: https://www.fpldeadlineday.com
 
 ## What it does
 
-- **Live gameweek scores**: Live Premier League scores for every gameweek, grouped by date, with match minute, goals, cards, substitutions and lineups on a pitch view. https://fpldeadlineday.com/live
-- **Transfer planner**: Plan FPL transfers several gameweeks ahead on a pitch view, with fixture difficulty, prices, free transfers and chips (Wildcard, Free Hit, Bench Boost, Triple Captain). https://fpldeadlineday.com/transfers
+- **Live gameweek scores**: Live Premier League scores for every gameweek, grouped by date, with match minute, goals, cards, substitutions and lineups on a pitch view. https://www.fpldeadlineday.com/live
+- **Transfer planner**: Plan FPL transfers several gameweeks ahead on a pitch view, with fixture difficulty, prices, free transfers and chips (Wildcard, Free Hit, Bench Boost, Triple Captain). https://www.fpldeadlineday.com/transfers
 - **Deadline reminders**: Email reminders 24 hours and 2 hours before each gameweek deadline, in the user's local timezone (free account).
-- **Player stats and scout**: Sort and search all FPL players by price, form, expected points and total points; compare players side by side; captain picks and differentials. https://fpldeadlineday.com/stats
-- **My Team**: The user's current FPL squad with gameweek points, overall rank, bank and team value. https://fpldeadlineday.com/my-team
+- **Player stats and scout**: Sort and search all FPL players by price, form, expected points and total points; compare players side by side; captain picks and differentials. https://www.fpldeadlineday.com/stats
+- **My Team**: The user's current FPL squad with gameweek points, overall rank, bank and team value. https://www.fpldeadlineday.com/my-team
 - **Gameweek history**: Transfer plans, captain picks and chips are saved automatically after each deadline (free account).
 
 ## How it works
@@ -21,7 +21,7 @@ Website: https://fpldeadlineday.com
 
 ## Key pages
 
-- [Home](https://fpldeadlineday.com)
-- [Live scores](https://fpldeadlineday.com/live)
-- [Player stats](https://fpldeadlineday.com/stats)
-- [About](https://fpldeadlineday.com/about)
+- [Home](https://www.fpldeadlineday.com)
+- [Live scores](https://www.fpldeadlineday.com/live)
+- [Player stats](https://www.fpldeadlineday.com/stats)
+- [About](https://www.fpldeadlineday.com/about)

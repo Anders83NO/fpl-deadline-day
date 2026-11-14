@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "About FPL Deadline Day — Free Fantasy Premier League Tool",
     description: "Transfer planner, live scores, deadline reminders and GW history for FPL managers. Completely free.",
-    url: "https://fpldeadlineday.com/about",
+    url: "https://www.fpldeadlineday.com/about",
     siteName: "FPL Deadline Day",
     type: "website",
   },

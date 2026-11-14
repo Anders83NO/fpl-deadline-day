@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       description: started
         ? `${home} ${score} ${away} (${date}). Goals, cards, substitutions and lineups on a pitch view.`
         : `${home} vs ${away}, ${date}. Kick-off time, lineups and live score updates.`,
-      alternates: { canonical: `https://fpldeadlineday.com/match/${id}` },
+      alternates: { canonical: `https://www.fpldeadlineday.com/match/${id}` },
     };
   } catch {
     return fallback;

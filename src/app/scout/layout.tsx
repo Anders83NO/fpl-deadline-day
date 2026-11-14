@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Scout | FPL Deadline Day",
     description: "Find the best FPL transfer targets based on form, fixtures and xPts.",
-    url: "https://fpldeadlineday.com/scout",
+    url: "https://www.fpldeadlineday.com/scout",
     siteName: "FPL Deadline Day",
   },
 };
