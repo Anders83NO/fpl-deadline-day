@@ -1,14 +1,23 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Logo from "@/components/Logo";
 import AuthModal from "@/components/AuthModal";
 import DeadlineCountdown from "@/components/DeadlineCountdown";
 
-interface SearchResult {
+interface TeamPreview {
   id: number;
   teamName: string;
   managerName: string;
+  overallRank: number | null;
+}
+
+// Accepts a pasted FPL link (…/entry/123456/…) or a plain numeric ID.
+function parseTeamId(input: string): string | null {
+  const fromLink = input.match(/entry\/(\d{1,10})/);
+  if (fromLink) return fromLink[1];
+  const plain = input.trim().match(/^(\d{1,10})$/);
+  return plain ? plain[1] : null;
 }
 
 const FEATURES = [
@@ -191,43 +200,44 @@ export default function LandingGate({ children }: { children: React.ReactNode })
   const [hasTeam, setHasTeam] = useState<boolean | null>(null);
   const [step, setStep] = useState<"hero" | "tour" | "search" | "confirm" | "manual">("hero");
   const [tourSlide, setTourSlide] = useState(0);
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [searching, setSearching] = useState(false);
-  const [selected, setSelected] = useState<SearchResult | null>(null);
+  const [linkInput, setLinkInput] = useState("");
+  const [lookingUp, setLookingUp] = useState(false);
+  const [lookupError, setLookupError] = useState("");
+  const [selected, setSelected] = useState<TeamPreview | null>(null);
   const [manualId, setManualId] = useState("");
   const [manualError, setManualError] = useState("");
-  const [fallback, setFallback] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
 
   useEffect(() => {
     setHasTeam(!!localStorage.getItem("fpl_team_id"));
   }, []);
 
-  const search = useCallback(async (q: string) => {
-    if (q.length < 2) { setResults([]); return; }
-    setSearching(true);
-    try {
-      const res = await fetch(`/api/fpl/search?q=${encodeURIComponent(q)}`);
-      const data = await res.json();
-      if (data.fallback) {
-        setFallback(true);
-        setResults([]);
-      } else {
-        setResults(data.results ?? []);
-        setFallback(false);
-      }
-    } catch {
-      setFallback(true);
-    }
-    setSearching(false);
-  }, []);
-
+  // Paste-link step: look up the team as soon as a valid ID is recognised
   useEffect(() => {
     if (step !== "search") return;
-    const t = setTimeout(() => search(query), 400);
-    return () => clearTimeout(t);
-  }, [query, search, step]);
+    const id = parseTeamId(linkInput);
+    if (!linkInput.trim()) return;
+    if (!id) {
+      const t = setTimeout(() => setLookupError("That doesn't look like an FPL link. It should contain /entry/ followed by a number."), 600);
+      return () => clearTimeout(t);
+    }
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      setLookingUp(true);
+      try {
+        const res = await fetch(`/api/fpl/entry?id=${id}`);
+        const data = await res.json();
+        if (cancelled) return;
+        if (data.found) setSelected({ id: data.id, teamName: data.teamName, managerName: data.managerName, overallRank: data.overallRank });
+        else if (res.status === 404) setLookupError(`We couldn't find a team with ID ${id}. Check the link and try again.`);
+        else setLookupError("FPL isn't responding right now. Try again in a moment.");
+      } catch {
+        if (!cancelled) setLookupError("FPL isn't responding right now. Try again in a moment.");
+      }
+      if (!cancelled) setLookingUp(false);
+    }, 350);
+    return () => { cancelled = true; clearTimeout(t); setLookingUp(false); };
+  }, [linkInput, step]);
 
   function confirm() {
     if (!selected) return;
@@ -430,94 +440,94 @@ export default function LandingGate({ children }: { children: React.ReactNode })
         );
       })()}
 
-      {/* Search step */}
+      {/* Paste-link step */}
       {step === "search" && (
-        <div className="flex-1 flex flex-col px-6 pt-12">
-          <button onClick={() => setStep("hero")}
-            className="flex items-center gap-1.5 text-xs mb-6" style={{ color: "#6688aa" }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15,18 9,12 15,6" /></svg>
+        <div className="flex-1 flex flex-col w-full max-w-md mx-auto px-5 pt-6 animate-fade-up">
+          <button onClick={() => setStep("manual")}
+            className="self-start inline-flex items-center gap-1.5 h-9 pl-2.5 pr-3.5 rounded-full text-xs font-semibold mb-6"
+            style={{ background: "#162030", border: "1px solid #1e3050", color: "#c8d4e3" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="15,18 9,12 15,6" /></svg>
             Back
           </button>
 
-          {!fallback ? (
-            <>
-              <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "#f59e0b" }}>
-                Find your team
-              </p>
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Your name or team name…"
-                autoFocus
-                className="w-full px-4 py-3 rounded-xl text-sm text-white outline-none mb-3"
-                style={{ background: "#1a2538", border: "1px solid #1e3050" }}
-              />
+          <div className="card p-5">
+            <h2 className="text-lg font-bold text-white mb-4">Paste your FPL link</h2>
+            <ol className="space-y-3">
+              {[
+                <>Open <strong className="text-white font-semibold">fantasy.premierleague.com</strong> in a browser and log in</>,
+                <>Click <strong className="text-white font-semibold">Points</strong></>,
+                <>Copy the whole address from the address bar and paste it below</>,
+              ].map((body, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0 tabular-nums"
+                    style={{ background: "rgba(245,158,11,0.12)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }}>{i + 1}</span>
+                  <span className="text-[13px] leading-relaxed pt-0.5" style={{ color: "#8aa4c2" }}>{body}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
 
-              {searching && (
-                <div className="flex justify-center py-4">
-                  <div className="w-4 h-4 rounded-full border-2 animate-spin"
-                    style={{ borderColor: "#f59e0b", borderTopColor: "transparent" }} />
-                </div>
+          <div className="relative mt-5">
+            <input
+              type="url"
+              inputMode="url"
+              aria-label="FPL link or Team ID"
+              aria-invalid={!!lookupError}
+              aria-describedby={lookupError ? "link-error" : undefined}
+              value={linkInput}
+              onChange={(e) => { setLinkInput(e.target.value); setSelected(null); setLookupError(""); }}
+              placeholder="https://fantasy.premierleague.com/entry/…"
+              autoFocus
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              className="w-full h-14 pl-5 pr-12 rounded-2xl text-[15px] text-white outline-none placeholder:text-[#3d5570]"
+              style={{ background: "#121b29", border: "1.5px solid #1e3050" }}
+            />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2" aria-hidden="true">
+              {lookingUp ? (
+                <span className="block w-4 h-4 rounded-full border-2 animate-spin" style={{ borderColor: "#f59e0b", borderTopColor: "transparent" }} />
+              ) : selected ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12" /></svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3d5570" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>
               )}
+            </span>
+          </div>
 
-              {results.length > 0 && (
-                <div className="rounded-xl overflow-hidden mb-4" style={{ border: "1px solid #1e3050" }}>
-                  {results.map((r, i) => (
-                    <button key={r.id} onClick={() => { setSelected(r); setStep("confirm"); }}
-                      className="w-full text-left px-4 py-3 flex items-center justify-between active:opacity-70"
-                      style={{ background: "#162030", borderTop: i > 0 ? "1px solid #1a2a40" : "none" }}>
-                      <div>
-                        <p className="text-sm font-semibold text-white">{r.teamName}</p>
-                        <p className="text-xs mt-0.5" style={{ color: "#6688aa" }}>{r.managerName}</p>
-                      </div>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                        stroke="#f59e0b" strokeWidth="2.5">
-                        <polyline points="9,18 15,12 9,6" />
-                      </svg>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {query.length >= 2 && !searching && results.length === 0 && (
-                <p className="text-sm text-center py-4" style={{ color: "#6688aa" }}>
-                  No results. Try your manager name instead.
-                </p>
-              )}
-
-              <button onClick={() => setStep("manual")}
-                className="w-full text-center text-sm py-3 font-semibold underline underline-offset-2"
-                style={{ color: "#f59e0b" }}>
-                I know my Team ID → enter manually
-              </button>
-            </>
-          ) : (
-            <>
-              <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "#f59e0b" }}>
-                Search unavailable — enter your ID
-              </p>
-              <ManualIdGuide />
-              <input
-                type="number"
-                value={manualId}
-                onChange={(e) => setManualId(e.target.value)}
-                placeholder="e.g. 1213119"
-                autoFocus
-                className="w-full px-4 py-3 rounded-xl text-sm text-white outline-none mb-2"
-                style={{ background: "#1a2538", border: "1px solid #1e3050" }}
-              />
-              {manualError && <p className="text-xs mb-2" style={{ color: "#ef4444" }}>{manualError}</p>}
-              <button onClick={confirmManual}
-                className="w-full py-3.5 rounded-xl text-sm font-bold"
-                style={{ background: "#f59e0b", color: "#000" }}>
-                Connect my team
-              </button>
-            </>
+          {lookupError && !lookingUp && (
+            <p id="link-error" role="alert" className="flex items-start gap-1.5 text-xs mt-2 px-1" style={{ color: "#ef4444" }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true" className="mt-px flex-shrink-0"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+              {lookupError}
+            </p>
           )}
 
-          <div className="mt-auto pb-6 pt-4">
-            <button onClick={skip} className="w-full text-center text-xs py-2" style={{ color: "#3d5570" }}>
+          {selected && !lookingUp && (
+            <div className="card mt-4 p-4 animate-fade-up" style={{ borderColor: "rgba(74,222,128,0.35)" }} aria-live="polite">
+              <p className="eyebrow mb-2" style={{ color: "#4ade80" }}>Is this your team?</p>
+              <p className="text-lg font-bold text-white leading-tight">{selected.teamName}</p>
+              <p className="text-sm mt-0.5" style={{ color: "#8aa4c2" }}>{selected.managerName}</p>
+              <div className="flex gap-4 mt-3 text-[11px] tabular-nums" style={{ color: "#6688aa" }}>
+                <span>ID <span className="text-white font-semibold">{selected.id}</span></span>
+                {selected.overallRank != null && (
+                  <span>Overall rank <span className="text-white font-semibold">{selected.overallRank.toLocaleString("en-GB")}</span></span>
+                )}
+              </div>
+              <button onClick={confirm}
+                className="w-full h-14 mt-4 rounded-full text-[15px] font-bold"
+                style={{ background: "#f59e0b", color: "#000", boxShadow: "0 10px 30px -8px rgba(245,158,11,0.65)" }}>
+                Yes, connect this team
+              </button>
+            </div>
+          )}
+
+          <div className="mt-auto pb-8 pt-6 space-y-1">
+            <button onClick={() => setStep("manual")}
+              className="w-full h-11 text-center text-sm font-semibold"
+              style={{ color: "#f59e0b" }}>
+              I know my Team ID →
+            </button>
+            <button onClick={skip} className="w-full h-11 text-center text-xs font-medium underline underline-offset-2" style={{ color: "#6688aa" }}>
               Skip — explore without connecting
             </button>
           </div>
@@ -527,12 +537,20 @@ export default function LandingGate({ children }: { children: React.ReactNode })
       {/* Manual ID step */}
       {step === "manual" && (
         <div className="flex-1 flex flex-col w-full max-w-md mx-auto px-5 pt-6 animate-fade-up">
-          <button onClick={() => { setStep("search"); setFallback(false); }}
-            className="self-start inline-flex items-center gap-1.5 h-9 pl-2.5 pr-3.5 rounded-full text-xs font-semibold mb-6"
-            style={{ background: "#162030", border: "1px solid #1e3050", color: "#c8d4e3" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="15,18 9,12 15,6" /></svg>
-            Back to search
-          </button>
+          <div className="flex items-center justify-between gap-3 mb-6">
+            <button onClick={() => setStep("hero")}
+              aria-label="Back"
+              className="w-9 h-9 flex items-center justify-center rounded-full flex-shrink-0"
+              style={{ background: "#162030", border: "1px solid #1e3050", color: "#c8d4e3" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="15,18 9,12 15,6" /></svg>
+            </button>
+            <button onClick={() => { setLinkInput(""); setStep("search"); }}
+              className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-xs font-semibold"
+              style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)", color: "#f59e0b" }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>
+              Easier: paste your FPL link instead
+            </button>
+          </div>
 
           <ManualIdGuide />
 
@@ -571,35 +589,6 @@ export default function LandingGate({ children }: { children: React.ReactNode })
         </div>
       )}
 
-      {/* Confirm step */}
-      {step === "confirm" && selected && (
-        <div className="flex-1 flex flex-col px-6 pt-12">
-          <button onClick={() => { setStep("search"); setSelected(null); setQuery(""); setResults([]); }}
-            className="flex items-center gap-1.5 text-xs mb-6" style={{ color: "#6688aa" }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15,18 9,12 15,6" /></svg>
-            Back to search
-          </button>
-
-          <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "#f59e0b" }}>
-            Is this your team?
-          </p>
-          <div className="rounded-xl p-5 mb-4" style={{ background: "#162030", border: "1px solid #1e3050" }}>
-            <p className="text-lg font-bold text-white">{selected.teamName}</p>
-            <p className="text-sm mt-0.5" style={{ color: "#6688aa" }}>{selected.managerName}</p>
-            <p className="text-xs mt-2 font-mono" style={{ color: "#3d5570" }}>ID: {selected.id}</p>
-          </div>
-          <button onClick={confirm}
-            className="w-full py-3.5 rounded-xl text-sm font-bold mb-3"
-            style={{ background: "#f59e0b", color: "#000" }}>
-            Yes, connect this team
-          </button>
-          <button onClick={() => { setStep("search"); setSelected(null); setQuery(""); setResults([]); }}
-            className="w-full py-3 rounded-xl text-sm font-semibold"
-            style={{ background: "#1a2538", color: "#6688aa" }}>
-            Not me — search again
-          </button>
-        </div>
-      )}
     </div>
   );
 }
