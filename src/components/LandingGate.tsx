@@ -72,11 +72,11 @@ const TOUR_SLIDES = [
           ))}
         </div>
         {[
-          { name: "Saka", pos: "MID · ARS · £10.5m", tag: "IN", tagStyle: { background: "#0f2a10", color: "#4ade80" } },
-          { name: "Palmer", pos: "MID · CHE · £11.2m", tag: "OUT", tagStyle: { background: "#2a0f10", color: "#f87171" } },
+          { name: "Saka", code: 3, pos: "MID · ARS · £10.5m", tag: "IN", tagStyle: { background: "#0f2a10", color: "#4ade80" } },
+          { name: "Palmer", code: 8, pos: "MID · CHE · £11.2m", tag: "OUT", tagStyle: { background: "#2a0f10", color: "#f87171" } },
         ].map((p) => (
           <div key={p.name} className="rounded-xl px-3 py-2.5 flex items-center gap-3" style={{ background: "#162030", border: "1px solid #1e2d42" }}>
-            <div style={{ width: 30, height: 30, borderRadius: 7, background: "#1e3050", flexShrink: 0 }} />
+            <img src={`https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.code}-110.webp`} alt="" width={30} height={34} style={{ objectFit: "contain", flexShrink: 0, filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.4))" }} />
             <div style={{ flex: 1 }}>
               <p style={{ color: "white", fontSize: 12, fontWeight: 700, margin: 0 }}>{p.name}</p>
               <p style={{ color: "#4d6a88", fontSize: 10, margin: 0 }}>{p.pos}</p>
@@ -112,7 +112,9 @@ const TOUR_SLIDES = [
           </div>
         ))}
         <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#162030", border: "1px solid #1e2d42", borderRadius: 12, padding: "10px 12px" }}>
-          <span style={{ fontSize: 16 }}>⚽</span>
+          <span style={{ width: 28, height: 28, borderRadius: 999, background: "#1a2538", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#f0f2f5" /><path d="M12 7l4 3-1.5 4.5h-5L8 10z" fill="#0f1520" /><path d="M12 2v5M16 10l5-2M14.5 14.5l3 5M9.5 14.5l-3 5M8 10L3 8" stroke="#0f1520" strokeWidth="1.3" /></svg>
+          </span>
           <div style={{ flex: 1 }}>
             <p style={{ color: "white", fontSize: 11, fontWeight: 700, margin: 0 }}>Saka 67&apos; · Arsenal</p>
             <p style={{ color: "#4d6a88", fontSize: 10, margin: 0 }}>Assist: Martinelli</p>
@@ -137,7 +139,9 @@ const TOUR_SLIDES = [
           ))}
         </div>
         <div style={{ background: "#162030", border: "1px solid #1e2d42", borderRadius: 10, padding: 12, display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 22 }}>📧</span>
+          <span style={{ width: 34, height: 34, borderRadius: 10, background: "rgba(245,158,11,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><polyline points="3,7 12,13 21,7" /></svg>
+          </span>
           <div>
             <p style={{ color: "white", fontSize: 12, fontWeight: 700, margin: 0 }}>Email reminder</p>
             <p style={{ color: "#4d6a88", fontSize: 10, margin: 0 }}>24 hours before GW1 deadline</p>
@@ -145,7 +149,10 @@ const TOUR_SLIDES = [
           <span style={{ marginLeft: "auto", fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 5, background: "#0f2010", color: "#4ade80", border: "1px solid #1a4020" }}>Active</span>
         </div>
         <div style={{ background: "#1a1200", border: "1px solid #3d2800", borderRadius: 10, padding: 12 }}>
-          <p style={{ color: "#f59e0b", fontSize: 12, fontWeight: 700, margin: "0 0 4px" }}>⚡ Ready to connect?</p>
+          <p style={{ color: "#f59e0b", fontSize: 12, fontWeight: 700, margin: "0 0 4px", display: "flex", alignItems: "center", gap: 6 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="#f59e0b" aria-hidden="true"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" /></svg>
+            Ready to connect?
+          </p>
           <p style={{ color: "#a07030", fontSize: 11, margin: 0 }}>Link your FPL team to see your real squad, captain picks and mini league standings.</p>
         </div>
       </div>
@@ -253,7 +260,7 @@ export default function LandingGate({ children }: { children: React.ReactNode })
   if (hasTeam) return <>{children}</>;
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden w-full">
+    <div className="flex flex-col overflow-x-hidden w-full" style={{ minHeight: "calc(100dvh - 72px - env(safe-area-inset-bottom))" }}>
 
       {/* Hero */}
       {step === "hero" && (
@@ -349,59 +356,72 @@ export default function LandingGate({ children }: { children: React.ReactNode })
         const slide = TOUR_SLIDES[tourSlide];
         const isLast = tourSlide === TOUR_SLIDES.length - 1;
         return (
-          <div className="flex-1 flex flex-col px-5 pt-5 pb-6" style={{ maxWidth: 440, margin: "0 auto", width: "100%" }}>
-            {/* Progress dots */}
-            <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
-              {TOUR_SLIDES.map((_, i) => (
-                <div key={i} style={{ height: 3, flex: 1, borderRadius: 2, background: i <= tourSlide ? "#f59e0b" : "#1e2d42", transition: "background 0.2s" }} />
-              ))}
+          <div className="flex-1 flex flex-col w-full max-w-md mx-auto px-5 pt-6 pb-8">
+            {/* Progress */}
+            <div className="flex items-center gap-3 mb-7">
+              <div className="flex gap-1.5 flex-1" role="progressbar" aria-valuemin={1} aria-valuemax={TOUR_SLIDES.length} aria-valuenow={tourSlide + 1}>
+                {TOUR_SLIDES.map((_, i) => (
+                  <div key={i} className="h-1 flex-1 rounded-full" style={{
+                    background: i <= tourSlide ? "#f59e0b" : "#1e3050",
+                    boxShadow: i === tourSlide ? "0 0 10px rgba(245,158,11,0.6)" : "none",
+                    transition: "background-color 250ms, box-shadow 250ms",
+                  }} />
+                ))}
+              </div>
+              <span className="text-[11px] font-semibold tabular-nums" style={{ color: "#6688aa" }}>{tourSlide + 1}/{TOUR_SLIDES.length}</span>
             </div>
 
-            {/* Header */}
-            <p className="text-[11px] font-bold tracking-[0.12em] uppercase mb-1" style={{ color: "#f59e0b" }}>{slide.tag}</p>
-            <h2 className="text-xl font-extrabold text-white mb-1 leading-tight">{slide.title}</h2>
-            <p className="text-sm mb-4 leading-relaxed" style={{ color: "#4d6a88" }}>{slide.desc}</p>
+            <div key={tourSlide} className="flex-1 flex flex-col animate-fade-up">
+              {/* Header */}
+              <p className="eyebrow mb-2" style={{ color: "#f59e0b" }}>{slide.tag}</p>
+              <h2 className="text-[26px] font-black text-white mb-2 leading-tight tracking-tight">{slide.title}</h2>
+              <p className="text-[15px] mb-6 leading-relaxed" style={{ color: "#8aa4c2" }}>{slide.desc}</p>
 
-            {/* Slide content */}
-            <div className="flex-1">{slide.content}</div>
+              {/* Slide content */}
+              <div className="card p-3.5">{slide.content}</div>
+            </div>
 
             {/* Footer buttons */}
-            <div className="mt-4 space-y-3">
+            <div className="mt-8 space-y-3">
               {isLast ? (
                 <>
                   <button
                     onClick={() => setStep("manual")}
-                    className="w-full py-3.5 rounded-xl text-sm font-bold"
-                    style={{ background: "#f59e0b", color: "#000" }}
+                    className="w-full h-14 rounded-full text-[15px] font-bold"
+                    style={{ background: "#f59e0b", color: "#000", boxShadow: "0 10px 30px -8px rgba(245,158,11,0.65)" }}
                   >
                     Connect my FPL team
                   </button>
                   <button
                     onClick={skip}
-                    className="w-full py-3 rounded-xl text-sm font-semibold"
-                    style={{ background: "#162030", color: "#6688aa", border: "1px solid #1e2d42" }}
+                    className="w-full h-12 rounded-full text-sm font-semibold"
+                    style={{ background: "#162030", color: "#c8d4e3", border: "1px solid #1e3050" }}
                   >
                     Continue without connecting
                   </button>
                 </>
               ) : (
-                <div style={{ display: "flex", gap: 10 }}>
+                <div className="flex gap-2.5">
                   <button
                     onClick={() => tourSlide === 0 ? setStep("hero") : setTourSlide(tourSlide - 1)}
-                    style={{ background: "#162030", color: "#c8d8e8", border: "1px solid #2a3d55", borderRadius: 12, padding: "14px 20px", fontSize: 14, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
+                    className="h-14 pl-4 pr-5 rounded-full inline-flex items-center gap-1.5 text-sm font-bold whitespace-nowrap"
+                    style={{ background: "#162030", color: "#c8d4e3", border: "1px solid #1e3050" }}
                   >
-                    ← Back
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="15,18 9,12 15,6" /></svg>
+                    Back
                   </button>
                   <button
                     onClick={() => setTourSlide(tourSlide + 1)}
-                    style={{ flex: 1, background: "#f59e0b", color: "#000", border: "none", borderRadius: 12, padding: 14, fontSize: 14, fontWeight: 700, cursor: "pointer" }}
+                    className="flex-1 h-14 rounded-full inline-flex items-center justify-center gap-1.5 text-[15px] font-bold"
+                    style={{ background: "#f59e0b", color: "#000", boxShadow: "0 10px 30px -8px rgba(245,158,11,0.65)" }}
                   >
-                    Next →
+                    Next
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="9,18 15,12 9,6" /></svg>
                   </button>
                 </div>
               )}
               {!isLast && (
-                <button onClick={skip} className="w-full text-center text-xs py-1" style={{ color: "#3d5570" }}>
+                <button onClick={skip} className="w-full h-11 text-center text-xs font-medium underline underline-offset-2" style={{ color: "#6688aa" }}>
                   Skip — take me in
                 </button>
               )}
