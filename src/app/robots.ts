@@ -7,7 +7,8 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/reset-password", "/settings"],
+        // /api/ must stay crawlable: Googlebot renders pages like /live that load their data from it
+        disallow: ["/reset-password", "/settings"],
       },
     ],
     sitemap: "https://www.fpldeadlineday.com/sitemap.xml",
