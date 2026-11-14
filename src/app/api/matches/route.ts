@@ -66,7 +66,8 @@ function gwIsFullyDone(fixtures: ReturnType<typeof formatFixture>[]): boolean {
 async function getFixturesByRound(season: number, round: number) {
   const res = await fetch(
     `${BASE}/fixtures?league=${PL_LEAGUE}&season=${season}&round=Regular+Season+-+${round}`,
-    { headers: HEADERS, cache: "no-store" }
+    // Shared server cache: one API-Football call per 30s for all visitors, not one per visitor
+    { headers: HEADERS, next: { revalidate: 30 } }
   );
   if (!res.ok) return [];
   const data = await res.json();
@@ -76,7 +77,7 @@ async function getFixturesByRound(season: number, round: number) {
 async function getCurrentRound(season: number): Promise<number> {
   const res = await fetch(
     `${BASE}/fixtures/rounds?league=${PL_LEAGUE}&season=${season}&current=true`,
-    { headers: HEADERS, cache: "no-store" }
+    { headers: HEADERS, next: { revalidate: 300 } }
   );
   if (!res.ok) return 1;
   const data = await res.json();

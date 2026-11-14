@@ -8,10 +8,11 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
   const { id } = await params;
 
   try {
+    // Shared server cache: one set of API-Football calls per 60s per match for all visitors
     const [fixtureRes, lineupsRes, eventsRes] = await Promise.all([
-      fetch(`${BASE}/fixtures?id=${id}`, { headers: HEADERS, cache: "no-store" }),
-      fetch(`${BASE}/fixtures/lineups?fixture=${id}`, { headers: HEADERS, cache: "no-store" }),
-      fetch(`${BASE}/fixtures/events?fixture=${id}`, { headers: HEADERS, cache: "no-store" }),
+      fetch(`${BASE}/fixtures?id=${id}`, { headers: HEADERS, next: { revalidate: 60 } }),
+      fetch(`${BASE}/fixtures/lineups?fixture=${id}`, { headers: HEADERS, next: { revalidate: 60 } }),
+      fetch(`${BASE}/fixtures/events?fixture=${id}`, { headers: HEADERS, next: { revalidate: 60 } }),
     ]);
 
     if (!fixtureRes.ok) return NextResponse.json({ error: "Match not found" }, { status: 404 });

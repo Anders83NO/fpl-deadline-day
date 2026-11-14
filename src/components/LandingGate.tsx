@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Logo from "@/components/Logo";
 import AuthModal from "@/components/AuthModal";
 import DeadlineCountdown from "@/components/DeadlineCountdown";
@@ -197,6 +198,10 @@ function PreviewPlayer({ name, code, gk, pts, captain }: { name: string; code: n
   );
 }
 
+// Pages that work without a connected team. "/" and personal pages (My Team, Plan, Settings…) show the landing page.
+// /live is the public Live page that search engines index for live-score searches.
+const PUBLIC_PATHS = ["/live", "/match", "/stats", "/players", "/about"];
+
 export default function LandingGate({ children }: { children: React.ReactNode }) {
   const [hasTeam, setHasTeam] = useState<boolean | null>(null);
   const [step, setStep] = useState<"hero" | "tour" | "search" | "confirm" | "manual">("hero");
@@ -208,6 +213,9 @@ export default function LandingGate({ children }: { children: React.ReactNode })
   const [manualId, setManualId] = useState("");
   const [manualError, setManualError] = useState("");
   const [showAuth, setShowAuth] = useState(false);
+  const [openedFromPublic, setOpenedFromPublic] = useState(false);
+  const pathname = usePathname();
+  const isPublicPage = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
 
   useEffect(() => {
     setHasTeam(!!localStorage.getItem("fpl_team_id"));
@@ -280,6 +288,32 @@ export default function LandingGate({ children }: { children: React.ReactNode })
   }
 
   // Still loading from localStorage
+  // Public pages (matches, stats…) are readable by everyone, including search engines.
+  // Visitors get a slim "connect" banner instead of the full-screen gate.
+  if (isPublicPage && !hasTeam && !openedFromPublic) {
+    return (
+      <>
+        {children}
+        {hasTeam === false && (
+          <div className="fixed left-0 right-0 z-40 px-3 animate-fade-up" style={{ bottom: "calc(80px + env(safe-area-inset-bottom))" }}>
+            <div className="max-w-lg mx-auto flex items-center gap-3 pl-4 pr-2 py-2 rounded-2xl"
+              style={{ background: "rgba(22,32,48,0.97)", backdropFilter: "blur(12px)", border: "1px solid rgba(245,158,11,0.35)", boxShadow: "0 12px 30px -10px rgba(0,0,0,0.8)" }}>
+              <p className="flex-1 text-xs leading-snug" style={{ color: "#c8d4e3" }}>
+                <span className="font-bold text-white">See your own team here.</span> Live points, captain and transfers.
+              </p>
+              <button
+                onClick={() => { track("cta_click", { cta: "connect", location: "public_banner", page: pathname.split("/")[1] || "home" }); setStep("manual"); setOpenedFromPublic(true); }}
+                className="h-10 px-4 rounded-full text-xs font-bold flex-shrink-0"
+                style={{ background: "#f59e0b", color: "#000" }}>
+                Connect
+              </button>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
+
   if (hasTeam === null) return null;
 
   // Already connected — render the app
@@ -554,7 +588,7 @@ export default function LandingGate({ children }: { children: React.ReactNode })
       {step === "manual" && (
         <div className="flex-1 flex flex-col w-full max-w-md mx-auto px-5 pt-6 animate-fade-up">
           <div className="flex items-center justify-between gap-3 mb-6">
-            <button onClick={() => setStep("hero")}
+            <button onClick={() => openedFromPublic ? setOpenedFromPublic(false) : setStep("hero")}
               aria-label="Back"
               className="w-9 h-9 flex items-center justify-center rounded-full flex-shrink-0"
               style={{ background: "#162030", border: "1px solid #1e3050", color: "#c8d4e3" }}>

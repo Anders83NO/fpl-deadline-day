@@ -11,6 +11,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1.0,
     },
     {
+      url: `${base}/live`,
+      lastModified: new Date(),
+      changeFrequency: "hourly",
+      priority: 0.95,
+    },
+    {
       url: `${base}/transfers`,
       lastModified: new Date(),
       changeFrequency: "daily",

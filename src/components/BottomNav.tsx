@@ -14,7 +14,7 @@ const tabs = [
       <path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
     </svg>
   )},
-  { href: "/", label: "Live", icon: (active: boolean) => (
+  { href: "/live", label: "Live", icon: (active: boolean) => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={active ? "#f59e0b" : "#7799bb"} strokeWidth={active ? 2.1 : 1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16"/>
     </svg>
@@ -41,7 +41,7 @@ export default function BottomNav() {
       style={{ borderTop: "1px solid rgba(30,48,80,0.7)", paddingBottom: "env(safe-area-inset-bottom)" }}>
       <div className="flex h-[72px] max-w-lg mx-auto px-2">
         {tabs.map((tab) => {
-          const active = pathname === tab.href;
+          const active = pathname === tab.href || (tab.href === "/live" && pathname === "/");
           return (
             <Link
               key={tab.href}

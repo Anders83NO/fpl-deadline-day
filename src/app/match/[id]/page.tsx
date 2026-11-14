@@ -512,7 +512,7 @@ export default function MatchPage() {
 
       {/* Back */}
       <div className="px-4 pt-4 pb-3">
-        <Link href="/" className="inline-flex items-center gap-1.5 h-9 pl-2.5 pr-3.5 rounded-full text-xs font-semibold"
+        <Link href="/live" className="inline-flex items-center gap-1.5 h-9 pl-2.5 pr-3.5 rounded-full text-xs font-semibold"
           style={{ background: "#162030", border: "1px solid #1e3050", color: "#c8d4e3" }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="15,18 9,12 15,6" /></svg>
           Matches
