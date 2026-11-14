@@ -314,13 +314,14 @@ export default function LandingGate({ children }: { children: React.ReactNode })
     );
   }
 
-  if (hasTeam === null) return null;
-
+  // hasTeam === null means we haven't read localStorage yet (server render / first paint).
+  // We still render the landing page so search engines and AI crawlers get real text;
+  // a pre-paint script in layout.tsx hides it for visitors who already connected a team.
   // Already connected — render the app
   if (hasTeam) return <>{children}</>;
 
   return (
-    <div className="flex flex-col overflow-x-hidden w-full" style={{ minHeight: "calc(100dvh - 72px - env(safe-area-inset-bottom))" }}>
+    <div className={`flex flex-col overflow-x-hidden w-full${hasTeam === null ? " landing-ssr" : ""}`} style={{ minHeight: "calc(100dvh - 72px - env(safe-area-inset-bottom))" }}>
 
       {/* Hero */}
       {step === "hero" && (

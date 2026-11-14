@@ -90,6 +90,11 @@ input[aria-invalid="true"], input[aria-invalid="true"]:focus {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 }
 
+/* Connected visitors: hide the server-rendered landing page before first paint */
+.has-team .landing-ssr {
+  display: none;
+}
+
 /* ── Surfaces ── */
 .card {
   background: linear-gradient(180deg, #182436 0%, var(--bg-card) 100%);

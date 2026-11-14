@@ -41,14 +41,48 @@ export const viewport = {
   userScalable: false,
 };
 
+const STRUCTURED_DATA = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://fpldeadlineday.com/#website",
+      name: "FPL Deadline Day",
+      url: "https://fpldeadlineday.com",
+      inLanguage: "en",
+    },
+    {
+      "@type": "WebApplication",
+      "@id": "https://fpldeadlineday.com/#app",
+      name: "FPL Deadline Day",
+      url: "https://fpldeadlineday.com",
+      applicationCategory: "SportsApplication",
+      operatingSystem: "Web",
+      description:
+        "Free web app for Fantasy Premier League (FPL) managers: live Premier League scores, transfer planner, deadline email reminders, player stats and gameweek history. No ads.",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "GBP" },
+      featureList: [
+        "Live Premier League scores per gameweek",
+        "FPL transfer planner with pitch view",
+        "Gameweek deadline email reminders",
+        "FPL player stats and scout tips",
+        "Gameweek history",
+      ],
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geist.variable} h-full antialiased`}>
+    <html lang="en" className={`${geist.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
+        {/* Runs before first paint: hides the server-rendered landing page for connected visitors */}
+        <script dangerouslySetInnerHTML={{ __html: `try{if(localStorage.getItem("fpl_team_id"))document.documentElement.classList.add("has-team")}catch(e){}` }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }} />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-YP3CB75NB6" />
         <script dangerouslySetInnerHTML={{ __html: `
           window.dataLayer = window.dataLayer || [];
