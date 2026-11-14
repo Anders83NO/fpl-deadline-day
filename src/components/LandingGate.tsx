@@ -506,33 +506,45 @@ export default function LandingGate({ children }: { children: React.ReactNode })
 
       {/* Manual ID step */}
       {step === "manual" && (
-        <div className="flex-1 flex flex-col px-6 pt-12">
+        <div className="flex-1 flex flex-col w-full max-w-md mx-auto px-5 pt-6 animate-fade-up">
           <button onClick={() => { setStep("search"); setFallback(false); }}
-            className="flex items-center gap-1.5 text-xs mb-6" style={{ color: "#6688aa" }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15,18 9,12 15,6" /></svg>
+            className="self-start inline-flex items-center gap-1.5 h-9 pl-2.5 pr-3.5 rounded-full text-xs font-semibold mb-6"
+            style={{ background: "#162030", border: "1px solid #1e3050", color: "#c8d4e3" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="15,18 9,12 15,6" /></svg>
             Back to search
           </button>
 
           <ManualIdGuide />
 
-          <input
-            type="number"
-            value={manualId}
-            onChange={(e) => setManualId(e.target.value)}
-            placeholder="e.g. 1213119"
-            autoFocus
-            className="w-full px-4 py-3 rounded-xl text-sm text-white outline-none mb-2"
-            style={{ background: "#1a2538", border: "1px solid #1e3050" }}
-          />
-          {manualError && <p className="text-xs mb-2" style={{ color: "#ef4444" }}>{manualError}</p>}
-          <button onClick={confirmManual}
-            className="w-full py-3.5 rounded-xl text-sm font-bold"
-            style={{ background: "#f59e0b", color: "#000" }}>
-            Connect my team
-          </button>
+          <form onSubmit={(e) => { e.preventDefault(); confirmManual(); }} className="mt-5">
+            <input
+              type="number"
+              inputMode="numeric"
+              aria-label="FPL Team ID"
+              aria-invalid={!!manualError}
+              aria-describedby={manualError ? "manual-id-error" : undefined}
+              value={manualId}
+              onChange={(e) => setManualId(e.target.value)}
+              placeholder="e.g. 1213119"
+              autoFocus
+              className="w-full h-14 px-5 rounded-2xl text-lg font-semibold tabular-nums tracking-wide text-white outline-none placeholder:font-normal placeholder:text-[#3d5570]"
+              style={{ background: "#121b29", border: `1.5px solid ${manualError ? "#ef4444" : "#1e3050"}` }}
+            />
+            {manualError && (
+              <p id="manual-id-error" role="alert" className="flex items-center gap-1.5 text-xs mt-2 px-1" style={{ color: "#ef4444" }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+                {manualError}
+              </p>
+            )}
+            <button type="submit"
+              className="w-full h-14 mt-3 rounded-full text-[15px] font-bold"
+              style={{ background: "#f59e0b", color: "#000", boxShadow: "0 10px 30px -8px rgba(245,158,11,0.65)" }}>
+              Connect my team
+            </button>
+          </form>
 
-          <div className="mt-auto pb-6 pt-4">
-            <button onClick={skip} className="w-full text-center text-xs py-2" style={{ color: "#3d5570" }}>
+          <div className="mt-auto pb-8 pt-6">
+            <button onClick={skip} className="w-full h-11 text-center text-xs font-medium underline underline-offset-2" style={{ color: "#6688aa" }}>
               Skip — explore without connecting
             </button>
           </div>
@@ -573,18 +585,27 @@ export default function LandingGate({ children }: { children: React.ReactNode })
 }
 
 function ManualIdGuide() {
+  const step = (n: number, body: React.ReactNode) => (
+    <li className="flex items-start gap-3">
+      <span className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0 tabular-nums"
+        style={{ background: "rgba(245,158,11,0.12)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }}>{n}</span>
+      <span className="text-[13px] leading-relaxed pt-0.5" style={{ color: "#8aa4c2" }}>{body}</span>
+    </li>
+  );
   return (
-    <div className="rounded-xl p-4 mb-4" style={{ background: "#1a2538", border: "1px solid #1e3050" }}>
-      <p className="text-xs font-semibold mb-2" style={{ color: "#f59e0b" }}>How to find your Team ID</p>
-      <ol className="text-xs space-y-1" style={{ color: "#6688aa" }}>
-        <li>1. Open <strong className="text-white">fantasy.premierleague.com</strong> in a browser and log in</li>
-        <li>2. Click <strong className="text-white">Pick Team</strong></li>
-        <li>3. Click <strong className="text-white">Gameweek History</strong></li>
-        <li>4. Your ID is the number in the URL after <span className="font-mono text-white">/entry/</span>:</li>
+    <div className="card p-5">
+      <h2 className="text-lg font-bold text-white mb-4">How to find your Team ID</h2>
+      <ol className="space-y-3">
+        {step(1, <>Open <strong className="text-white font-semibold">fantasy.premierleague.com</strong> in a browser and log in</>)}
+        {step(2, <>Click <strong className="text-white font-semibold">Pick Team</strong></>)}
+        {step(3, <>Click <strong className="text-white font-semibold">Gameweek History</strong></>)}
+        {step(4, <>Your ID is the number in the URL after <span className="font-mono text-white">/entry/</span>:</>)}
       </ol>
-      <p className="font-mono text-[11px] mt-2 px-2 py-1.5 rounded" style={{ background: "#0f1520", color: "#f59e0b" }}>
-        …/entry/<strong>354716</strong>/history
-      </p>
+      <div className="mt-4 flex items-center gap-2 h-11 px-3 rounded-xl font-mono text-[12px] overflow-x-auto whitespace-nowrap"
+        style={{ background: "#0f1520", border: "1px solid #1e3050", color: "#6688aa" }}>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="flex-shrink-0"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+        <span>…/entry/<strong className="px-1 py-0.5 rounded font-bold" style={{ background: "rgba(245,158,11,0.15)", color: "#f59e0b" }}>354716</strong>/history</span>
+      </div>
     </div>
   );
 }

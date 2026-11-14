@@ -85,6 +85,11 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
 }
 
+input[aria-invalid="true"], input[aria-invalid="true"]:focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
 /* ── Surfaces ── */
 .card {
   background: linear-gradient(180deg, #182436 0%, var(--bg-card) 100%);
